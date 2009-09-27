@@ -42,7 +42,7 @@ child pages. Tables are composed of linked thumbnail pictures based a
 custom field in each child page, or the child page's attached picture.
 Example:
 
-   [autonav display="images" pics_only="1"]
+    [autonav display="images" pics_only="1"]
 
 displays a table of the current page's child pages.  Only child pages
 that have associated pictures will be displayed.  The table will have
@@ -127,15 +127,15 @@ Create a Custom Field called subpage_title for the page.  Set it to what you wou
 
 In navigation mode, when a list is selected:
 
-   <ul> elements have class: subpages-list
-   <li> elements have class: subpages-item
+   * ul elements have class: subpages-list
+   * li elements have class: subpages-item
 
 In table modes:
 
-   <table> elements: subpages-table
-   <tr> elements: subpages-row
-   <td> elements: subpages-cell
-   <p> elements inside each <td>: subpages-text
+   * table elements: subpages-table
+   * tr elements: subpages-row
+   * td elements: subpages-cell
+   * p elements inside each <td>: subpages-text
 
 == Changelog ==
 
