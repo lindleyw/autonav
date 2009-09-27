@@ -10,6 +10,55 @@ Plugin has two modes. In navigation mode: Creates a list or table of the current
 
 == Description ==
 
+Auto Graphics Site Navigation with Gallery
+
+I wrote this plugin to make it easy for me to write graphical page-based Wordpress sites.  I wanted to address these issues:
+
+  * I wanted to create websites with many nested pages, and permit the
+    user to navigate among them by clicking on pictures within the
+    pages, rather than having to use the Page List.  I wanted to list
+    child pages in tables, and have the size of the tables, and the
+    number of rows, automatically computed to fit my layout, based on
+    the thumbnail sizes.
+
+  * I wanted the thumbnail pictures, and the galleries of pictures I
+    added in each page, to have be automatically resized either
+    through a single default setting in the Wordpress administration
+    page, or by specifying a size in a page I was editing.  I further
+    wanted those thumbnails to be automatically generated, or
+    regenerated, so there would never be a missing image.
+
+  * I wanted to put all the images for a specific page, in a single
+    directory under the wp-content/uploads directory.  This makes it
+    easy to add or remove images from FTP or from a command line.  It
+    also makes it possible to move an image from one page to another
+    -- which is maddeningly difficult if not impossible using
+    Wordpress's built-in Attachment system.
+
+This plugin does all that, with two modes.
+
+In navigation mode: Creates a list or table of the current page's
+child pages. Tables are composed of linked thumbnail pictures based a
+custom field in each child page, or the child page's attached picture.
+Example:
+
+   [autonav display="images" pics_only="1"]
+
+displays a table of the current page's child pages.  Only child pages
+that have associated pictures will be displayed.  The table will have
+3 or 4 columns depending on the default size of the thumbnails and
+depending on the column settings in the Wordpress administration
+screen.
+
+In gallery mode: Creates one or more tables of linked thumbnail
+pictures based on the current page's attachments, or on specified
+directories of picture files under the uploads directory. Example:
+
+    [autonav display="/project2" include="32,37,56"]
+
+Displays a table, with a gallery of three pictures from the
+wp-content/uploads/project2 directory, in the specified order.
+
 Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
 
      display="x"     Chooses a display mode based on "x" as follows:
@@ -25,6 +74,7 @@ Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
 		     300x200 -- force images to be resized and cropped to exact size
 		     auto -- uses settings from autonav control panel
      titles="1"      Displays page titles below images if 1 (default: "0")
+     pics_only="1"   When displaying child pages, only show those with associated images
      include="1,7"   The resulting table will have only two pictures, the first
 		     found ending in "1" and "7" -- note that because both 1 and 7
 		     are numeric, the image "pic11.jpg" would not be included, but
@@ -47,14 +97,31 @@ Parameters not specified will be taken from the values set in the WordPress admi
 
 This section describes how to install the plugin and get it working.
 
-e.g.
-
 1. Create the autonav-wl directory in the `/wp-content/plugins/` directory,
    and place the plugin files there.
 2. Activate the plugin through the administration menus in Wordpress.
 3. Configure the plugin under Settings in the Wordpress administration menu.
 
 == Frequently Asked Questions ==
+
+= How do I set the thumbnail for a page? =
+
+By default, the thumbnail for a child page is assumed to be its first
+attached image.  If you wish to override this, create a Custom Field
+called subpage_thumb for the page.  Set it to either a URL:
+
+    http://www.example.com/images/thumbnail3.jpg
+
+or to a local file (assumed to be under the uploads directory of your wp-content):
+
+    optional_directory/picture3.jpg
+
+In the latter case, point to the full-sized image, and the thumbnail
+will automatically be resized.
+
+= How do I override the title for a child page? =
+
+Create a Custom Field called subpage_title for the page.  Set it to what you would like displayed in the table or list of child pages.
 
 = What CSS classes does this plugin create? =	    
 
