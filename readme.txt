@@ -90,6 +90,7 @@ Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
+     exclude="3,5"   Excludes pages with ID 3 and 5 from the list (with display="list")
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
@@ -135,7 +136,7 @@ In table modes:
    * table elements: subpages-table
    * tr elements: subpages-row
    * td elements: subpages-cell
-   * p elements inside each <td>: subpages-text
+   * p elements inside each td: subpages-text
 
 == Changelog ==
 

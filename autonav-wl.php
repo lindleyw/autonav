@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.0
+Version: 1.1
 Author URI: http://www.wlindley.com/
   */
 
@@ -288,6 +288,9 @@ function get_subpages ($attr) {
 
   $child_of = $post->ID;
   $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
+  if (strlen ($attr['exclude'])) {
+    $query .= "&exclude=" . $attr['exclude'];
+  }
   $pages = & get_pages($query);
   if (count($pages) == 0) {
     return;
@@ -516,6 +519,10 @@ function autonav_wloptions_do_page() {
 <td><input name="autonav_wl[orderby]" type="text" value="<?php echo $options['orderby']; ?>" />
 (<a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">List of possible values</a>
  <small><em>from wordpress.org</em></small> )</tr>
+
+<tr valign="top"><th scope="row">List of page IDs to exclude</th>
+<td><input name="autonav_wl[exclude]" type="text" value="<?php echo $options['exclude']; ?>" /></tr>
+
 <tr valign="top"><th scope="row">Display Titles Under Images</th>
 <td><input name="autonav_wl[titles]" type="checkbox" value="1" <?php checked('1', $options['titles']); ?> /></td>
 </tr>
@@ -604,6 +611,7 @@ function autonav_wloptions_validate($input) {
   $input['crop'] =  ( $input['crop'] == 1 ? 1 : 0 );  // 1 = crop, 0 = fit
   $input['columns'] =  intval($input['columns']);
   if ($input['columns'] == 0) { $input['columns'] = 3; }
+  $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
   return $input;
 }
 
