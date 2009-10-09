@@ -143,3 +143,5 @@ In table modes:
 = 1.0 =
 * Initial version on wordpress.org
 
+= 1.1 =
+* Add page exclude parameter
