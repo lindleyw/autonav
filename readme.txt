@@ -145,3 +145,6 @@ In table modes:
 
 = 1.1 =
 * Add page exclude parameter
+
+= 1.1.1 =
+* Resolve resize warnings when PNG images included

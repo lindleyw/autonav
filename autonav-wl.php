@@ -83,7 +83,13 @@ function resize_crop (&$attr, $prefix) {
     $to_file_url = trailingslashit($wp_dir['baseurl']) . $to_file;
 
     // Resample
-    $from_image = imagecreatefromjpeg($pic_full_path);
+    if (preg_match("#jp#", $ext)) {
+      $from_image = imagecreatefromjpeg($pic_full_path);
+    } elseif (preg_match("#png#", $ext)) {
+      $from_image = imagecreatefrompng($pic_full_path);
+    } else {
+      return;
+    }
     $to_image = imagecreatetruecolor($dst_w, $dst_h);
     // Create image in memory:
     imagecopyresampled( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
