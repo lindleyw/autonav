@@ -148,3 +148,6 @@ In table modes:
 
 = 1.1.1 =
 * Resolve resize warnings when PNG images included
+
+= 1.1.2 =
+* Display=attached could result in error; corrected.
