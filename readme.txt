@@ -91,6 +91,8 @@ Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
      exclude="3,5"   Excludes pages with ID 3 and 5 from the list (with display="list")
+     postid="123"    Displays images or subpages attached to the page or post
+     		     with the given ID, instead of the current page or post.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
@@ -113,7 +115,8 @@ called subpage_thumb for the page.  Set it to either a URL:
 
     http://www.example.com/images/thumbnail3.jpg
 
-or to a local file (assumed to be under the uploads directory of your wp-content):
+or to a local file (assumed to be under the uploads directory of your
+wp-content):
 
     optional_directory/picture3.jpg
 
@@ -122,7 +125,8 @@ will automatically be resized.
 
 = How do I override the title for a child page? =
 
-Create a Custom Field called subpage_title for the page.  Set it to what you would like displayed in the table or list of child pages.
+Create a Custom Field called subpage_title for the page.  Set it to
+what you would like displayed in the table or list of child pages.
 
 = What CSS classes does this plugin create? =	    
 
@@ -138,6 +142,17 @@ In table modes:
    * td elements: subpages-cell
    * p elements inside each td: subpages-text
 
+= I updated the plugin, but the new parameters are not recognized. =
+
+Go through the Autonav Options on the Wordpress administration screen
+once, and save the options. That will add the new parameter names to
+the list of recognized ones.
+
+= Can I disable certain attached images? =
+
+Yes, using the Media Library in the admin screens, set an image's Order
+to -101 or less, and it will not be shown with [autonav display=attached]
+
 == Changelog ==
 
 = 1.0 =
@@ -151,3 +166,8 @@ In table modes:
 
 = 1.1.2 =
 * Display=attached could result in error; corrected.
+
+= 1.1.3 =
+* Add postid="n" parameter.
+* Attached images with a menu_order of less than -100 will not be
+  displayed.  This is the "Order" you can set in the media library.

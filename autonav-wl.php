@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.1.2
+Version: 1.1.3
 Author URI: http://www.wlindley.com/
   */
 
@@ -268,17 +268,18 @@ function get_images_attached($attr, $pid, $limit) {
   $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
                                     'numberposts' => $limit >= 1 ? $limit : -1,
                                     'post_type' => 'attachment', 'post_mime_type' => 'image'));
-  //                                'orderby' => $attr['orderby'], 'order' => 'ASC'));                          
+  //                                'orderby' => $attr['orderby'], 'order' => 'ASC'));
   if (empty ($attachments)) return $pics_info;
 
   foreach ($attachments as $id => $attach_info) {
     $attached_pic = get_attached_file($id);
-    if ($attached_pic == '') continue; // cannot find the attachment                                            
-    $pic_info = create_images_for($attr, $attached_pic); // get_images_from_folder($attr);                      
+    if ($attached_pic == '') continue; // cannot find the attachment
+    if ($attach_info->menu_order < -100) continue; // permit disabling images via menu_order
+    $pic_info = create_images_for($attr, $attached_pic); // get_images_from_folder($attr);
     if (is_array($pic_info)) {
-      $post_info = get_post($id); // the attachment's post                                                      
-      $pic_info['title'] = $post_info->post_excerpt; // Attachment caption stored here                          
-      $pic_info['description'] = $post_info->post_content; // and description                                   
+      $post_info = get_post($id); // the attachment's post
+      $pic_info['title'] = $post_info->post_excerpt; // Attachment caption stored here
+      $pic_info['description'] = $post_info->post_content; // and description
       $pic_info['alt_text'] = $post_info->post_title;
       $pics_info[] = $pic_info;
     }
@@ -292,7 +293,10 @@ function get_images_attached($attr, $pid, $limit) {
 function get_subpages ($attr) {
   global $post;
 
-  $child_of = $post->ID;
+  $child_of = $attr['postid'];
+  if (!$child_of) {
+    $child_of = $post->ID;
+  }
   $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
   if (strlen ($attr['exclude'])) {
     $query .= "&exclude=" . $attr['exclude'];
@@ -343,7 +347,7 @@ function get_subpages ($attr) {
 
 function prepare_picture (&$pic) {
   $wp_dir = wp_upload_dir();
-  $pic['content'] = '<img src="' . $pic['image_url'] . '" ' . 
+  $pic['content'] = '<img src="' . $pic['image_url'] . '" ' .
     image_hwstring($pic['width'],$pic['height']) . '>';
   if ($pic['permalink'] == '') {
     if ($pic['linkto'] == 'pic') {
@@ -367,7 +371,7 @@ function create_output($attr, $pic_info) {
   } else {  // Produce table output
 
     $viewer = $attr['imgrel'];
-    $class = $attr['class']; 
+    $class = $attr['class'];
     if ($class == '') {
       $class = 'subpages';
     }
@@ -430,13 +434,13 @@ function autonav_wl_shortcode($attr) {
 
   // NOTE: This function can be added as a filter to override the standard Gallery shortcode.
   // In that case, this function may return an empty string to restore default behavior.
-  
+
   $options = get_option('autonav_wl');
 
   // ~~~ Default values should come from our saved configuration
   $attr = (shortcode_atts($options, $attr));
 
-  // display can be: 'images' or 'list' (for child pages), '/folder' for images from directory, 
+  // display can be: 'images' or 'list' (for child pages), '/folder' for images from directory,
   // or the default 'attached' for table of attached images
 
   if (!preg_match('#(\d+)x(\d+)#',$attr['size'],$size)) {
@@ -460,7 +464,11 @@ function autonav_wl_shortcode($attr) {
     $pic_info = get_subpages($attr);
   } elseif ($attr['display'] == 'attached') {
     $attr['linkto'] = 'pic';
-    $pic_info = get_images_attached($attr, $post->ID, 0);
+    $post_id = $attr['postid'];
+    if (!$post_id) {
+      $post_id = $post->ID;
+    }
+    $pic_info = get_images_attached($attr, $post_id, 0);
   } else {
     $attr['linkto'] = 'pic';
     $pic_info = get_images_from_folder($attr);
@@ -499,17 +507,17 @@ function autonav_wloptions_do_page() {
   <div class="wrap">
     <h2>Autonav Options</h2>
 <form method="post" action="options.php">
-<?php 
+<?php
     settings_fields('autonav_wloptions_options');
-    $options = get_option('autonav_wl'); 
+    $options = get_option('autonav_wl');
     if ($options['combine'] == '') { $options['combine'] = 'all'; }
     if (intval($options['col_large']) < 1) {
-      $options['col_large'] = 2; 
+      $options['col_large'] = 2;
     }
     if (intval($options['col_small']) == 0) {
-      $options['col_small'] = 4; 
+      $options['col_small'] = 4;
     } elseif (intval($options['col_small']) < $options['col_large'] + 1) {
-      $options['col_small'] = $options['col_large'] + 1; 
+      $options['col_small'] = $options['col_large'] + 1;
     }
     if ($options['size_small'] == '') { $options['size_small'] = '120x90'; }
     if ($options['size_med'] == '') { $options['size_med'] = '160x120'; }
@@ -618,6 +626,7 @@ function autonav_wloptions_validate($input) {
   $input['columns'] =  intval($input['columns']);
   if ($input['columns'] == 0) { $input['columns'] = 3; }
   $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
+  $input['postid'] = 0;
   return $input;
 }
 
