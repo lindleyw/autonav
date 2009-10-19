@@ -197,4 +197,7 @@ to rename your original picture before uploading it into Wordpress.
   will display a table consisting of thumbnails linked to the child
   pages, of the pages with ids 7 and 15.
 
+= 1.1.5 =
+Corrected typo
+
 
