@@ -153,6 +153,21 @@ the list of recognized ones.
 Yes, using the Media Library in the admin screens, set an image's Order
 to -101 or less, and it will not be shown with [autonav display=attached]
 
+= Some of my images do not appear. =
+
+If you upload a picture with a filename that resembles Wordpress' resized
+image names, the Autonav plugin may not be able to find it.  For example,
+if you upload a picture called mybike-640x528.jpg, Wordpress will create
+thumbnails and there will be three files in the uploads directory:
+
+	mybike-640x528.jpg
+	mybike-640x528-150x150.jpg
+	mybike-640x528-300x247.jpg
+
+Autonav will not find your "full size" picture, the 640x528 one, because it
+ends in a dash followed by two numbers with an 'x' inbetween.  You will have 
+to rename your original picture before uploading it into Wordpress.
+
 == Changelog ==
 
 = 1.0 =
@@ -171,3 +186,11 @@ to -101 or less, and it will not be shown with [autonav display=attached]
 * Add postid="n" parameter.
 * Attached images with a menu_order of less than -100 will not be
   displayed.  This is the "Order" you can set in the media library.
+
+= 1.1.4 =
+* Regard menu_order in attached files list.
+* Permit parameter:  order=desc   to display attached files in 
+  descending attachment order.
+* Corrected handling of images with capitalized extensions (e.g., .JPG)
+
+

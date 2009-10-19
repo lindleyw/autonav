@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.1.3
+Version: 1.1.4
 Author URI: http://www.wlindley.com/
   */
 
@@ -83,7 +83,7 @@ function resize_crop (&$attr, $prefix) {
     $to_file_url = trailingslashit($wp_dir['baseurl']) . $to_file;
 
     // Resample
-    if (preg_match("#jp#", $ext)) {
+    if (preg_match("#jp#i", $ext)) {
       $from_image = imagecreatefromjpeg($pic_full_path);
     } elseif (preg_match("#png#", $ext)) {
       $from_image = imagecreatefrompng($pic_full_path);
@@ -136,7 +136,8 @@ function get_images_from_folder($attr) {
       $included_files = array();
       $include_list = explode(',',$attr['include']);
       foreach ($include_list as $ifile) {
-	foreach ($sorted_files as $afile) {
+	foreach ($sorted_files as &$afile) {
+          if (!strlen($afile)) continue; // already used this file
 	  $info = pathinfo($afile);
 	  $dir = $info['dirname'];
 	  $ext = $info['extension'];
@@ -152,6 +153,7 @@ function get_images_from_folder($attr) {
 	  // Match exact filename, or suffix
 	  if ($ifile == $afile || $suffix_match) {
 	    $included_files[] = $afile;
+            $afile = ''; // do not consider this file again
 	  }
 	}
       }
@@ -160,6 +162,7 @@ function get_images_from_folder($attr) {
 
     $pic_size_info = array(); // Sizes available for each picture
     $fullsize_pics = array(); // List of full-size images
+    $selected_pics = array();
 
     foreach ($sorted_files as $afile) {
       if (preg_match('#^(.*?)(?:-(\d+x\d+))?\.\w+\Z#',$afile,$filebits)) {
@@ -167,6 +170,7 @@ function get_images_from_folder($attr) {
 	  $pic_size_info[$filebits[1]][$filebits[2]] = $afile;
 	} else {
 	  $fullsize_pics[$filebits[1]] = $afile;
+	  $selected_pics[] = $filebits[1];
 	}
       }
     }
@@ -180,9 +184,9 @@ function get_images_from_folder($attr) {
     // II. Find or create constrained full-size image
     //     
 
-    foreach ($fullsize_pics as $apic_key => $apic) {
+    foreach ($selected_pics as $apic_key) {
       $pic_info = array();
-      $pic_info['pic_full'] = $apic;
+      $pic_info['pic_full'] = $fullsize_pics[$apic_key];
       $pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
       $pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
 
@@ -264,11 +268,12 @@ function get_images_attached($attr, $pid, $limit) {
   if ($pid == 0) {
     $pid = $post->ID;
   }
+  $order = strtolower($attr['order']) == 'desc' ? 'desc' : 'asc';
 
   $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
                                     'numberposts' => $limit >= 1 ? $limit : -1,
-                                    'post_type' => 'attachment', 'post_mime_type' => 'image'));
-  //                                'orderby' => $attr['orderby'], 'order' => 'ASC'));
+                                    'post_type' => 'attachment', 'post_mime_type' => 'image',
+                                    'orderby' => 'menu_order', 'order' => $order));
   if (empty ($attachments)) return $pics_info;
 
   foreach ($attachments as $id => $attach_info) {
@@ -627,6 +632,8 @@ function autonav_wloptions_validate($input) {
   if ($input['columns'] == 0) { $input['columns'] = 3; }
   $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
   $input['postid'] = 0;
+  if ($input['order'] == '') { $input['order'] = 'ASC'; }
+  if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
   return $input;
 }
 
