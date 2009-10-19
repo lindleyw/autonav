@@ -207,6 +207,7 @@ function get_images_from_folder($attr) {
 	  resize_crop($pic_info, 'full'); // modifies ['pic_full'], creates ['pic_full_url'] in $pic_info
 	} else {
 	  $pic_info['pic_full'] = $pic_size_info[$apic_key][$full_size];
+          $pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
 	  $pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
 	}
       }
