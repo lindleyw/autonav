@@ -298,15 +298,19 @@ function get_images_attached($attr, $pid, $limit) {
 function get_subpages ($attr) {
   global $post;
 
-  $child_of = $attr['postid'];
-  if (!$child_of) {
-    $child_of = $post->ID;
+  $child_pages = explode(',',$attr['postid']);
+  if (count($child_pages) == 0) {
+    $child_pages = array($post->ID);
   }
-  $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
-  if (strlen ($attr['exclude'])) {
-    $query .= "&exclude=" . $attr['exclude'];
+  $pages = array();
+  foreach ($child_pages as $child_of) {
+    $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
+    if (strlen ($attr['exclude'])) {
+      $query .= "&exclude=" . $attr['exclude'];
+    }
+    $these_pages = & get_pages($query);
+    array_splice($pages, count($pages), 0, $these_pages);
   }
-  $pages = & get_pages($query);
   if (count($pages) == 0) {
     return;
   }
@@ -332,7 +336,7 @@ function get_subpages ($attr) {
       }
     }
 
-    if (($page->post_parent == $child_of) && ((!$picpages_only) || $pic_info['image'] != '')) {
+    if ((in_array($page->post_parent, $child_pages)) && ((!$picpages_only) || $pic_info['image'] != '')) {
       $pic_info['linkto'] = 'page';
       $pic_info['page'] = $page;
       $pic_info['permalink'] = get_permalink($page->ID);
@@ -373,6 +377,7 @@ function create_output($attr, $pic_info) {
 	  $pic['title'] . "</a></li>\n";
       }
     }
+    $html .= "</ul>";
   } else {  // Produce table output
 
     $viewer = $attr['imgrel'];

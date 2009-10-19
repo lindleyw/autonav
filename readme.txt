@@ -192,5 +192,9 @@ to rename your original picture before uploading it into Wordpress.
 * Permit parameter:  order=desc   to display attached files in 
   descending attachment order.
 * Corrected handling of images with capitalized extensions (e.g., .JPG)
+* postid= parameter accepts multiple values. For example:
+    [autonav display=images postid=7,15]
+  will display a table consisting of thumbnails linked to the child
+  pages, of the pages with ids 7 and 15.
 
 
