@@ -200,4 +200,11 @@ to rename your original picture before uploading it into Wordpress.
 = 1.1.5 =
 Corrected typo
 
+= 1.1.6 =
+* When listing pages with display=images or display=list and specifying a
+  postid= parameter, each item in the postid= list will:
+    - if the page has children, list that page's children (with display=list)
+      or the children's thumbnails (with display=images)
+    - if the page has NO children, list that page or its thumbnail.
+
 

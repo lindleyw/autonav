@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.1.5
+Version: 1.1.6
 Author URI: http://www.wlindley.com/
   */
 
@@ -300,9 +300,12 @@ function get_subpages ($attr) {
   global $post;
 
   $child_pages = explode(',',$attr['postid']);
+  $my_children = 0;
   if (!$child_pages[0]) {
     $child_pages = array($post->ID);
+    $my_children = 1;
   }
+
   $pages = array();
   foreach ($child_pages as $child_of) {
     $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
@@ -310,8 +313,23 @@ function get_subpages ($attr) {
       $query .= "&exclude=" . $attr['exclude'];
     }
     $these_pages = & get_pages($query);
-    array_splice($pages, count($pages), 0, $these_pages);
+
+    if (count ($these_pages)) {
+      foreach ($these_pages as $subpage) {
+        if (in_array($subpage->post_parent, $child_pages)) {  // first-generation children only
+          array_push($pages, $subpage);
+        }
+      }
+    } else {
+      // If specified a different page with no subpages, use that page alone.
+      // i.e., If listing "my" subpages, and I haven't any, don't list "me."
+      if ($my_children == 0) {
+	$these_pages = get_pages("include=$child_of&echo=0&title_li=0");
+	array_splice($pages, count($pages), 0, $these_pages);
+      }
+    }
   }
+
   if (count($pages) == 0) {
     return;
   }
@@ -337,7 +355,7 @@ function get_subpages ($attr) {
       }
     }
 
-    if ((in_array($page->post_parent, $child_pages)) && ((!$picpages_only) || $pic_info['image'] != '')) {
+    if ((!$picpages_only) || $pic_info['image'] != '') {
       $pic_info['linkto'] = 'page';
       $pic_info['page'] = $page;
       $pic_info['permalink'] = get_permalink($page->ID);
@@ -370,15 +388,16 @@ function prepare_picture (&$pic) {
 
 function create_output($attr, $pic_info) {
 
+  $html = '';
   if ($attr['display'] == 'list') {
-    $html = '<ul class="subpages-list">';
     if (is_array($pic_info)) {
+      $html = '<ul class="subpages-list">';
       foreach ($pic_info as $pic) { // well, really page not picture
 	$html .= '<li class="subpages-item"><a href="' . $pic['permalink'] . '">'.
 	  $pic['title'] . "</a></li>\n";
       }
+      $html .= "</ul>";
     }
-    $html .= "</ul>";
   } else {  // Produce table output
 
     $viewer = $attr['imgrel'];
