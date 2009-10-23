@@ -1,7 +1,7 @@
 === AutoNav Graphical Navigation and Gallery Plugin ===
 Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
-Tags: pages, navigation, widget
+Tags: child, pages, navigation, gallery, thumbnail, thumbnails
 Requires at least: 2.8
 Tested up to: 2.8.5
 Stable tag: trunk
