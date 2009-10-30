@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.1.6
+Version: 1.1.7
 Author URI: http://www.wlindley.com/
   */
 
@@ -261,6 +261,20 @@ function create_images_for($attr, $pic_fullsize) {
 
 /* ********************** */
 
+function pic_info_for($attr, $id) {
+  $attached_pic = get_attached_file($id);
+  if ($attached_pic == '') return; // cannot find the attachment
+  $pic_info = create_images_for($attr, $attached_pic);
+  if (is_array($pic_info)) {
+    $post_info = get_post($id); // the attachment's post
+    $pic_info['title'] = $post_info->post_excerpt; // Attachment caption stored here
+    $pic_info['description'] = $post_info->post_content; // and description
+    $pic_info['alt_text'] = $post_info->post_title;
+    return $pic_info;
+  }
+  return;
+}
+
 function get_images_attached($attr, $pid, $limit) {
   global $post;
 
@@ -278,20 +292,26 @@ function get_images_attached($attr, $pid, $limit) {
   if (empty ($attachments)) return $pics_info;
 
   foreach ($attachments as $id => $attach_info) {
-    $attached_pic = get_attached_file($id);
-    if ($attached_pic == '') continue; // cannot find the attachment
     if ($attach_info->menu_order < -100) continue; // permit disabling images via menu_order
-    $pic_info = create_images_for($attr, $attached_pic); // get_images_from_folder($attr);
+    $pic_info = pic_info_for($attr,$id);
     if (is_array($pic_info)) {
-      $post_info = get_post($id); // the attachment's post
-      $pic_info['title'] = $post_info->post_excerpt; // Attachment caption stored here
-      $pic_info['description'] = $post_info->post_content; // and description
-      $pic_info['alt_text'] = $post_info->post_title;
       $pics_info[] = $pic_info;
     }
   }
 
   return $pics_info;
+}
+
+function get_selected_thumbnail ($attr, $pid) {
+  $pics_info = array();
+  if (function_exists('get_post_image_id')) {
+    $pic_info = pic_info_for($attr, get_post_image_id($pid));
+    if (is_array($pic_info)) {
+      $pics_info[] = $pic_info;
+      return $pics_info;
+    }
+  }
+  return;
 }
 
 /* ********************** */
@@ -313,7 +333,6 @@ function get_subpages ($attr) {
       $query .= "&exclude=" . $attr['exclude'];
     }
     $these_pages = & get_pages($query);
-
     if (count ($these_pages)) {
       foreach ($these_pages as $subpage) {
         if (in_array($subpage->post_parent, $child_pages)) {  // first-generation children only
@@ -348,8 +367,11 @@ function get_subpages ($attr) {
 	// local file... assume full-size picture given, and automagically create thumbnail
 	$pic_info = create_images_for($attr, $ximg);
       }
-    } else { // Use first attached image, if any
-      $pics = get_images_attached($attr, $page->ID, 1);
+    } else { // Use selected thumbnail; or first attached image, if any
+      $pics = get_selected_thumbnail($attr, $page->ID);
+      if (!is_array($pics)) {
+	$pics = get_images_attached($attr, $page->ID, 1);
+      }
       if (is_array($pics)) {
 	$pic_info = $pics[0]; // should be exactly one
       }

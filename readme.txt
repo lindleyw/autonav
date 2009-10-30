@@ -109,8 +109,13 @@ This section describes how to install the plugin and get it working.
 
 = How do I set the thumbnail for a page? =
 
-By default, the thumbnail for a child page is assumed to be its first
-attached image.  If you wish to override this, create a Custom Field
+In Wordpress 2.9 and later, the thumbnail you choose in the page's
+edit screen becomes the default thumbnail. If you do not choose a
+thumbnail there (or in Wordpress versions below 2.9), the attached
+image with the lowest order (chosen in the Gallery section of the
+page's image attachment dialog) becomes the default thumbnail.
+
+You can override the default thumbnail by creating a Custom Field
 called subpage_thumb for the page.  Set it to either a URL:
 
     http://www.example.com/images/thumbnail3.jpg
@@ -207,4 +212,7 @@ Corrected typo
       or the children's thumbnails (with display=images)
     - if the page has NO children, list that page or its thumbnail.
 
-
+= 1.1.7 =
+* Wordpress 2.9: If you select a thumbnail in a page's edit screen,
+  that thumbnail will pre-empt the "choose the first attached image" logic,
+  although specifying a subpage_thumb custom field still has priority.
