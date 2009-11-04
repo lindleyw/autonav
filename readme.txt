@@ -153,6 +153,38 @@ Go through the Autonav Options on the Wordpress administration screen
 once, and save the options. That will add the new parameter names to
 the list of recognized ones.
 
+= Can I re-attach an attachment to another page? =
+
+Thry the Change Attachment Parent plugin, which is an easy way to
+reset the parent page or post for any attachment, right on the
+attachment's Edit screen in the Media Library. You do need to know the
+new parent's ID, though.
+
+    http://wordpress.org/extend/plugins/change-attachment-parent/
+
+= How can I rearrange my pages? =
+
+Try the Pagemash plugin which lets you move pages up, down, in, out,
+and around your hierarchy with the mouse.  It automatically changes
+the pages' parents and menu order.
+
+    http://wordpress.org/extend/plugins/pagemash/
+
+= Does this plugin create database tables? =
+
+No, only the one entry which holds the settings.  This is in the
+wp_options table, with option_name = "autonav_wl" and that will be
+updated by going through the AutoNav administration screen (see above).
+
+= I get an error that imagecreatefromjpeg is not defined =
+
+Your webserver needs GD image support in PHP. On Debian or Ubuntu,
+you can install that with apt-get, and then restart Apache. 
+For example:
+
+   $ sudo apt-get install php5-gd
+   $ sudo /etc/init.d/apache2 restart
+
 = Can I disable certain attached images? =
 
 Yes, using the Media Library in the admin screens, set an image's Order
@@ -216,3 +248,8 @@ Corrected typo
 * Wordpress 2.9: If you select a thumbnail in a page's edit screen,
   that thumbnail will pre-empt the "choose the first attached image" logic,
   although specifying a subpage_thumb custom field still has priority.
+
+= 1.1.8 =
+* Move options under Settings in adminstration screens
+* Could not pics_only option unless checked in admin screen
+* Images with subpages_thumb were not displayed in some cases

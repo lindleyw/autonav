@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.1.7
+Version: 1.1.8
 Author URI: http://www.wlindley.com/
   */
 
@@ -377,7 +377,7 @@ function get_subpages ($attr) {
       }
     }
 
-    if ((!$picpages_only) || $pic_info['image'] != '') {
+    if ((!$picpages_only) || $pic_info['image_url'] != '') {
       $pic_info['linkto'] = 'page';
       $pic_info['page'] = $page;
       $pic_info['permalink'] = get_permalink($page->ID);
@@ -550,7 +550,7 @@ function autonav_wloptions_init(){
 // Add menu page
 function autonav_wloptions_add_page() {
   // first string in page title (in html header), second string is title in menu
-  add_submenu_page('plugins.php','AutoNav Options','AutoNav Options',8, __FILE__, 'autonav_wloptions_do_page');
+  add_submenu_page('options-general.php','AutoNav Options','AutoNav',8, __FILE__, 'autonav_wloptions_do_page');
 }
 
 // Draw the menu page itself
@@ -667,6 +667,7 @@ to have multiple groups of pictures with a lightbox-style display.
 function autonav_wloptions_validate($input) {
 
   $input['titles'] = ( $input['titles'] == 1 ? 1 : 0 );
+  $input['pics_only'] = ( $input['pics_only'] == 1 ? 1 : 0 );
   $input['size'] =  wp_filter_nohtml_kses($input['size']);
   if ($input['size'] == '') { $input['size'] = 'auto'; }
   $input['display'] =  wp_filter_nohtml_kses($input['display']);
