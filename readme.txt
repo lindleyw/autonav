@@ -253,3 +253,7 @@ Corrected typo
 * Move options under Settings in adminstration screens
 * Could not pics_only option unless checked in admin screen
 * Images with subpages_thumb were not displayed in some cases
+
+= 1.1.9 =
+* Improve admin screen formatting.  
+* Add option for default number of columns.

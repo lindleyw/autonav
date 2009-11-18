@@ -578,10 +578,11 @@ function autonav_wloptions_do_page() {
     if ($options['orderby'] == '') { $options['orderby'] = 'menu_order'; }
 ?>
 <table class="form-table">
-<tr valign="top"><th scope="row">When listing child pages, show only pages with thumbnails?</th>
+<tr><th colspan="2"><h3>When listing child pages</h3></th></tr>
+<tr valign="top"><th scope="row">Show only pages with thumbnails?</th>
 <td><input name="autonav_wl[pics_only]" type="checkbox" value="1" <?php checked('1', $options['pics_only']); ?> /></td>
 </tr>
-<tr valign="top"><th scope="row">When listing child pages, use sort_column</th>
+<tr valign="top"><th scope="row">Use sort_column</th>
 <td><input name="autonav_wl[orderby]" type="text" value="<?php echo $options['orderby']; ?>" />
 (<a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">List of possible values</a>
  <small><em>from wordpress.org</em></small> )</tr>
@@ -589,14 +590,20 @@ function autonav_wloptions_do_page() {
 <tr valign="top"><th scope="row">List of page IDs to exclude</th>
 <td><input name="autonav_wl[exclude]" type="text" value="<?php echo $options['exclude']; ?>" /></tr>
 
+<tr><th colspan="2"><h3>Displaying images</h3></th></tr>
 <tr valign="top"><th scope="row">Display Titles Under Images</th>
 <td><input name="autonav_wl[titles]" type="checkbox" value="1" <?php checked('1', $options['titles']); ?> /></td>
 </tr>
-<tr valign="top"><th scope="row">Size of images ("auto" for below or as "300x200")</th>
-<td><input type="text" name="autonav_wl[size]" value="<?php echo $options['size']; ?>" /></td>
+<tr valign="top"><th scope="row">Size of images</th>
+<td><input type="text" name="autonav_wl[size]" value="<?php echo $options['size']; ?>" />
+"auto" for below, or as "300x200"</td>
 </tr>
 
-<tr valign="top"><th scope="row">Automatic image sizing</th>
+<tr valign="top"><th scope="row">Default number of columns</th>
+<td><input name="autonav_wl[columns]" type="text" value="<?php echo $options['columns']; ?>" /></td>
+</tr>
+
+<Tr valign="top"><th scope="row">Automatic image sizing</th>
 <td>
 <table border="1">
 <tr>
@@ -619,10 +626,15 @@ or more columns,<br>use size<br>
 </td>
 </tr>
 
-<tr valign="top"><th scope="row">Crop images to size? (else fit)</th>
-<td><input name="autonav_wl[crop]" type="checkbox" value="1" <?php checked('1', $options['crop']); ?> /></td>
+<tr valign="top"><th scope="row">Crop images to size?</th>
+<td><input name="autonav_wl[crop]" type="checkbox" value="1" <?php checked('1', $options['crop']); ?> />
+If unchecked, fit images inside specified size
+</td>
 </tr>
 </tr>
+
+<tr><th colspan="2"><h3>Table controls</h3></th></tr>
+
 <tr valign="top"><th scope="row">Combine rows of images into tables:</th>
 <td>
 <input name="autonav_wl[combine]" type="radio" value="all" <?php checked('all', $options['combine']); ?> />
