@@ -3,7 +3,7 @@ Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, navigation, gallery, thumbnail, thumbnails
 Requires at least: 2.8
-Tested up to: 2.8.5
+Tested up to: 2.9.0
 Stable tag: trunk
 
 Plugin has two modes. In navigation mode: Creates a list or table of the current page's child pages. Tables are composed of linked thumbnail pictures based a custom field in each child page, or the child page's attached picture. In gallery mode: Creates one or more tables of linked thumbnail pictures based on the current page's attachments, or on specified directories of picture files under the uploads directory.
@@ -257,3 +257,4 @@ Corrected typo
 = 1.1.9 =
 * Improve admin screen formatting.  
 * Add option for default number of columns.
+* Compatibility with 2.9.0beta and 2.9.0rc1
