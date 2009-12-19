@@ -258,3 +258,6 @@ Corrected typo
 * Improve admin screen formatting.  
 * Add option for default number of columns.
 * Compatibility with 2.9.0beta and 2.9.0rc1
+
+= 1.2.0 =
+* Resolve incompatibility with Windows-hosted paths
