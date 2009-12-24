@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.0
+Version: 1.2.1
 Author URI: http://www.wlindley.com/
   */
 
@@ -402,9 +402,9 @@ function get_subpages ($attr) {
 /* ********************** */
 
 function prepare_picture (&$pic) {
-  $wp_dir = wp_upload_dir();
-  $pic['content'] = '<img src="' . $pic['image_url'] . '" ' .
-    image_hwstring($pic['width'],$pic['height']) . '>';
+  $alt_text = strlen($pic['alt_text']) ? $pic['alt_text'] : $pic['title'];
+  $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. $alt_text . '" ' .
+    image_hwstring($pic['width'],$pic['height']) . ' />';
   if ($pic['permalink'] == '') {
     if ($pic['linkto'] == 'pic') {
       $pic['permalink'] = $pic['pic_full_url']; // link to fullsize image
@@ -444,8 +444,15 @@ function create_output($attr, $pic_info) {
     $widow_row = $attr['combine'] == 'full';  // place widow row in separate table
     $start_table = '<table class="' . $class . '-table">';
     $end_table = "</table>\n";
+    $in_table = 0;
+    $start_row = '<tr class="' . $class . '-row">';
+    $end_row = "</tr>\n";
+    $in_row = 0; 
 
-    $html = $start_table;
+    $html = $start_table; $in_table = 1;
+    if (strlen($attr['caption'])) { // only on first table
+      $html .= '<caption>' . $attr['caption'] . '</caption>';
+    }
     foreach ($pic_info as $pic) {
 
       prepare_picture($pic);
@@ -453,31 +460,33 @@ function create_output($attr, $pic_info) {
       if ($col == 0) {
 	if ($widow_row && ((count($pic_info) - ($row * $maxcol)) < $maxcol)) {
 	  $indiv_rows = 1; // reached last (widow) row; switch to separate tables.
+	  $html .= $end_table; $in_table = 0;
 	}
 	if ($indiv_rows && ($row > 0)) {
-	  $html .= $start_table;
+	  $html .= $start_table; $in_table = 1;
 	}
-	$html .= '<tr class="' . $class . '-row">';
+	$html .= $start_row; $in_row = 1;
       }
 
       $my_img_rel = ($pic['linkto'] == 'pic') ? $img_rel : '';
       $html .= '<td class="' . $class . '-cell">';
-      $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel>" . $pic['content'] . "</a></p>";
+      $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel>" . $pic['content'] . "</a>";
       if ($pic['title'] != '' && $attr['titles']) {
 	$html .= '<p class="' . $class . '-text"><a href="' . $pic['permalink'] . '">' . $pic['title'] . "</a></p>";
       }
       $html .= "</td>\n";
       $col++;
       if ($col >= $maxcol) {
-	$html .= "</tr>\n";
+	if ($in_row) { $html .= $end_row; $in_row = 0; }
 	if ($indiv_rows) {
-	  $html .= $end_table;
+	  $html .= $end_table; $in_table = 0;
 	}
 	$col = 0;
 	$row++;
       }
     }
-    $html .= $end_table;
+    if ($in_row) { $html .= $end_row; }
+    if ($in_table) { $html .= $end_table; }
   }
 
   return $html;
@@ -614,17 +623,17 @@ function autonav_wloptions_do_page() {
 <table border="1">
 <tr>
 <td>
-<input name="autonav_wl[col_large]" size="2" type="text" value="<?php echo $options['col_large']; ?>" /><br>
-or fewer columns,<br>use size<br>
+<input name="autonav_wl[col_large]" size="2" type="text" value="<?php echo $options['col_large']; ?>" /><br />
+or fewer columns,<br />use size<br />
 <input name="autonav_wl[size_large]" size="12" type="text" value="<?php echo $options['size_large']; ?>" />
 </td>
 <td>
-<br>Intermediate number of<br>columns, use size<br>
+<br />Intermediate number of<br />columns, use size<br />
 <input name="autonav_wl[size_med]" size="12" type="text" value="<?php echo $options['size_med']; ?>" />
 </td>
 <td>
-<input name="autonav_wl[col_small]" size="2" type="text" value="<?php echo $options['col_small']; ?>" /><br>
-or more columns,<br>use size<br>
+<input name="autonav_wl[col_small]" size="2" type="text" value="<?php echo $options['col_small']; ?>" /><br />
+or more columns,<br />use size<br />
 <input name="autonav_wl[size_small]" size="12" type="text" value="<?php echo $options['size_small']; ?>" />
 </td>
 </tr>
@@ -644,23 +653,23 @@ If unchecked, fit images inside specified size
 <tr valign="top"><th scope="row">Combine rows of images into tables:</th>
 <td>
 <input name="autonav_wl[combine]" type="radio" value="all" <?php checked('all', $options['combine']); ?> />
-All rows in one table.<br>
+All rows in one table.<br />
 <input name="autonav_wl[combine]" type="radio" value="none" <?php checked('none', $options['combine']); ?> />
-Each row a separate table.<br>
+Each row a separate table.<br />
 <input name="autonav_wl[combine]" type="radio" value="full" <?php checked('full', $options['combine']); ?> />
 All full rows in one table; trailing partial row in separate table.
 </td>
 </tr>
 
 <tr valign="top"><th scope="row">Default class for tables</th>
-<td><input type="text" name="autonav_wl[class]" value="<?php echo $options['class']; ?>" /><br>
+<td><input type="text" name="autonav_wl[class]" value="<?php echo $options['class']; ?>" /><br />
 Table elements will use this as the prefix for their styles, as <em>class</em>-table,
 <em>class</em>-row, <em>class</em>-cell, etc.
 </td>
 </tr>
 
 <tr valign="top"><th scope="row">Image relation (rel="") tag</th>
-<td><input type="text" name="autonav_wl[imgrel]" value="<?php echo $options['imgrel']; ?>" /><br>
+<td><input type="text" name="autonav_wl[imgrel]" value="<?php echo $options['imgrel']; ?>" /><br />
 <em>Optional.</em> If this tag contains an asterisk * then the optional "group" specifier
 (below; but usually specified in the shortcode) will be inserted as [group], as when you wish
 to have multiple groups of pictures with a lightbox-style display.
@@ -700,6 +709,7 @@ function autonav_wloptions_validate($input) {
   $input['postid'] = 0;
   if ($input['order'] == '') { $input['order'] = 'ASC'; }
   if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
+  $input['caption'] = '';
   return $input;
 }
 

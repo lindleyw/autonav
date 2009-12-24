@@ -68,7 +68,8 @@ Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
 		     attached -- displays a table of images attached to the post
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
-     columns="4"     displays 4 columns of images
+     caption="x"     Adds a caption to the table. (First table only, see combine below)
+     columns="4"     Displays 4 columns of images
      size="x"	     Choose a display size 'x' as:
 		     thumbnail, medium, large, full -- Wordpress standard sizes
 		     300x200 -- force images to be resized and cropped to exact size
@@ -261,3 +262,10 @@ Corrected typo
 
 = 1.2.0 =
 * Resolve incompatibility with Windows-hosted paths
+
+= 1.2.1 =
+* W3C validation, correct case of incorrect table and row markup nesting
+* Caption parameter added (be sure to go thru Settings screen in admin and
+  save settings, even if not changed, to permit new parameter)
+* Picture 'alt' tag will be title if available
+
