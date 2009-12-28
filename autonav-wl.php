@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.1
+Version: 1.2.2
 Author URI: http://www.wlindley.com/
   */
 
@@ -305,9 +305,7 @@ function get_images_attached($attr, $pid, $limit) {
 function get_selected_thumbnail ($attr, $pid) {
   $pics_info = array();
   $tid = 0;
-  if (function_exists('get_post_image_id')) { /* 2.9.0beta */
-    $tid = get_post_image_id($pid);
-  } elseif (function_exists('get_post_thumbnail_id')) { /* 2.9.0rc1 */
+  if (function_exists('get_post_thumbnail_id')) { /* since 2.9.0 */
     $tid = get_post_thumbnail_id($pid);
   }
   if ($tid) {
@@ -388,6 +386,9 @@ function get_subpages ($attr) {
       $pic_info['page'] = $page;
       $pic_info['permalink'] = get_permalink($page->ID);
 
+      $pic_info['excerpt'] = get_post_meta($page->ID, 'subpage_excerpt', 1);
+      if ($pic_info['excerpt'] == '') $pic_info['excerpt'] = $page->post_excerpt;
+
       $pic_info['title'] = get_post_meta($page->ID, 'subpage_title', 1);
       if ($pic_info['title'] == '') $pic_info['title'] = $page->post_title;
 
@@ -417,22 +418,34 @@ function prepare_picture (&$pic) {
 function create_output($attr, $pic_info) {
 
   $html = '';
+  $class = $attr['class'];
+  if ($class == '') {
+    $class = 'subpages';
+  }
+
   if ($attr['display'] == 'list') {
     if (is_array($pic_info)) {
       $html = '<ul class="subpages-list">';
       foreach ($pic_info as $pic) { // well, really page not picture
-	$html .= '<li class="subpages-item"><a href="' . $pic['permalink'] . '">'.
-	  $pic['title'] . "</a></li>\n";
+	$html .= '<li class="' . $class . '-item"><a href="' . $pic['permalink'] . '">'. $pic['title'];
+
+	if ($attr['show_thumb']) {
+	  prepare_picture($pic);
+	  $html .= '<span class="' . $class . '-list-image">' . $pic['content'] . '</span>';
+	}
+
+	$html .= "</a>";
+	if ($attr['excerpt'] && strlen($pic['excerpt'])) {
+	  $html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
+	}
+
+	$html .= "</li>\n";
       }
       $html .= "</ul>";
     }
   } else {  // Produce table output
 
     $viewer = $attr['imgrel'];
-    $class = $attr['class'];
-    if ($class == '') {
-      $class = 'subpages';
-    }
     if (strpos($viewer, '*')) {
       $viewer = str_replace( '*', ($attr['group']!='') ? '['.$attr['group'].']' : '', $viewer);
     }
@@ -471,8 +484,11 @@ function create_output($attr, $pic_info) {
       $my_img_rel = ($pic['linkto'] == 'pic') ? $img_rel : '';
       $html .= '<td class="' . $class . '-cell">';
       $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel>" . $pic['content'] . "</a>";
-      if ($pic['title'] != '' && $attr['titles']) {
+      if ($attr['titles'] && strlen($pic['title'])) {
 	$html .= '<p class="' . $class . '-text"><a href="' . $pic['permalink'] . '">' . $pic['title'] . "</a></p>";
+      }
+      if ($attr['excerpt'] && strlen($pic['excerpt'])) {
+	$html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
       }
       $html .= "</td>\n";
       $col++;
@@ -527,6 +543,13 @@ function autonav_wl_shortcode($attr) {
   }
 
   $attr['orderby'] = sanitize_sql_orderby($attr['orderby']);
+  $display_options = explode(',', $attr['display']);
+  $attr['display'] = array_shift($display_options);
+  foreach ($display_options as $o) {
+    if (strpos($o == 'title') !== false) $attr['titles'] = 1;
+    if (strpos($o == 'excerpt') !== false) $attr['excerpt'] = 1;
+    if (strpos($o,'thumb') !== false) $attr['show_thumb'] = 1;
+  }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
   } elseif ($attr['display'] == 'attached') {

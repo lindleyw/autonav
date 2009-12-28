@@ -59,22 +59,26 @@ directories of picture files under the uploads directory. Example:
 Displays a table, with a gallery of three pictures from the
 wp-content/uploads/project2 directory, in the specified order.
 
-Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
-
      display="x"     Chooses a display mode based on "x" as follows:
 		     images -- displays a table of images, one for each of the child
 		          pages of this post. 
-		     list -- displays a list of links to the child pages of this post. 
+		     list -- displays a list of links to the child pages of this post.
 		     attached -- displays a table of images attached to the post
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
+		     Optional parameters, in a comma-separated list:
+			  excerpt -- Display the child page's manual excerpt (see FAQ)
+			  thumb   -- Display the page's thumbnail
+			  title   -- Display the page's title
+			Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
      size="x"	     Choose a display size 'x' as:
 		     thumbnail, medium, large, full -- Wordpress standard sizes
-		     300x200 -- force images to be resized and cropped to exact size
+		     300x200 -- force images to be resized/cropped to an exact size
 		     auto -- uses settings from autonav control panel
      titles="1"      Displays page titles below images if 1 (default: "0")
+		     (Also set by 'title' parameter to 'display=')
      pics_only="1"   When displaying child pages, only show those with associated images
      include="1,7"   The resulting table will have only two pictures, the first
 		     found ending in "1" and "7" -- note that because both 1 and 7
@@ -94,6 +98,7 @@ Uses parameters from the Gallery Shortcode (introduced in Wordpress 2.5):
      exclude="3,5"   Excludes pages with ID 3 and 5 from the list (with display="list")
      postid="123"    Displays images or subpages attached to the page or post
      		     with the given ID, instead of the current page or post.
+		     NOTE: Can specify a comma-separated list of IDs.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
@@ -140,6 +145,8 @@ In navigation mode, when a list is selected:
 
    * ul elements have class: subpages-list
    * li elements have class: subpages-item
+   * Excerpt text: subpages-excerpt
+   * Thumbnail images: subpages-list-image
 
 In table modes:
 
@@ -147,6 +154,10 @@ In table modes:
    * tr elements: subpages-row
    * td elements: subpages-cell
    * p elements inside each td: subpages-text
+   * Excerpt text: subpages-excerpt
+
+The 'subpages' prefix may be overridden by the 'class' parameter or 
+on the administration screen.
 
 = I updated the plugin, but the new parameters are not recognized. =
 
@@ -205,6 +216,14 @@ thumbnails and there will be three files in the uploads directory:
 Autonav will not find your "full size" picture, the 640x528 one, because it
 ends in a dash followed by two numbers with an 'x' inbetween.  You will have 
 to rename your original picture before uploading it into Wordpress.
+
+= How do I add manual excerpts to pages? =
+
+By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
+only for Posts, not Pages.  You can add a few lines of code to your theme's
+functions.php to enable the functional for Pages as well, see:
+
+     http://mfields.org/2008/04/02/how-to-activate-excerpts-for-pages-in-wordpress-admin-panel/
 
 == Changelog ==
 
@@ -269,3 +288,8 @@ Corrected typo
   save settings, even if not changed, to permit new parameter)
 * Picture 'alt' tag will be title if available
 
+= 1.2.2 =
+* Remove superceded v2.9.0 beta functions
+* If a page defines the custom field 'subpage_excerpt' or has a manual excerpt
+  defined, that will be displayed when the 'excerpt' parameter is included
+  with 'display' (e.g., "[autonav display=list,excerpt]" )
