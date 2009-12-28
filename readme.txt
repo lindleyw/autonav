@@ -134,6 +134,13 @@ wp-content):
 In the latter case, point to the full-sized image, and the thumbnail
 will automatically be resized.
 
+= How do I enable post thumbnails in Wordpress? =
+
+If you don't see the Post Thumbnail section in your administration
+screens, add this to your theme's functions.php --
+
+  <?php add_theme_support( 'post-thumbnails' ); ?>
+
 = How do I override the title for a child page? =
 
 Create a Custom Field called subpage_title for the page.  Set it to
