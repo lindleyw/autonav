@@ -546,9 +546,9 @@ function autonav_wl_shortcode($attr) {
   $display_options = explode(',', $attr['display']);
   $attr['display'] = array_shift($display_options);
   foreach ($display_options as $o) {
-    if (strpos($o == 'title') !== false) $attr['titles'] = 1;
-    if (strpos($o == 'excerpt') !== false) $attr['excerpt'] = 1;
-    if (strpos($o,'thumb') !== false) $attr['show_thumb'] = 1;
+    if (strpos($o, 'title') !== false) $attr['titles'] = 1;
+    if (strpos($o, 'excerpt') !== false) $attr['excerpt'] = 1;
+    if (strpos($o, 'thumb') !== false) $attr['show_thumb'] = 1;
   }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
