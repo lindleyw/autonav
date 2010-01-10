@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.2
+Version: 1.2.3
 Author URI: http://www.wlindley.com/
   */
 
@@ -325,9 +325,19 @@ function get_subpages ($attr) {
 
   $child_pages = explode(',',$attr['postid']);
   $my_children = 0;
-  if (!$child_pages[0]) {
-    $child_pages = array($post->ID);
-    $my_children = 1;
+  if (!$child_pages[0]) { // no explicit postid
+    if ($attr['siblings']) {
+      if ($post->post_parent) {
+	$child_pages = array($post->post_parent); // children of our parent
+	if (!$attr['self']) {
+	  // add ourselves to exception list
+	  $attr['exclude'] = $post->ID . ($attr['exclude'] !== '' ? ','.$attr['exclude'] : '');
+	}
+      }
+    } else {
+      $child_pages = array($post->ID);
+      $my_children = 1;
+    }
   }
 
   $pages = array();
@@ -520,7 +530,7 @@ function autonav_wl_shortcode($attr) {
 
   $options = get_option('autonav_wl');
 
-  // ~~~ Default values should come from our saved configuration
+  // Default values come from saved configuration
   $attr = (shortcode_atts($options, $attr));
 
   // display can be: 'images' or 'list' (for child pages), '/folder' for images from directory,
@@ -549,6 +559,8 @@ function autonav_wl_shortcode($attr) {
     if (strpos($o, 'title') !== false) $attr['titles'] = 1;
     if (strpos($o, 'excerpt') !== false) $attr['excerpt'] = 1;
     if (strpos($o, 'thumb') !== false) $attr['show_thumb'] = 1;
+    if (strpos($o, 'siblings') !== false) $attr['siblings'] = 1;
+    if (strpos($o, 'self') !== false) $attr['self'] = 1;
   }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);

@@ -3,7 +3,7 @@ Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, navigation, gallery, thumbnail, thumbnails
 Requires at least: 2.8
-Tested up to: 2.9.0
+Tested up to: 2.9.1
 Stable tag: trunk
 
 Plugin has two modes. In navigation mode: Creates a list or table of the current page's child pages. Tables are composed of linked thumbnail pictures based a custom field in each child page, or the child page's attached picture. In gallery mode: Creates one or more tables of linked thumbnail pictures based on the current page's attachments, or on specified directories of picture files under the uploads directory.
@@ -232,6 +232,17 @@ functions.php to enable the functional for Pages as well, see:
 
      http://mfields.org/2008/04/02/how-to-activate-excerpts-for-pages-in-wordpress-admin-panel/
 
+= Can I call the plugin from a template? =
+
+Yes, you may use this code in your template, for example, where you
+wish a table of child pages' thumbnails:
+
+  <?php print autonav_wl_shortcode(array('display'=>'images')); ?>
+
+or where you would like a table of all attached images:
+
+  <?php print autonav_wl_shortcode(array('display'=>'attached')); ?>
+
 == Changelog ==
 
 = 1.0 =
@@ -300,3 +311,9 @@ Corrected typo
 * If a page defines the custom field 'subpage_excerpt' or has a manual excerpt
   defined, that will be displayed when the 'excerpt' parameter is included
   with 'display' (e.g., "[autonav display=list,excerpt]" )
+
+= 1.2.3 =
+* Add optional "siblings" parameter, e.g., [autonav display="images,siblings"]
+  which will select the current page's siblings (other children of the
+  same parent).  Also "self" parameter which when used with "siblings" will
+  include the currently displayed page in the list of siblings.
