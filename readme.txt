@@ -94,6 +94,8 @@ wp-content/uploads/project2 directory, in the specified order.
 		     full -- combine all full rows into one table, with trailing
 			  row a separate table (so it can be centered)
      crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     start="1"       Starts at the second image or page (counting from zero)
+     count="2"       Includes only two images or pages
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
@@ -249,6 +251,18 @@ wish a table of child pages' thumbnails:
 or where you would like a table of all attached images:
 
   <?php print autonav_wl_shortcode(array('display'=>'attached')); ?>
+
+= Can I show all attachments, but highlight the first couple? =
+
+Yes; try these three lines:
+
+    [autonav display=attached columns=1 count=1 size=500x500]
+    [autonav display=attached columns=1 start=1 count=1 size=300x300]
+    [autonav display=attached columns=4 start=2]
+
+You could even include similar calls in a template (see above), showing the 
+first attachment in the large size in one place, the second attachment in
+medium size elsewhere, and all remaining attachments at perhaps the bottom.
 
 == Changelog ==
 

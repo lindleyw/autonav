@@ -418,6 +418,13 @@ function prepare_picture (&$pic) {
 
 function create_output($attr, $pic_info) {
 
+  if ($attr['start'] > 0) {
+    $pic_info = array_slice($pic_info, $attr['start']);
+  }
+  if ($attr['count'] > 0) {
+    $pic_info = array_slice($pic_info, 0, $attr['count']);    
+  }
+
   if (!is_array($pic_info)) { // nothing to do
     return '';
   }
@@ -738,6 +745,8 @@ function autonav_wloptions_validate($input) {
   if ($input['columns'] == 0) { $input['columns'] = 3; }
   $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
   $input['postid'] = 0;
+  $input['start'] = 0;
+  $input['count'] = 0;
   if ($input['order'] == '') { $input['order'] = 'ASC'; }
   if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
   $input['caption'] = '';
