@@ -473,7 +473,7 @@ function create_output($attr, $pic_info) {
       prepare_picture($pic);
 
       if ($col == 0) {
-	if ($widow_row && ((count($pic_info) - ($row * $maxcol)) < $maxcol)) {
+	if ($row > 0 && $widow_row && ((count($pic_info) - ($row * $maxcol)) < $maxcol)) {
 	  $indiv_rows = 1; // reached last (widow) row; switch to separate tables.
 	  $html .= $end_table; $in_table = 0;
 	}
