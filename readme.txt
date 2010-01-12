@@ -67,9 +67,11 @@ wp-content/uploads/project2 directory, in the specified order.
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
 		     Optional parameters, in a comma-separated list:
-			  excerpt -- Display the child page's manual excerpt (see FAQ)
-			  thumb   -- Display the page's thumbnail
-			  title   -- Display the page's title
+			  excerpt  -- Display the child page's manual excerpt (see FAQ)
+			  thumb    -- Display the page's thumbnail
+			  title    -- Display the page's title
+			  siblings -- Display sibling pages (other children of parent)
+			  self     -- Include this page in siblings (normally excluded)
 			Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
@@ -317,3 +319,6 @@ Corrected typo
   which will select the current page's siblings (other children of the
   same parent).  Also "self" parameter which when used with "siblings" will
   include the currently displayed page in the list of siblings.
+
+= 1.2.4 =
+* Handle edge case of no pictures to display

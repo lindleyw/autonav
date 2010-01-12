@@ -1,14 +1,14 @@
 <?php
-  /*
+/*
 Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.3
+Version: 1.2.4
 Author URI: http://www.wlindley.com/
-  */
+*/
 
-  /*  Copyright 2009 William Lindley (email : wlindley -at- wlindley -dot- com)
+/*  Copyright 2008-2010 William Lindley (email : wlindley -at- wlindley -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,25 +23,10 @@ Author URI: http://www.wlindley.com/
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
+*/
 
 add_action('admin_init', 'autonav_wloptions_init' );
 add_action('admin_menu', 'autonav_wloptions_add_page');
-
-/*
-
-NOTES:
-
-handy functions:
-
-  untrailingslashit(string) -- removes any trailing slash
-  trailingslashit(string)   -- adds a trailing slash if not already present
-
-
-  wp_check_filetype(filename) -- returns mime type like 'image/jpeg'
-
-*/
-
 
 // Modifies $attr['pic_thumb'], $attr['thumbwidth'] and $attr['thumbheight']
 function resize_crop (&$attr, $prefix) {
@@ -275,6 +260,8 @@ function pic_info_for($attr, $id) {
   return;
 }
 
+/* ********************** */
+
 function get_images_attached($attr, $pid, $limit) {
   global $post;
 
@@ -285,10 +272,12 @@ function get_images_attached($attr, $pid, $limit) {
   }
   $order = strtolower($attr['order']) == 'desc' ? 'desc' : 'asc';
 
+  // use post_status=inherit to disable finding attachments that are set to draft or private
   $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
                                     'numberposts' => $limit >= 1 ? $limit : -1,
                                     'post_type' => 'attachment', 'post_mime_type' => 'image',
-                                    'orderby' => 'menu_order', 'order' => $order));
+				    'post_status' => 'inherit', 'orderby' => 'menu_order',
+				    'order' => $order));
   if (empty ($attachments)) return $pics_info;
 
   foreach ($attachments as $id => $attach_info) {
@@ -301,6 +290,8 @@ function get_images_attached($attr, $pid, $limit) {
 
   return $pics_info;
 }
+
+/* ********************** */
 
 function get_selected_thumbnail ($attr, $pid) {
   $pics_info = array();
@@ -325,16 +316,16 @@ function get_subpages ($attr) {
 
   $child_pages = explode(',',$attr['postid']);
   $my_children = 0;
-  if (!$child_pages[0]) { // no explicit postid
-    if ($attr['siblings']) {
-      if ($post->post_parent) {
-	$child_pages = array($post->post_parent); // children of our parent
-	if (!$attr['self']) {
-	  // add ourselves to exception list
-	  $attr['exclude'] = $post->ID . ($attr['exclude'] !== '' ? ','.$attr['exclude'] : '');
-	}
-      }
-    } else {
+
+  if ($attr['siblings']) {
+    if ($post->post_parent) { // children of our parent
+      $child_pages = array($post->post_parent);
+    }
+    if (!$attr['self']) { // add ourselves to exception list
+      $attr['exclude'] = $post->ID . ($attr['exclude'] !== '' ? ','.$attr['exclude'] : '');
+    }
+  } else {
+    if (!$child_pages[0]) {
       $child_pages = array($post->ID);
       $my_children = 1;
     }
@@ -427,34 +418,35 @@ function prepare_picture (&$pic) {
 
 function create_output($attr, $pic_info) {
 
+  if (!is_array($pic_info)) { // nothing to do
+    return '';
+  }
+
   $html = '';
   $class = $attr['class'];
   if ($class == '') {
     $class = 'subpages';
   }
 
-  if ($attr['display'] == 'list') {
-    if (is_array($pic_info)) {
-      $html = '<ul class="subpages-list">';
-      foreach ($pic_info as $pic) { // well, really page not picture
-	$html .= '<li class="' . $class . '-item"><a href="' . $pic['permalink'] . '">'. $pic['title'];
+  if ($attr['display'] == 'list') { // Produce list output
+    $html = '<ul class="' . $class . '-list">';
+    foreach ($pic_info as $pic) { // well, really page not picture
+      $html .= '<li class="' . $class . '-item"><a href="' . $pic['permalink'] . '">'. $pic['title'];
 
-	if ($attr['show_thumb']) {
-	  prepare_picture($pic);
-	  $html .= '<span class="' . $class . '-list-image">' . $pic['content'] . '</span>';
-	}
-
-	$html .= "</a>";
-	if ($attr['excerpt'] && strlen($pic['excerpt'])) {
-	  $html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
-	}
-
-	$html .= "</li>\n";
+      if ($attr['show_thumb']) {
+	prepare_picture($pic);
+	$html .= '<span class="' . $class . '-list-image">' . $pic['content'] . '</span>';
       }
-      $html .= "</ul>";
-    }
-  } else {  // Produce table output
 
+      $html .= "</a>";
+      if ($attr['excerpt'] && strlen($pic['excerpt'])) {
+	$html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
+      }
+
+      $html .= "</li>\n";
+    }
+    $html .= "</ul>";
+  } else {  // Produce table output
     $viewer = $attr['imgrel'];
     if (strpos($viewer, '*')) {
       $viewer = str_replace( '*', ($attr['group']!='') ? '['.$attr['group'].']' : '', $viewer);
@@ -580,7 +572,7 @@ function autonav_wl_shortcode($attr) {
   return $html;
 }
 
-
+/* ********************** */
 
 // This goes into table wp_options as follows:
 //
@@ -597,11 +589,15 @@ function autonav_wloptions_init(){
   register_setting( 'autonav_wloptions_options', 'autonav_wl', 'autonav_wloptions_validate' );
 }
 
+/* ********************** */
+
 // Add menu page
 function autonav_wloptions_add_page() {
   // first string in page title (in html header), second string is title in menu
   add_submenu_page('options-general.php','AutoNav Options','AutoNav',8, __FILE__, 'autonav_wloptions_do_page');
 }
+
+/* ********************** */
 
 // Draw the menu page itself
 function autonav_wloptions_do_page() {
