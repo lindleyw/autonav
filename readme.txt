@@ -211,6 +211,11 @@ For example:
 Yes, using the Media Library in the admin screens, set an image's Order
 to -101 or less, and it will not be shown with [autonav display=attached]
 
+You can also set the post_status of an attachment to 'private' or
+'draft' although Wordpress gives you no menus to do this, and as of
+Wordpress 2.9 the Media Manager has some problems (showing size=0)
+with attachments so set.
+
 = Some of my images do not appear. =
 
 If you upload a picture with a filename that resembles Wordpress' resized
