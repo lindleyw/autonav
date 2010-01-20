@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.4
+Version: 1.2.5
 Author URI: http://www.wlindley.com/
 */
 
@@ -326,7 +326,17 @@ function get_subpages ($attr) {
     }
   } else {
     if (!$child_pages[0]) {
-      $child_pages = array($post->ID);
+
+      $show_on_front = get_option('show_on_front');
+      $page_on_front = get_option('page_on_front');
+      if ($show_on_front == 'page' && $page_on_front == $post->ID ) {
+        $child_pages = array(0, $post->ID); // children of "Main Page (no parent)" and us explicitly
+        if (!$attr['self']) { // except ourself (will the "real" homepage please stand up)
+          $attr['exclude'] = $post->ID . ($attr['exclude'] !== '' ? ','.$attr['exclude'] : '');
+        }
+      } else {
+        $child_pages = array($post->ID);
+      }
       $my_children = 1;
     }
   }
