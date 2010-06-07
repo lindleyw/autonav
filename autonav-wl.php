@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.5
+Version: 1.2.6
 Author URI: http://www.wlindley.com/
 */
 
@@ -76,6 +76,17 @@ function resize_crop (&$attr, $prefix) {
       return;
     }
     $to_image = imagecreatetruecolor($dst_w, $dst_h);
+
+    $bkg = substr($attr['background'], 0, 7);
+    if (preg_match('/#[0-9a-fA-F]{6}/', $bkg)) {
+      $fill_color = sscanf($bkg, '#%2x%2x%2x');
+      imagefilledrectangle($to_image, 0, 0, $dst_w, $dst_h, $fill_color);
+    }
+
+    // Create transparent images -- for possible PNG output
+    // imagealphablending($to_image, true);
+    // imagesavealpha ($to_image, true);
+
     // Create image in memory:
     imagecopyresampled( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
     imagejpeg($to_image, $to_file_path, 90);  // Creates file
@@ -252,9 +263,13 @@ function pic_info_for($attr, $id) {
   $pic_info = create_images_for($attr, $attached_pic);
   if (is_array($pic_info)) {
     $post_info = get_post($id); // the attachment's post
-    $pic_info['title'] = $post_info->post_excerpt; // Attachment caption stored here
-    $pic_info['description'] = $post_info->post_content; // and description
-    $pic_info['alt_text'] = $post_info->post_title;
+    $pic_info['caption'] = $post_info->post_excerpt; // Attachment: Caption
+    $pic_info['description'] = $post_info->post_content; // Attachment: Description
+    $pic_info['title'] = $post_info->post_title; // Attachment: Title
+
+    $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+    if(count($alt)) $pic_info['alt_text'] = $alt; // Attachment: Alternate Text
+
     return $pic_info;
   }
   return;
@@ -307,6 +322,52 @@ function get_selected_thumbnail ($attr, $pid) {
     }
   }
   return;
+}
+
+/* ********************** */
+
+function get_pics_info($attr, $pages) {
+  $wp_dir = wp_upload_dir(); // ['basedir'] is local path, ['baseurl'] as seen from browser
+  $disp_pages = array();
+  $picpages_only = ($attr['display'] == 'list') ? 0 : $attr['pics_only'];
+
+  foreach ($pages as $page) {
+    $pic_info = array();
+    $ximg = get_post_meta($page->ID, 'subpage_thumb', 1);
+    if ($ximg != '') { // Specified exact thumbnail image
+      if ( preg_match( '|^https?://|i', $ximg ) ) {
+	$pic_info['image_url'] = $ximg; // as explicit URL
+      } else {
+	// local file... assume full-size picture given, and automagically create thumbnail
+	$pic_info = create_images_for($attr, $ximg);
+      }
+    } else { // Use selected thumbnail; or first attached image, if any
+      $pics = get_selected_thumbnail($attr, $page->ID);
+      if (!is_array($pics)) {
+	$pics = get_images_attached($attr, $page->ID, 1);
+      }
+      if (is_array($pics)) {
+	$pic_info = $pics[0]; // should be exactly one
+      }
+    }
+
+    if ((!$picpages_only) || $pic_info['image_url'] != '') {
+      $pic_info['linkto'] = 'page';
+      $pic_info['page'] = $page;
+      $pic_info['permalink'] = get_permalink($page->ID);
+
+      $pic_info['excerpt'] = get_post_meta($page->ID, 'subpage_excerpt', 1);
+      if ($pic_info['excerpt'] == '') $pic_info['excerpt'] = $page->post_excerpt;
+
+      $pic_info['title'] = get_post_meta($page->ID, 'subpage_title', 1);
+      if ($pic_info['title'] == '') $pic_info['title'] = $page->post_title;
+
+      $disp_pages[] = $pic_info;
+    }
+  }
+
+  return $disp_pages;
+
 }
 
 /* ********************** */
@@ -367,55 +428,27 @@ function get_subpages ($attr) {
   if (count($pages) == 0) {
     return;
   }
+  return get_pics_info($attr, $pages);
 
-  $wp_dir = wp_upload_dir(); // ['basedir'] is local path, ['baseurl'] as seen from browser
-  $disp_pages = array();
-  $picpages_only = ($attr['display'] == 'list') ? 0 : $attr['pics_only'];
+}
 
-  foreach ($pages as $page) {
-    $pic_info = array();
-    $ximg = get_post_meta($page->ID, 'subpage_thumb', 1);
-    if ($ximg != '') { // Specified exact thumbnail image
-      if ( preg_match( '|^https?://|i', $ximg ) ) {
-	$pic_info['image_url'] = $ximg; // as explicit URL
-      } else {
-	// local file... assume full-size picture given, and automagically create thumbnail
-	$pic_info = create_images_for($attr, $ximg);
-      }
-    } else { // Use selected thumbnail; or first attached image, if any
-      $pics = get_selected_thumbnail($attr, $page->ID);
-      if (!is_array($pics)) {
-	$pics = get_images_attached($attr, $page->ID, 1);
-      }
-      if (is_array($pics)) {
-	$pic_info = $pics[0]; // should be exactly one
-      }
-    }
+/* ********************** */
 
-    if ((!$picpages_only) || $pic_info['image_url'] != '') {
-      $pic_info['linkto'] = 'page';
-      $pic_info['page'] = $page;
-      $pic_info['permalink'] = get_permalink($page->ID);
+function get_selposts($attr) {
+  $postids = $attr['postid'];
+  $these_posts = get_posts("include=$postids");
 
-      $pic_info['excerpt'] = get_post_meta($page->ID, 'subpage_excerpt', 1);
-      if ($pic_info['excerpt'] == '') $pic_info['excerpt'] = $page->post_excerpt;
-
-      $pic_info['title'] = get_post_meta($page->ID, 'subpage_title', 1);
-      if ($pic_info['title'] == '') $pic_info['title'] = $page->post_title;
-
-      $disp_pages[] = $pic_info;
-    }
+  if (count($these_posts) == 0) {
+    return;
   }
-
-  return $disp_pages;
-
+  return get_pics_info($attr, $these_posts);
 }
 
 /* ********************** */
 
 function prepare_picture (&$pic) {
   $alt_text = strlen($pic['alt_text']) ? $pic['alt_text'] : $pic['title'];
-  $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. $alt_text . '" ' .
+  $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. esc_attr($alt_text) . '" ' .
     image_hwstring($pic['width'],$pic['height']) . ' />';
   if ($pic['permalink'] == '') {
     if ($pic['linkto'] == 'pic') {
@@ -502,10 +535,16 @@ function create_output($attr, $pic_info) {
 
       $my_img_rel = ($pic['linkto'] == 'pic') ? $img_rel : '';
       $html .= '<td class="' . $class . '-cell">';
-      $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel>" . $pic['content'] . "</a>";
-      if ($attr['titles'] && strlen($pic['title'])) {
-	$html .= '<p class="' . $class . '-text"><a href="' . $pic['permalink'] . '">' . $pic['title'] . "</a></p>";
+      $html_after = ''; $title_text = '';
+      if (strlen($pic['title'])) {
+        if ($attr['titles']) {
+	  $html_after = '<p class="' . $class . '-text"><a href="' . $pic['permalink'] . '">' . $pic['title'] . "</a></p>";
+	} else {
+	  $title_text = ' title="' . esc_attr($pic['title']) . '"';
+	}
       }
+      $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel$title_text>" . $pic['content'] . "</a>$html_after";
+
       if ($attr['excerpt'] && strlen($pic['excerpt'])) {
 	$html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
       }
@@ -580,6 +619,8 @@ function autonav_wl_shortcode($attr) {
       $post_id = $post->ID;
     }
     $pic_info = get_images_attached($attr, $post_id, 0);
+  } elseif ($attr['display'] == 'posts') {
+    $pic_info = get_selposts($attr);
   } else {
     $attr['linkto'] = 'pic';
     $pic_info = get_images_from_folder($attr);
@@ -760,6 +801,7 @@ function autonav_wloptions_validate($input) {
   if ($input['order'] == '') { $input['order'] = 'ASC'; }
   if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
   $input['caption'] = '';
+  if ($input['background'] == '') { $input['background'] = '#000000'; }
   return $input;
 }
 
