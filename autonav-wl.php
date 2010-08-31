@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.6
+Version: 1.2.7
 Author URI: http://www.wlindley.com/
 */
 
@@ -436,7 +436,26 @@ function get_subpages ($attr) {
 
 function get_selposts($attr) {
   $postids = $attr['postid'];
-  $these_posts = get_posts("include=$postids");
+
+  if (preg_match('#^(\w+)\s*:\s*(.*?)\s*$#', $postids, $selection)) {
+    $type = strtolower($selection[1]);
+    $value = $selection[2];
+    $numeric_value = preg_match('#^[-0-9,]+#', $value); // '5,-3' counts as all numeric here
+    if ($type == 'tag') {
+      $query = "tag=$value";
+    } elseif ($type == 'author') {
+      $query = $numeric_value ? "author=$value" : "author_name=$value";
+    } else {   			// assume $type == 'category')
+      $query = $numeric_value ? "cat=$value" : "category_name=$value";
+    }
+    if ($attr['count']) { $query .= '&posts_per_page=' . $attr['count']; }
+    if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
+    // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
+    if ($attr['orderby']) { $query .= '&order=' . $attr['orderby']; } 
+    $these_posts = get_posts($query);
+  } else {
+    $these_posts = get_posts("include=$postids");
+  }
 
   if (count($these_posts) == 0) {
     return;

@@ -3,7 +3,7 @@ Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, navigation, gallery, thumbnail, thumbnails
 Requires at least: 2.8
-Tested up to: 2.9.2
+Tested up to: 3.0.1
 Stable tag: trunk
 
 Plugin has two modes. In navigation mode: Creates a list or table of the current page's child pages. Tables are composed of linked thumbnail pictures based a custom field in each child page, or the child page's attached picture. In gallery mode: Creates one or more tables of linked thumbnail pictures based on the current page's attachments, or on specified directories of picture files under the uploads directory.
@@ -105,6 +105,20 @@ wp-content/uploads/project2 directory, in the specified order.
 		     NOTE: Can specify a comma-separated list of IDs.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
+
+In addition to a numeric postid, you may select posts as follows:
+
+     postid="category:17"    posts in a numeric category or categories
+     postid="category:-17"   posts *not* in a numeric category
+     postid="category:cakes" posts by category name
+     postid="tag:37,38,53"   posts with numerically specified tag(s)
+     postid="tag:chocolate"  posts by tag name
+     postid="author:27"      posts by a specific author by ID
+     postid="author:Todd"    posts by author name
+
+Categories and tags can also have multiple values separated by commas (posts in
+any of the categories or tags) or '+' plus signs (posts which are in all of the
+categories or tags).
 
 == Installation ==
 
@@ -353,3 +367,10 @@ Corrected typo
 * Add background parameter for later support of transparency in PNG images
 * Support display=posts parameter, to display posts instead of pages or attached images.
 * Alternate text and title text for attached images, as set in admin screens, is used.
+
+= 1.2.7 =
+* Ability to select posts by "tag:x", "author:x", or "category:x" where "x" is
+  a numeric id or text (tag slug, author name, or category name); or a series
+  thereof ("5,7,9" to select posts in category 5, 7, or 9; or "cakes+vanilla" for
+  posts tagged with both cakes and vanilla; see query_posts() in codex for details)
+  Example: [autonav display="posts" postid="tag:7"]
