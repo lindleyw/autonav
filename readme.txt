@@ -374,3 +374,8 @@ Corrected typo
   thereof ("5,7,9" to select posts in category 5, 7, or 9; or "cakes+vanilla" for
   posts tagged with both cakes and vanilla; see query_posts() in codex for details)
   Example: [autonav display="posts" postid="tag:7"]
+
+= 1.2.8 =
+* Plugin activation hook to create default settings, or otherwise provide reasonable
+  defaults for new parameters. This should eliminate plugin failures even when admin
+  does not go through Settings screen.
