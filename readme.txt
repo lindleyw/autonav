@@ -64,6 +64,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		          pages of this post. 
 		     list -- displays a list of links to the child pages of this post.
 		     attached -- displays a table of images attached to the post
+		     posts -- displays pages or posts listed in the postid="" parameter
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
 		     Optional parameters, in a comma-separated list:
@@ -100,9 +101,9 @@ wp-content/uploads/project2 directory, in the specified order.
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
      exclude="3,5"   Excludes pages with ID 3 and 5 from the list (with display="list")
-     postid="123"    Displays images or subpages attached to the page or post
-     		     with the given ID, instead of the current page or post.
-		     NOTE: Can specify a comma-separated list of IDs.
+     postid="123"    Displays images or subpages attached to the page(s) or post(s)
+     		     with the given ID, or comma-delimited list of IDs, instead of the
+		     current page or post. Can also select posts in category/tag/author.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
