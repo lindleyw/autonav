@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.8
+Version: 1.2.9
 Author URI: http://www.wlindley.com/
 */
 
@@ -72,6 +72,8 @@ function resize_crop (&$attr, $prefix) {
       $from_image = imagecreatefromjpeg($pic_full_path);
     } elseif (preg_match("#png#", $ext)) {
       $from_image = imagecreatefrompng($pic_full_path);
+    } elseif (preg_match("#gif#", $ext)) {
+      $from_image = imagecreatefromgif($pic_full_path);
     } else {
       return;
     }
@@ -448,7 +450,7 @@ function get_selposts($attr) {
     } else {   			// assume $type == 'category')
       $query = $numeric_value ? "cat=$value" : "category_name=$value";
     }
-    if ($attr['count']) { $query .= '&posts_per_page=' . $attr['count']; }
+    if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
     if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
     // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
     if ($attr['orderby']) { $query .= '&order=' . $attr['orderby']; } 
