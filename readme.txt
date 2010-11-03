@@ -380,3 +380,6 @@ Corrected typo
 * Plugin activation hook to create default settings, or otherwise provide reasonable
   defaults for new parameters. This should eliminate plugin failures even when admin
   does not go through Settings screen.
+
+= 1.2.9 =
+* Add support for .gif files; correct pagination issue for categories
