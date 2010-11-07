@@ -6,7 +6,7 @@ Requires at least: 2.8
 Tested up to: 3.0.1
 Stable tag: trunk
 
-Plugin has two modes. In navigation mode: Creates a list or table of the current page's child pages. Tables are composed of linked thumbnail pictures based a custom field in each child page, or the child page's attached picture. In gallery mode: Creates one or more tables of linked thumbnail pictures based on the current page's attachments, or on specified directories of picture files under the uploads directory.
+Creates a list/tables of text/thumbnail links to the current page's children; OR Creates tables of thumbnail links to gallery directories, posts by category/author/tag, or attachments.
 
 == Description ==
 
@@ -97,6 +97,9 @@ wp-content/uploads/project2 directory, in the specified order.
      crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
      start="1"       Starts at the second image or page (counting from zero)
      count="2"       Includes only two images or pages
+     paged="12"      Displays 12 images on one 'page' along with next/prev, and page
+     		     numbers.  NOTE: 'start' and 'count' are applied first to trim
+		     which images are included in those displayed and paged.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
@@ -381,5 +384,6 @@ Corrected typo
   defaults for new parameters. This should eliminate plugin failures even when admin
   does not go through Settings screen.
 
-= 1.2.9 =
-* Add support for .gif files; correct pagination issue for categories
+= 1.3.0 =
+* Add 'paged' parameter.  Correction on page selection (formerly, the start and count
+  parameters were applied twice, resulting in too few pages being displayed)
