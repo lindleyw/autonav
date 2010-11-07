@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.2.9
+Version: 1.3.0
 Author URI: http://www.wlindley.com/
 */
 
@@ -443,6 +443,7 @@ function get_selposts($attr) {
     $type = strtolower($selection[1]);
     $value = $selection[2];
     $numeric_value = preg_match('#^[-0-9,]+#', $value); // '5,-3' counts as all numeric here
+
     if ($type == 'tag') {
       $query = "tag=$value";
     } elseif ($type == 'author') {
@@ -452,6 +453,7 @@ function get_selposts($attr) {
     }
     if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
     if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
+
     // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
     if ($attr['orderby']) { $query .= '&order=' . $attr['orderby']; } 
     $these_posts = get_posts($query);
@@ -491,6 +493,20 @@ function create_output($attr, $pic_info) {
 
   if (!is_array($pic_info)) { // nothing to do
     return '';
+  }
+
+  $total_pages = 1;
+  // Pagination: Break candidate images, selected above, into pages.
+  if ($attr['paged'] > 0) {
+    $total_pages = ceil(count($pic_info) / $attr['paged']);
+    $cur_page = 1;
+    global $wp_query;    // For pagination
+    if( isset( $wp_query->query_vars['paged'] )) {
+      // no page number, or page 1, gives offset 0.
+      $cur_page = max(1, $wp_query->query_vars['page'] );
+    }
+    // Now select only current page.
+    $pic_info = array_slice($pic_info, ($cur_page - 1) * $attr['paged'], $attr['paged']);
   }
 
   $html = '';
@@ -584,6 +600,17 @@ function create_output($attr, $pic_info) {
     if ($in_table) { $html .= $end_table; }
   }
 
+  if ($total_pages > 1) {	// display pagination links
+    $html .= '<p class="' . $class . '-pages">';
+    // Possibly permit override of 'next_text', 'prev_text', etc. - see /wp-includes/general_template.php
+    $paginate_args = array('base' => get_permalink() . '%_%',
+			   'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
+    $mybase = get_permalink();
+    if (strpos($mybase,'?') !== FALSE) { $paginate_args['format'] = '&page=%#%'; } // append rather than start arg
+    $html .= paginate_links($paginate_args);
+    $html .= '</p>';
+
+  }
   return $html;
 }
 
@@ -642,6 +669,8 @@ function autonav_wl_shortcode($attr) {
     $pic_info = get_images_attached($attr, $post_id, 0);
   } elseif ($attr['display'] == 'posts') {
     $pic_info = get_selposts($attr);
+    $attr['start'] = 0;		// start,count handled inside get_selposts query
+    $attr['count'] = 0; 
   } else {
     $attr['linkto'] = 'pic';
     $pic_info = get_images_from_folder($attr);
@@ -819,6 +848,7 @@ function autonav_wloptions_validate($input) {
   $input['postid'] = 0;
   $input['start'] = 0;
   $input['count'] = 0;
+  if (!isset ($input['paged'])) { $input['paged'] = 0; }
   if ($input['order'] == '') { $input['order'] = 'ASC'; }
   if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
   $input['caption'] = '';
