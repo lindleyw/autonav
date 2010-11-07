@@ -124,6 +124,8 @@ function get_images_from_folder($attr) {
     // Sort names ('order' is ASC or DESC)
     if (strtolower($attr['order']) == 'desc') {
       rsort($sorted_files, SORT_STRING);
+    } elseif (strtolower($attr['order']) == 'rand') {
+      shuffle($sorted_files);
     } else {
       sort($sorted_files, SORT_STRING);
     }
@@ -288,12 +290,13 @@ function get_images_attached($attr, $pid, $limit) {
     $pid = $post->ID;
   }
   $order = strtolower($attr['order']) == 'desc' ? 'desc' : 'asc';
+  $orderby = strtolower($attr['order']) == 'rand' ? 'rand' : 'menu_order';
 
   // use post_status=inherit to disable finding attachments that are set to draft or private
   $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
                                     'numberposts' => $limit >= 1 ? $limit : -1,
                                     'post_type' => 'attachment', 'post_mime_type' => 'image',
-				    'post_status' => 'inherit', 'orderby' => 'menu_order',
+				    'post_status' => 'inherit', 'orderby' => $orderby,
 				    'order' => $order));
   if (empty ($attachments)) return $pics_info;
 

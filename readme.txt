@@ -100,6 +100,7 @@ wp-content/uploads/project2 directory, in the specified order.
      paged="12"      Displays 12 images on one 'page' along with next/prev, and page
      		     numbers.  NOTE: 'start' and 'count' are applied first to trim
 		     which images are included in those displayed and paged.
+     order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
