@@ -388,3 +388,6 @@ Corrected typo
 = 1.3.0 =
 * Add 'paged' parameter.  Correction on page selection (formerly, the start and count
   parameters were applied twice, resulting in too few pages being displayed)
+
+= 1.3.1 =
+* Support random order for pages. Thanks http://wordpress.org/support/profile/thomas_n for the patch.
