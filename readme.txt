@@ -64,6 +64,8 @@ wp-content/uploads/project2 directory, in the specified order.
 		          pages of this post. 
 		     list -- displays a list of links to the child pages of this post.
 		     attached -- displays a table of images attached to the post
+		     attachments -- displays attachments selected with J. Christopher's
+		          "Attachments" plugin
 		     posts -- displays pages or posts listed in the postid="" parameter
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
@@ -124,6 +126,9 @@ In addition to a numeric postid, you may select posts as follows:
 Categories and tags can also have multiple values separated by commas (posts in
 any of the categories or tags) or '+' plus signs (posts which are in all of the
 categories or tags).
+
+NOTE: J. Christopher's Attachments plugin lets you attach anything in Wordpress's
+Media Gallery to any post.  See:  http://wordpress.org/extend/plugins/attachments
 
 == Installation ==
 
