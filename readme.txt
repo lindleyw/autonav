@@ -391,3 +391,6 @@ Corrected typo
 
 = 1.3.1 =
 * Support random order for pages. Thanks http://wordpress.org/support/profile/thomas_n for the patch.
+
+= 1.3.2 =
+* Support Jonathan Christopher's Attachments plugin http://mondaybynoon.com/wordpress-attachments/

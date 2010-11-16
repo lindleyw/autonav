@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.1
+Version: 1.3.2
 Author URI: http://www.wlindley.com/
 */
 
@@ -309,6 +309,31 @@ function get_images_attached($attr, $pid, $limit) {
   }
 
   return $pics_info;
+}
+
+/* ********************** */
+
+function get_attachments($attr, $pid, $limit) {
+  global $post;
+
+  if (function_exists('attachments_get_attachments')) {
+    if ($pid == 0) {
+      $pid = $post->ID;
+    }
+    $attachments = attachments_get_attachments($pid);
+    $pic_info = array();
+
+    // Title, caption override?
+    foreach ($attachments as $attach_info) {
+      $pic_info = pic_info_for($attr,$attach_info['id']);
+      if (is_array($pic_info)) {
+	$pics_info[] = $pic_info;
+      }
+    }
+    
+    return $pics_info;
+  }
+
 }
 
 /* ********************** */
@@ -666,13 +691,17 @@ function autonav_wl_shortcode($attr) {
   }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
-  } elseif ($attr['display'] == 'attached') {
+  } elseif (substr($attr['display'],0,6) == 'attach') {
     $attr['linkto'] = 'pic';
     $post_id = $attr['postid'];
     if (!$post_id) {
       $post_id = $post->ID;
     }
-    $pic_info = get_images_attached($attr, $post_id, 0);
+    if ($attr['display'] == 'attachments') {
+      $pic_info = get_attachments($attr, $post_id, 0);
+    } else {
+      $pic_info = get_images_attached($attr, $post_id, 0);
+    }
   } elseif ($attr['display'] == 'posts') {
     $pic_info = get_selposts($attr);
     $attr['start'] = 0;		// start,count handled inside get_selposts query
