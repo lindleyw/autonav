@@ -66,7 +66,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		     attached -- displays a table of images attached to the post
 		     attachments -- displays attachments selected with J. Christopher's
 		          "Attachments" plugin
-		     posts -- displays pages or posts listed in the postid="" parameter
+		     posts -- displays table of posts listed in the postid="" parameter
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
 		     Optional parameters, in a comma-separated list:
@@ -75,6 +75,7 @@ wp-content/uploads/project2 directory, in the specified order.
 			  title    -- Display the page's title
 			  siblings -- Display sibling pages (other children of parent)
 			  self     -- Include this page in siblings (normally excluded)
+			  list     -- Used with display="posts" for list, not table
 			Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images

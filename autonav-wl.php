@@ -546,7 +546,7 @@ function create_output($attr, $pic_info) {
     $class = 'subpages';
   }
 
-  if ($attr['display'] == 'list') { // Produce list output
+  if ($attr['display'] == 'list' || $attr['list']) { // Produce list output
     $html = '<ul class="' . $class . '-list">';
     foreach ($pic_info as $pic) { // well, really page not picture
       $html .= '<li class="' . $class . '-item"><a href="' . $pic['permalink'] . '">'. $pic['title'];
@@ -688,6 +688,7 @@ function autonav_wl_shortcode($attr) {
     if (strpos($o, 'thumb') !== false) $attr['show_thumb'] = 1;
     if (strpos($o, 'siblings') !== false) $attr['siblings'] = 1;
     if (strpos($o, 'self') !== false) $attr['self'] = 1;
+    if (strpos($o, 'list') !== false) $attr['list'] = 1;
   }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
