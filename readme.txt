@@ -400,3 +400,7 @@ Corrected typo
 
 = 1.3.2 =
 * Support Jonathan Christopher's Attachments plugin http://mondaybynoon.com/wordpress-attachments/
+
+= 1.3.3 =
+* Permit order="desc" on pages as well as posts http://wordpress.org/support/topic/autonav-order-desc?post-1823500
+
