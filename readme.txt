@@ -104,6 +104,10 @@ wp-content/uploads/project2 directory, in the specified order.
      		     numbers.  NOTE: 'start' and 'count' are applied first to trim
 		     which images are included in those displayed and paged.
      order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
+     orderby="x"     Where 'x' is one of the orderby parameters from:
+                     http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
+		     The orderby parameter is not used when displaying attachments or
+		     images from a directory.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
