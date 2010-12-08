@@ -408,3 +408,5 @@ Corrected typo
 = 1.3.3 =
 * Permit order="desc" on pages as well as posts http://wordpress.org/support/topic/autonav-order-desc?post-1823500
 
+= 1.3.4 =
+* Correct handling of order, orderby, and count parameters in various combinations of display="posts"

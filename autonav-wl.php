@@ -290,6 +290,7 @@ function get_images_attached($attr, $pid, $limit) {
     $pid = $post->ID;
   }
   $order = strtolower($attr['order']) == 'desc' ? 'desc' : 'asc';
+  // NOTE: Possibly use $attr['orderby'] directly at risk of breaking backwards compability
   $orderby = strtolower($attr['order']) == 'rand' ? 'rand' : 'menu_order';
 
   // use post_status=inherit to disable finding attachments that are set to draft or private
@@ -484,15 +485,20 @@ function get_selposts($attr) {
     } else {   			// assume $type == 'category')
       $query = $numeric_value ? "cat=$value" : "category_name=$value";
     }
-    if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
-    if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
-
-    // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
-    if ($attr['orderby']) { $query .= '&order=' . $attr['orderby']; } 
-    $these_posts = get_posts($query);
   } else {
-    $these_posts = get_posts("include=$postids");
+    $query = "include=$postids";
   }
+  if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
+  if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
+
+  // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
+  if (strtolower($attr['order']) == 'rand') {
+    $attr['orderby'] = 'rand'; 	// for backwards compatibility
+    $attr['order'] = '';
+  }
+  if ($attr['order']) { $query .= '&order=' . $attr['order']; } 
+  if ($attr['orderby']) { $query .= '&orderby=' . $attr['orderby']; } 
+  $these_posts = get_posts($query);
 
   if (count($these_posts) == 0) {
     return;
