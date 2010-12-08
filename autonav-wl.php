@@ -496,6 +496,12 @@ function get_selposts($attr) {
     $attr['orderby'] = 'rand'; 	// for backwards compatibility
     $attr['order'] = '';
   }
+  if (strtolower($attr['orderby']) == 'menu_order') { // useless for posts
+    $attr['orderby'] = 'post_date'; 	// a sensible default, and backwards compatible
+    if (strtoupper($attr['order']) == $attr['order']) { // default order? override
+      $attr['order'] = 'desc';
+    }
+  }
   if ($attr['order']) { $query .= '&order=' . $attr['order']; } 
   if ($attr['orderby']) { $query .= '&orderby=' . $attr['orderby']; } 
   $these_posts = get_posts($query);
@@ -666,6 +672,7 @@ function autonav_wl_shortcode($attr) {
   $options = get_option('autonav_wl');
 
   // Default values come from saved configuration
+  $attr['order'] = strtolower($attr['order']); // so we can make 'desc' default for posts, regardless of option setting
   $attr = (shortcode_atts($options, $attr));
 
   // display can be: 'images' or 'list' (for child pages), '/folder' for images from directory,
@@ -772,7 +779,11 @@ function autonav_wloptions_do_page() {
     if ($options['size_small'] == '') { $options['size_small'] = '120x90'; }
     if ($options['size_med'] == '') { $options['size_med'] = '160x120'; }
     if ($options['size_large'] == '') { $options['size_large'] = '240x180'; }
-    if ($options['order'] == '') { $options['order'] = 'ASC'; }
+    if ($options['order'] == '') { 
+      $options['order'] = 'ASC';
+    } else {
+      $options['order'] = strtoupper($options['order']); // so we can make 'desc' default for posts, regardless
+    }
     if ($options['orderby'] == '') { $options['orderby'] = 'menu_order'; }
 ?>
 <table class="form-table">
