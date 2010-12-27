@@ -410,3 +410,5 @@ Corrected typo
 
 = 1.3.4 =
 * Correct handling of order, orderby, and count parameters in various combinations of display="posts"
+* Add modifier "image" which, used as: [autonav display="posts,image"] will create a link to the (thumbnail) image for the post, rather than to the post itself.
+

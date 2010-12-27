@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.3
+Version: 1.3.4
 Author URI: http://www.wlindley.com/
 */
 
@@ -383,9 +383,10 @@ function get_pics_info($attr, $pages) {
     }
 
     if ((!$picpages_only) || $pic_info['image_url'] != '') {
-      $pic_info['linkto'] = 'page';
+      $pic_info['linkto'] = strlen($attr['linkto'])?$attr['linkto']:'page';
       $pic_info['page'] = $page;
-      $pic_info['permalink'] = get_permalink($page->ID);
+      $pic_info['permalink'] = ($pic_info['linkto'] == 'pic') ?
+	$pic_info['pic_full_url']: get_permalink($page->ID);
 
       $pic_info['excerpt'] = get_post_meta($page->ID, 'subpage_excerpt', 1);
       if ($pic_info['excerpt'] == '') $pic_info['excerpt'] = $page->post_excerpt;
@@ -396,7 +397,7 @@ function get_pics_info($attr, $pages) {
       $disp_pages[] = $pic_info;
     }
   }
-
+  print_r($disp_pages);
   return $disp_pages;
 
 }
@@ -704,6 +705,7 @@ function autonav_wl_shortcode($attr) {
     if (strpos($o, 'siblings') !== false) $attr['siblings'] = 1;
     if (strpos($o, 'self') !== false) $attr['self'] = 1;
     if (strpos($o, 'list') !== false) $attr['list'] = 1;
+    if (strpos($o, 'image') !== false) $attr['linkto'] = 'pic';
   }
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
