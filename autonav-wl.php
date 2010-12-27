@@ -397,7 +397,6 @@ function get_pics_info($attr, $pages) {
       $disp_pages[] = $pic_info;
     }
   }
-  print_r($disp_pages);
   return $disp_pages;
 
 }
