@@ -502,6 +502,9 @@ function get_selposts($attr) {
       $attr['order'] = 'desc';
     }
   }
+  if (strtolower($attr['orderby']) == 'postmash') { // PostMash plugin actually uses post menu_order
+    $attr['orderby'] = 'menu_order';
+  }
   if ($attr['order']) { $query .= '&order=' . $attr['order']; } 
   if ($attr['orderby']) { $query .= '&orderby=' . $attr['orderby']; } 
   $these_posts = get_posts($query);

@@ -109,7 +109,7 @@ wp-content/uploads/project2 directory, in the specified order.
      orderby="x"     Where 'x' is one of the orderby parameters from:
                      http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
 		     The orderby parameter is not used when displaying attachments or
-		     images from a directory.
+		     images from a directory. 'pagemash' uses the PageMash plugin's order.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
