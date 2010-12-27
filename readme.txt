@@ -76,6 +76,8 @@ wp-content/uploads/project2 directory, in the specified order.
 			  siblings -- Display sibling pages (other children of parent)
 			  self     -- Include this page in siblings (normally excluded)
 			  list     -- Used with display="posts" for list, not table
+			  image    -- For posts, link to full-size of thumbnail
+			  	      instead of to post itself
 			Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
