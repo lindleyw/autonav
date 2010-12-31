@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.4
+Version: 1.3.5
 Author URI: http://www.wlindley.com/
 */
 
@@ -90,7 +90,13 @@ function resize_crop (&$attr, $prefix) {
     // imagesavealpha ($to_image, true);
 
     // Create image in memory:
-    imagecopyresampled( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+    if ($attr['sharp']) {
+      imagecopyresized( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y,
+			  $dst_w, $dst_h, $src_w, $src_h);
+    } else {
+      imagecopyresampled( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y,
+			  $dst_w, $dst_h, $src_w, $src_h);
+    }
     imagejpeg($to_image, $to_file_path, 90);  // Creates file
 
     $attr['pic_'.$prefix] = $to_file;
@@ -908,6 +914,7 @@ function autonav_wloptions_validate($input) {
   $input['start'] = 0;
   $input['count'] = 0;
   if (!isset ($input['paged'])) { $input['paged'] = 0; }
+  if (!isset ($input['sharp'])) { $input['sharp'] = 0; }
   if ($input['order'] == '') { $input['order'] = 'ASC'; }
   if ($input['orderby'] == '') { $input['orderby'] = 'menu_order'; }
   $input['caption'] = '';

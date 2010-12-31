@@ -100,6 +100,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		     full -- combine all full rows into one table, with trailing
 			  row a separate table (so it can be centered)
      crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     sharp="1"       Uses (blocky) 'resize' instead of (smooth) 'resample' to downsize.
      start="1"       Starts at the second image or page (counting from zero)
      count="2"       Includes only two images or pages
      paged="12"      Displays 12 images on one 'page' along with next/prev, and page
@@ -414,3 +415,5 @@ Corrected typo
 * Correct handling of order, orderby, and count parameters in various combinations of display="posts"
 * Add modifier "image" which, used as: [autonav display="posts,image"] will create a link to the (thumbnail) image for the post, rather than to the post itself.
 
+= 1.3.5 = 
+* Add sharp parameter to use resize instead of resample.
