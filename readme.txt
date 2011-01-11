@@ -67,6 +67,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		     attachments -- displays attachments selected with J. Christopher's
 		          "Attachments" plugin
 		     posts -- displays table of posts listed in the postid="" parameter
+		     posts:TYPE -- displays posts in custom post type TYPE
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
 		     Optional parameters, in a comma-separated list:
@@ -100,6 +101,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		     full -- combine all full rows into one table, with trailing
 			  row a separate table (so it can be centered)
      crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     sharp="1"       Uses (blocky) 'resize' instead of (smooth) 'resample' to downsize.
      start="1"       Starts at the second image or page (counting from zero)
      count="2"       Includes only two images or pages
      paged="12"      Displays 12 images on one 'page' along with next/prev, and page
@@ -136,6 +138,16 @@ categories or tags).
 
 NOTE: J. Christopher's Attachments plugin lets you attach anything in Wordpress's
 Media Gallery to any post.  See:  http://wordpress.org/extend/plugins/attachments
+
+NOTE: Additional example values for Sharp parameter:
+
+   * 0 -- standard smooth resample
+   * 1 -- standard blocky resize
+   * 60 -- resize, with 60% image quality on JPEG save
+   * 95.75 -- intermediate image resized down by 75%, then resampled to final
+          giving a "75% sharpness" factor, then saved with 95% image quality
+   * 90.50 -- "50% sharpness" and 90% image quality
+   * -60 -- resampled, and saved with 60% image quality
 
 == Installation ==
 
@@ -414,3 +426,13 @@ Corrected typo
 * Correct handling of order, orderby, and count parameters in various combinations of display="posts"
 * Add modifier "image" which, used as: [autonav display="posts,image"] will create a link to the (thumbnail) image for the post, rather than to the post itself.
 
+= 1.3.5 = 
+* Add sharp parameter to use resize instead of resample.
+
+= 1.3.6 =
+* Add subpages-image class to images
+* Permit display="posts:foods" to display custom posts of type "foods"
+* Added Sharpness factor and image quality level
+* Better memory handling, with imagedestroy while resizing images
+* Explicitly specifying an image, even if thumbnail-sized or smaller, will work
+  (so long as it does not end in a size; "foo.jpg" OK but "foo-64x64.jpg" will be skipped)
