@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.5a
+Version: 1.3.6
 Author URI: http://www.wlindley.com/
 */
 
@@ -89,15 +89,35 @@ function resize_crop (&$attr, $prefix) {
     // imagealphablending($to_image, true);
     // imagesavealpha ($to_image, true);
 
+    $quality = abs($attr['sharp']);
+    if ($quality < 10) { $quality = 90; } // sharpness parameter becomes quality
+
     // Create image in memory:
-    if ($attr['sharp']) {
-      imagecopyresized( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y,
-			  $dst_w, $dst_h, $src_w, $src_h);
+    if ($attr['sharp'] > 0) {   // positive for pixellated, zero or negative for smooth
+      if ($quality > 90) {      // create intermediate size
+        $i_factor = 1 - ($quality - floor($quality)); // 90.3333 becomes sharp factor .6666
+        if ($i_factor == 0) { $i_factor = 1/2; }
+        $interm_h = floor(($dst_h + $src_h) * $i_factor);
+        $interm_w = floor(($dst_w + $src_w) * $i_factor);
+        $interm_image = imagecreatetruecolor($interm_w, $interm_h);
+        imagecopyresized( $interm_image, $from_image,
+                          $dst_x * $i_factor, $dst_y * $i_factor, $src_x * $i_factor, $src_y * $i_factor,
+                          $interm_w, $interm_h, $src_w, $src_h);
+        imagecopyresampled( $to_image, $interm_image,
+                            $dst_x, $dst_y, $dst_x * $i_factor, $dst_y * $i_factor,
+                            $dst_w, $dst_h, $interm_w, $interm_h);
+        imagedestroy($interm_image);
+      } else {
+        imagecopyresized( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y,
+                          $dst_w, $dst_h, $src_w, $src_h);
+      }
     } else {
       imagecopyresampled( $to_image, $from_image, $dst_x, $dst_y, $src_x, $src_y,
-			  $dst_w, $dst_h, $src_w, $src_h);
+                          $dst_w, $dst_h, $src_w, $src_h);
     }
-    imagejpeg($to_image, $to_file_path, 90);  // Creates file
+    imagedestroy($from_image);
+    imagejpeg($to_image, $to_file_path, $quality);  // Creates file			 
+    imagedestroy($to_image);
 
     $attr['pic_'.$prefix] = $to_file;
     $attr['pic_'.$prefix.'_path'] = $to_file_path;
@@ -219,15 +239,22 @@ function get_images_from_folder($attr) {
       }
 
       // Find or create thumbnail
-      $size_params = image_resize_dimensions($pic_info['fullwidth'], $pic_info['fullheight'],
-					     $attr['width'], $attr['height'], $attr['crop']);
+      if ($pic_info['fullwidth'] < $attr['width'] && $pic_info['fullheight'] < $attr['height']) {
+	// requested full size image already qualifies as a thumbnail
+	$pic_info['thumbwidth'] = $pic_info['fullwidth'];
+	$pic_info['thumbheight'] = $pic_info['fullheight'];
+	$pic_info['pic_thumb'] = $pic_info['pic_full'];
+      } else {
+	$size_params = image_resize_dimensions($pic_info['fullwidth'], $pic_info['fullheight'],
+					       $attr['width'], $attr['height'], $attr['crop']);
+	$pic_info['thumbwidth'] = $size_params[4]; // new width and height, whether cropped or scaled-to-fit
+	$pic_info['thumbheight'] = $size_params[5];
+	$thumb_size = $pic_info['thumbwidth']. 'x' . $pic_info['thumbheight'];
+	$pic_info['pic_thumb'] = $pic_size_info[$apic_key][$thumb_size];
+      }
 
-      $pic_info['thumb_resample'] = $size_params;
-      $pic_info['thumbwidth'] = $size_params[4]; // new width and height, whether cropped or scaled-to-fit
-      $pic_info['thumbheight'] = $size_params[5];
-      $thumb_size = $size_params[4] . 'x' . $size_params[5];
-      $pic_info['pic_thumb'] = $pic_size_info[$apic_key][$thumb_size];
       $pic_info['sharp'] = $attr['sharp'];
+
       if ($pic_info['pic_thumb'] == '') {
 	// properly sized full image does not exist; create it
 	resize_crop($pic_info, 'thumb'); // creates ['pic_thumb'], ['pic_thumb_url'] in $pic_info
@@ -239,6 +266,7 @@ function get_images_from_folder($attr) {
       $pic_info['width'] = $pic_info['thumbwidth'];
       $pic_info['height'] = $pic_info['thumbheight'];
       $pic_info['linkto'] = $attr['linkto'];
+      $pic_info['class'] = $attr['class'].'-image';
 
       $pics_info[] = $pic_info;
     }
@@ -495,6 +523,9 @@ function get_selposts($attr) {
   } else {
     $query = "include=$postids";
   }
+  if (preg_match('#^posts\s*:\s*(.*)#', $attr['display'], $value)) {
+    $query .= "&post_type=$value[1]"; // custom post type
+  }
   if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
   if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
 
@@ -527,7 +558,7 @@ function get_selposts($attr) {
 function prepare_picture (&$pic) {
   $alt_text = strlen($pic['alt_text']) ? $pic['alt_text'] : $pic['title'];
   $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. esc_attr($alt_text) . '" ' .
-    image_hwstring($pic['width'],$pic['height']) . ' />';
+    image_hwstring($pic['width'],$pic['height']) . ' class="' . $pic['class']. '" />';
   if ($pic['permalink'] == '') {
     if ($pic['linkto'] == 'pic') {
       $pic['permalink'] = $pic['pic_full_url']; // link to fullsize image
@@ -566,9 +597,6 @@ function create_output($attr, $pic_info) {
 
   $html = '';
   $class = $attr['class'];
-  if ($class == '') {
-    $class = 'subpages';
-  }
 
   if ($attr['display'] == 'list' || $attr['list']) { // Produce list output
     $html = '<ul class="' . $class . '-list">';
@@ -716,6 +744,10 @@ function autonav_wl_shortcode($attr) {
     if (strpos($o, 'list') !== false) $attr['list'] = 1;
     if (strpos($o, 'image') !== false) $attr['linkto'] = 'pic';
   }
+  if (!strlen($attr['class']) ) {
+    $attr['class'] = 'subpages';
+  }
+
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
   } elseif (substr($attr['display'],0,6) == 'attach') {
@@ -729,7 +761,7 @@ function autonav_wl_shortcode($attr) {
     } else {
       $pic_info = get_images_attached($attr, $post_id, 0);
     }
-  } elseif ($attr['display'] == 'posts') {
+  } elseif (substr($attr['display'], 0, 5) == 'posts') {
     $pic_info = get_selposts($attr);
     $attr['start'] = 0;		// start,count handled inside get_selposts query
     $attr['count'] = 0; 

@@ -67,6 +67,7 @@ wp-content/uploads/project2 directory, in the specified order.
 		     attachments -- displays attachments selected with J. Christopher's
 		          "Attachments" plugin
 		     posts -- displays table of posts listed in the postid="" parameter
+		     posts:TYPE -- displays posts in custom post type TYPE
 		     /folder -- displays a table of images located in the
 		          wp-content/uploads/folder directory
 		     Optional parameters, in a comma-separated list:
@@ -137,6 +138,16 @@ categories or tags).
 
 NOTE: J. Christopher's Attachments plugin lets you attach anything in Wordpress's
 Media Gallery to any post.  See:  http://wordpress.org/extend/plugins/attachments
+
+NOTE: Additional example values for Sharp parameter:
+
+   * 0 -- standard smooth resample
+   * 1 -- standard blocky resize
+   * 60 -- resize, with 60% image quality on JPEG save
+   * 95.75 -- intermediate image resized down by 75%, then resampled to final
+          giving a "75% sharpness" factor, then saved with 95% image quality
+   * 90.50 -- "50% sharpness" and 90% image quality
+   * -60 -- resampled, and saved with 60% image quality
 
 == Installation ==
 
@@ -417,3 +428,11 @@ Corrected typo
 
 = 1.3.5 = 
 * Add sharp parameter to use resize instead of resample.
+
+= 1.3.6 =
+* Add subpages-image class to images
+* Permit display="posts:foods" to display custom posts of type "foods"
+* Added Sharpness factor and image quality level
+* Better memory handling, with imagedestroy while resizing images
+* Explicitly specifying an image, even if thumbnail-sized or smaller, will work
+  (so long as it does not end in a size; "foo.jpg" OK but "foo-64x64.jpg" will be skipped)
