@@ -282,7 +282,7 @@ By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
 only for Posts, not Pages.  You can add a few lines of code to your theme's
 functions.php to enable the functional for Pages as well, see:
 
-     http://mfields.org/2008/04/02/how-to-activate-excerpts-for-pages-in-wordpress-admin-panel/
+    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
 
 = Can I call the plugin from a template? =
 
