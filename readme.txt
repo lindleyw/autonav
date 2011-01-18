@@ -279,10 +279,14 @@ to rename your original picture before uploading it into Wordpress.
 = How do I add manual excerpts to pages? =
 
 By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
-only for Posts, not Pages.  You can add a few lines of code to your theme's
+only for Posts, not Pages.  You can add a single line of code to your theme's
 functions.php to enable the functional for Pages as well, see:
 
     http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
+
+In functions.php, add this line:
+
+    add_post_type_support( 'page', 'excerpt' );
 
 = Can I call the plugin from a template? =
 
