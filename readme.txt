@@ -112,6 +112,9 @@ wp-content/uploads/project2 directory, in the specified order.
                      http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
 		     The orderby parameter is not used when displaying attachments or
 		     images from a directory. 'pagemash' uses the PageMash plugin's order.
+		     'meta:subpage_title' sorts by the custom field 'subpage_title'
+		     or you can use any other custom field; note that Wordpress will ignore
+		     posts or pages without that custom field.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		       tag to be: rel="lightbox[vacation1]
@@ -279,10 +282,14 @@ to rename your original picture before uploading it into Wordpress.
 = How do I add manual excerpts to pages? =
 
 By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
-only for Posts, not Pages.  You can add a few lines of code to your theme's
+only for Posts, not Pages.  You can add a single line of code to your theme's
 functions.php to enable the functional for Pages as well, see:
 
-     http://mfields.org/2008/04/02/how-to-activate-excerpts-for-pages-in-wordpress-admin-panel/
+    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
+
+In functions.php, add this line:
+
+    add_post_type_support( 'page', 'excerpt' );
 
 = Can I call the plugin from a template? =
 
@@ -436,3 +443,6 @@ Corrected typo
 * Better memory handling, with imagedestroy while resizing images
 * Explicitly specifying an image, even if thumbnail-sized or smaller, will work
   (so long as it does not end in a size; "foo.jpg" OK but "foo-64x64.jpg" will be skipped)
+
+= 1.3.7 =
+* Support orderby="meta:subpage_title" and other custom fields

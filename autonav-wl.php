@@ -4,11 +4,11 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.6
+Version: 1.3.7
 Author URI: http://www.wlindley.com/
 */
 
-/*  Copyright 2008-2010 William Lindley (email : wlindley -at- wlindley -dot- com)
+/*  Copyright 2008-2011 William Lindley (email : wlindley -at- wlindley -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -530,6 +530,10 @@ function get_selposts($attr) {
   if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
 
   // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
+  if (substr(strtolower($attr['orderby']),0,5) == 'meta:') {
+    $query .= "&meta_key=" . substr($attr['orderby'],5);
+    $attr['orderby']='meta_value';
+  }
   if (strtolower($attr['order']) == 'rand') {
     $attr['orderby'] = 'rand'; 	// for backwards compatibility
     $attr['order'] = '';
@@ -732,7 +736,6 @@ function autonav_wl_shortcode($attr) {
     $attr['height'] = $sizebits[2];
   }
 
-  $attr['orderby'] = sanitize_sql_orderby($attr['orderby']);
   $display_options = explode(',', $attr['display']);
   $attr['display'] = array_shift($display_options);
   foreach ($display_options as $o) {
@@ -806,6 +809,8 @@ function autonav_wloptions_do_page() {
   ?>
   <div class="wrap">
     <h2>Autonav Options</h2>
+<table width="100%" border="0">
+<tr><td valign="top">
 <form method="post" action="options.php">
 <?php
     settings_fields('autonav_wloptions_options');
@@ -836,8 +841,8 @@ function autonav_wloptions_do_page() {
 </tr>
 <tr valign="top"><th scope="row">Use sort_column</th>
 <td><input name="autonav_wl[orderby]" type="text" value="<?php echo $options['orderby']; ?>" />
-(<a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">List of possible values</a>
- <small><em>from wordpress.org</em></small> )</tr>
+from <a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">list of possible values</a>
+<small>(<em>wordpress.org</em>)</small> or <tt>meta:<em>customfieldname</em></tt></tr>
 
 <tr valign="top"><th scope="row">List of page IDs to exclude</th>
 <td><input name="autonav_wl[exclude]" type="text" value="<?php echo $options['exclude']; ?>" /></tr>
@@ -923,6 +928,19 @@ to have multiple groups of pictures with a lightbox-style display.
 <input type="submit" class="button-primary" value="<?php _e('Save Changes') ?>" />
 </p>
 </form>
+</td><td valign="top">
+                                                      <h2>Current&nbsp;Defaults</h2>
+<table>
+<?php
+  $opt2 = $options; ksort($opt2);
+  foreach ($opt2 as $opt_id => $opt_val) {
+    print "<tr><td><em>$opt_id</em><td>$opt_val</td><tr>\n";
+  }
+?>
+</table>
+<h4>Further Information</h4>
+<p><a href="http://www.wlindley.com/website/autonav/">Plugin homepage</a></p>
+</td></tr></table>
 </div>
 <?php
 }
