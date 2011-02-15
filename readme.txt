@@ -1,46 +1,51 @@
 === AutoNav Graphical Navigation and Gallery Plugin ===
+Author: William Lindley
+Author URI: http://www.saltriversystems.com/
 Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
-Tags: child, pages, navigation, gallery, thumbnail, thumbnails
+Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments
 Requires at least: 2.8
-Tested up to: 3.0.1
+Tested up to: 3.0.5
 Stable tag: trunk
 
-Creates a list/tables of text/thumbnail links to the current page's children; OR Creates tables of thumbnail links to gallery directories, posts by category/author/tag, or attachments.
+Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or gallery directories.
 
 == Description ==
 
 Auto Graphics Site Navigation with Gallery
 
-I wrote this plugin to make it easy for me to write graphical page-based Wordpress sites.  I wanted to address these issues:
+This plugin simplifies the creation of graphically navigable Wordpress
+sites, creating a list or tables of pages and posts selected in a
+variety of ways.
 
-  * I wanted to create websites with many nested pages, and permit the
-    user to navigate among them by clicking on pictures within the
-    pages, rather than having to use the Page List.  I wanted to list
-    child pages in tables, and have the size of the tables, and the
-    number of rows, automatically computed to fit my layout, based on
-    the thumbnail sizes.
+  * Sites with nested pages can show a table of clickable thumbnails
+    of child pages, with size of the tables, and the number of rows,
+    automatically computed to fit, based on the thumbnail sizes.
 
-  * I wanted the thumbnail pictures, and the galleries of pictures I
-    added in each page, to have be automatically resized either
-    through a single default setting in the Wordpress administration
-    page, or by specifying a size in a page I was editing.  I further
-    wanted those thumbnails to be automatically generated, or
-    regenerated, so there would never be a missing image.
+  * A table of posts selected by tag, category, or author can be
+    displayed in the same manner.
 
-  * I wanted to put all the images for a specific page, in a single
-    directory under the wp-content/uploads directory.  This makes it
-    easy to add or remove images from FTP or from a command line.  It
-    also makes it possible to move an image from one page to another
-    -- which is maddeningly difficult if not impossible using
-    Wordpress's built-in Attachment system.
+  * Thumbnails of pictures, and the galleries of pictures added in
+    each page, can be automatically resized either through a single
+    default setting in the Wordpress administration page, or by
+    specifying a size in each page.  Missing thumbnails will be
+    automatically generated.
 
-This plugin does all that, with two modes.
+  * A gallery of images can be created simply by placing them in a new
+    directory under the wp-content/uploads directory.  Standard
+    command-line or FTP tools can then be used to move, rename, or
+    delete images.
 
-In navigation mode: Creates a list or table of the current page's
-child pages. Tables are composed of linked thumbnail pictures based a
-custom field in each child page, or the child page's attached picture.
-Example:
+  * Works with WordPress's standard attachment mechanism, and will
+    also co-operate with J. Christopher's "Attachments" plugin.
+
+The plugin is invoked with the [autonav] shortcode, with two basic modes:
+
+1. NAVIGATION.
+
+Creates a list or table of the current page's child pages. Tables are
+composed of linked thumbnail pictures based a custom field in each
+child page, or the child page's attached picture.  Example:
 
     [autonav display="images" pics_only="1"]
 
@@ -50,78 +55,111 @@ that have associated pictures will be displayed.  The table will have
 depending on the column settings in the Wordpress administration
 screen.
 
-In gallery mode: Creates one or more tables of linked thumbnail
-pictures based on the current page's attachments, or on specified
-directories of picture files under the uploads directory. Example:
+2. GALLERY.
+
+Creates one or more tables of linked thumbnail pictures based on the
+current page's attachments, or on specified directories of picture
+files under the uploads directory. Example:
 
     [autonav display="/project2" include="32,37,56"]
 
 Displays a table, with a gallery of three pictures from the
 wp-content/uploads/project2 directory, in the specified order.
 
-     display="x"     Chooses a display mode based on "x" as follows:
-		     images -- displays a table of images, one for each of the child
-		          pages of this post. 
-		     list -- displays a list of links to the child pages of this post.
-		     attached -- displays a table of images attached to the post
-		     attachments -- displays attachments selected with J. Christopher's
-		          "Attachments" plugin
-		     posts -- displays table of posts listed in the postid="" parameter
-		     posts:TYPE -- displays posts in custom post type TYPE
-		     /folder -- displays a table of images located in the
-		          wp-content/uploads/folder directory
-		     Optional parameters, in a comma-separated list:
-			  excerpt  -- Display the child page's manual excerpt (see FAQ)
-			  thumb    -- Display the page's thumbnail
-			  title    -- Display the page's title
-			  siblings -- Display sibling pages (other children of parent)
-			  self     -- Include this page in siblings (normally excluded)
-			  list     -- Used with display="posts" for list, not table
-			  image    -- For posts, link to full-size of thumbnail
-			  	      instead of to post itself
-			Example: display="list,thumb,excerpt"
-     caption="x"     Adds a caption to the table. (First table only, see combine below)
-     columns="4"     Displays 4 columns of images
-     size="x"	     Choose a display size 'x' as:
-		     thumbnail, medium, large, full -- Wordpress standard sizes
-		     300x200 -- force images to be resized/cropped to an exact size
-		     auto -- uses settings from autonav control panel
-     titles="1"      Displays page titles below images if 1 (default: "0")
-		     (Also set by 'title' parameter to 'display=')
-     pics_only="1"   When displaying child pages, only show those with associated images
-     include="1,7"   The resulting table will have only two pictures, the first
-		     found ending in "1" and "7" -- note that because both 1 and 7
-		     are numeric, the image "pic11.jpg" would not be included, but
-		     "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
-		     first found picture whose name ends with the value given will
-		     be selected.
-     combine="x"     Combines table rows as follows (default: "all")
-		     all -- all rows combined into one table
-		     none -- each row a separate table
-		     full -- combine all full rows into one table, with trailing
-			  row a separate table (so it can be centered)
-     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
-     sharp="1"       Uses (blocky) 'resize' instead of (smooth) 'resample' to downsize.
-     start="1"       Starts at the second image or page (counting from zero)
-     count="2"       Includes only two images or pages
-     paged="12"      Displays 12 images on one 'page' along with next/prev, and page
-     		     numbers.  NOTE: 'start' and 'count' are applied first to trim
-		     which images are included in those displayed and paged.
-     order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
-     orderby="x"     Where 'x' is one of the orderby parameters from:
-                     http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
-		     The orderby parameter is not used when displaying attachments or
-		     images from a directory. 'pagemash' uses the PageMash plugin's order.
-		     'meta:subpage_title' sorts by the custom field 'subpage_title'
-		     or you can use any other custom field; note that Wordpress will ignore
-		     posts or pages without that custom field.
-     imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
-     group="vacation1" When combined with imgrel="lightbox*" this sets the relation
-		       tag to be: rel="lightbox[vacation1]
-     exclude="3,5"   Excludes pages with ID 3 and 5 from the list (with display="list")
-     postid="123"    Displays images or subpages attached to the page(s) or post(s)
-     		     with the given ID, or comma-delimited list of IDs, instead of the
-		     current page or post. Can also select posts in category/tag/author.
+NOTE: J. Christopher's Attachments plugin lets you attach anything in
+Wordpress's Media Gallery to any post.  See:
+http://wordpress.org/extend/plugins/attachments
+
+== Screenshots ==
+
+1. Child pages displayed in two different ways, first as a list and
+then as a table.
+2. AutoNav used together with the Hierarchical Pages plugin on the
+Fisher Shotcrete site. Along with the third screenshow, demonstrates
+how graphical navigation of a large site can work.
+3. Second-level page on the Fisher site. Note, with Hierarchical
+Pages, only the pages that are "siblings" to the current page are 
+listed in the sidebar (otherwise there could be hundreds).
+4. Demonstrating a "magazine style page template" where the first
+attachment (a) is displayed at large size, the second (b) in a
+medium, and all subsequent ones (c) as small thumbnails.  Merely
+reordering the attachments updates the page and creates any needed
+thumbnails.
+
+== Installation ==
+
+This section describes how to install the plugin and get it working.
+
+1. Create the autonav-wl directory in the `/wp-content/plugins/` directory,
+   and place the plugin files there.
+2. Activate the plugin through the administration menus in Wordpress.
+3. Configure the plugin under Settings in the Wordpress administration menu.
+
+== Shortcode Parameters ==
+
+display="x"     Chooses a display mode based on "x" as follows:
+		images -- displays a table of images, one for each of the child
+		     pages of this post. 
+		list -- displays a list of links to the child pages of this post.
+		attached -- displays a table of images attached to the post
+		attachments -- displays selections from the "Attachments" plugin
+		posts -- displays table of posts listed in the postid="" parameter
+		posts:TYPE -- displays posts in custom post type TYPE
+		/folder -- displays a table of images located in the
+		     wp-content/uploads/folder directory
+		Optional parameters, in a comma-separated list:
+		  excerpt  -- Display the child page's manual excerpt (see FAQ)
+		  thumb    -- Display the page's thumbnail
+		  title    -- Display the page's title
+		  siblings -- Display sibling pages (other children of parent)
+		  self     -- Include this page in siblings (normally excluded)
+		  list     -- Used with display="posts" for list, not table
+		  image    -- For posts, link to full-size of thumbnail
+		  	      instead of to post itself
+		Example: display="list,thumb,excerpt"
+caption="x"     Adds a caption to the table. (First table only, see combine below)
+columns="4"     Displays 4 columns of images
+size="x"	Choose a display size 'x' as:
+		  thumbnail, medium, large, full -- Wordpress standard sizes
+		  300x200 -- force images to be resized/cropped to an exact size
+		  auto -- uses settings from autonav control panel
+titles="1"      Displays page titles below images if 1 (default: "0")
+		(Also set by 'title' parameter to 'display=')
+pics_only="1"   When displaying child pages, only show those with associated images
+include="1,7"   The resulting table will have only two pictures, the first
+		found ending in "1" and "7" -- note that because both 1 and 7
+		are numeric, the image "pic11.jpg" would not be included, but
+		"pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
+		first found picture whose name ends with the value given will
+		be selected.
+combine="x"     Combines table rows as follows (default: "all")
+		   all -- all rows combined into one table
+		   none -- each row a separate table
+		   full -- combine all full rows into one table, with trailing
+			row a separate table (so it can be centered)
+crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
+		(blocky) 'resize' (see below)
+start="1"       Starts at the second image or page (counting from zero)
+count="2"       Includes only two images or pages
+paged="12"      Displays 12 images on one 'page' along with next/prev, and page
+		numbers.  NOTE: 'start' and 'count' are applied first to trim
+		which images are included in those displayed and paged.
+order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
+orderby="x"     Where 'x' is one of the orderby parameters from:
+                http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
+		The orderby parameter is not used when displaying attachments or
+		images from a directory. Also: 'pagemash' for PageMash plugin's order;
+		'meta:subpage_title' sorts by the custom field 'subpage_title'
+		or you can use any other custom field; note that Wordpress will ignore
+		posts or pages without that custom field.
+imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
+group="vacation1" When combined with imgrel="lightbox*" this sets the relation
+		tag to be: rel="lightbox[vacation1]
+exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
+postid="123"    Displays images or subpages attached to the page(s) or post(s)
+		with the given ID, or comma-delimited list of IDs, instead of the
+		current page or post. Can also select posts in category/tag/author.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
@@ -139,9 +177,6 @@ Categories and tags can also have multiple values separated by commas (posts in
 any of the categories or tags) or '+' plus signs (posts which are in all of the
 categories or tags).
 
-NOTE: J. Christopher's Attachments plugin lets you attach anything in Wordpress's
-Media Gallery to any post.  See:  http://wordpress.org/extend/plugins/attachments
-
 NOTE: Additional example values for Sharp parameter:
 
    * 0 -- standard smooth resample
@@ -151,15 +186,6 @@ NOTE: Additional example values for Sharp parameter:
           giving a "75% sharpness" factor, then saved with 95% image quality
    * 90.50 -- "50% sharpness" and 90% image quality
    * -60 -- resampled, and saved with 60% image quality
-
-== Installation ==
-
-This section describes how to install the plugin and get it working.
-
-1. Create the autonav-wl directory in the `/wp-content/plugins/` directory,
-   and place the plugin files there.
-2. Activate the plugin through the administration menus in Wordpress.
-3. Configure the plugin under Settings in the Wordpress administration menu.
 
 == Frequently Asked Questions ==
 
@@ -256,13 +282,15 @@ For example:
 
 = Can I disable certain attached images? =
 
-Yes, using the Media Library in the admin screens, set an image's Order
-to -101 or less, and it will not be shown with [autonav display=attached]
+Yes, using the Media Library in the admin screens, set an image's
+Order to -101 or less, and it will not be shown with [autonav
+display=attached] NOTE: rearranging attachments in WordPress's dialogs
+will reset all those attachments' order to a positive number.
 
 You can also set the post_status of an attachment to 'private' or
-'draft' although Wordpress gives you no menus to do this, and as of
-Wordpress 2.9 the Media Manager has some problems (showing size=0)
-with attachments so set.
+'draft' although Wordpress gives you no built-in menus to do this.
+Wordpress 2.9's Media Manager had some problems (showing size=0) with
+attachments so set.
 
 = Some of my images do not appear. =
 
