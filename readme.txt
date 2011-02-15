@@ -97,69 +97,69 @@ This section describes how to install the plugin and get it working.
 
 == Shortcode Parameters ==
 
-display="x"     Chooses a display mode based on "x" as follows:
-		images -- displays a table of images, one for each of the child
-		     pages of this post. 
-		list -- displays a list of links to the child pages of this post.
-		attached -- displays a table of images attached to the post
-		attachments -- displays selections from the "Attachments" plugin
-		posts -- displays table of posts listed in the postid="" parameter
-		posts:TYPE -- displays posts in custom post type TYPE
-		/folder -- displays a table of images located in the
-		     wp-content/uploads/folder directory
-		Optional parameters, in a comma-separated list:
-		  excerpt  -- Display the child page's manual excerpt (see FAQ)
-		  thumb    -- Display the page's thumbnail
-		  title    -- Display the page's title
-		  siblings -- Display sibling pages (other children of parent)
-		  self     -- Include this page in siblings (normally excluded)
-		  list     -- Used with display="posts" for list, not table
-		  image    -- For posts, link to full-size of thumbnail
-		  	      instead of to post itself
-		Example: display="list,thumb,excerpt"
-caption="x"     Adds a caption to the table. (First table only, see combine below)
-columns="4"     Displays 4 columns of images
-size="x"	Choose a display size 'x' as:
-		  thumbnail, medium, large, full -- Wordpress standard sizes
-		  300x200 -- force images to be resized/cropped to an exact size
-		  auto -- uses settings from autonav control panel
-titles="1"      Displays page titles below images if 1 (default: "0")
-		(Also set by 'title' parameter to 'display=')
-pics_only="1"   When displaying child pages, only show those with associated images
-include="1,7"   The resulting table will have only two pictures, the first
-		found ending in "1" and "7" -- note that because both 1 and 7
-		are numeric, the image "pic11.jpg" would not be included, but
-		"pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
-		first found picture whose name ends with the value given will
-		be selected.
-combine="x"     Combines table rows as follows (default: "all")
-		   all -- all rows combined into one table
-		   none -- each row a separate table
-		   full -- combine all full rows into one table, with trailing
-			row a separate table (so it can be centered)
-crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
-sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
-		(blocky) 'resize' (see below)
-start="1"       Starts at the second image or page (counting from zero)
-count="2"       Includes only two images or pages
-paged="12"      Displays 12 images on one 'page' along with next/prev, and page
-		numbers.  NOTE: 'start' and 'count' are applied first to trim
-		which images are included in those displayed and paged.
-order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
-orderby="x"     Where 'x' is one of the orderby parameters from:
-                http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
-		The orderby parameter is not used when displaying attachments or
-		images from a directory. Also: 'pagemash' for PageMash plugin's order;
-		'meta:subpage_title' sorts by the custom field 'subpage_title'
-		or you can use any other custom field; note that Wordpress will ignore
-		posts or pages without that custom field.
-imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
-group="vacation1" When combined with imgrel="lightbox*" this sets the relation
-		tag to be: rel="lightbox[vacation1]
-exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
-postid="123"    Displays images or subpages attached to the page(s) or post(s)
-		with the given ID, or comma-delimited list of IDs, instead of the
-		current page or post. Can also select posts in category/tag/author.
+     display="x"     Chooses a display mode based on "x" as follows:
+		     images -- displays a table of images, one for each of the child
+		          pages of this post. 
+		     list -- displays a list of links to the child pages of this post.
+		     attached -- displays a table of images attached to the post
+		     attachments -- displays selections from the "Attachments" plugin
+		     posts -- displays table of posts listed in the postid="" parameter
+		     posts:TYPE -- displays posts in custom post type TYPE
+		     /folder -- displays a table of images located in the
+		         wp-content/uploads/folder directory
+		     Optional parameters, in a comma-separated list:
+		       excerpt  -- Display the child page's manual excerpt (see FAQ)
+		       thumb    -- Display the page's thumbnail
+		       title    -- Display the page's title
+		       siblings -- Display sibling pages (other children of parent)
+		       self     -- Include this page in siblings (normally excluded)
+		       list     -- Used with display="posts" for list, not table
+		       image    -- For posts, link to full-size of thumbnail
+		  	           instead of to post itself
+		     Example: display="list,thumb,excerpt"
+     caption="x"     Adds a caption to the table. (First table only, see combine below)
+     columns="4"     Displays 4 columns of images
+     size="x"	Choose a display size 'x' as:
+		    thumbnail, medium, large, full -- Wordpress standard sizes
+		    300x200 -- force images to be resized/cropped to an exact size
+		    auto -- uses settings from autonav control panel
+     titles="1"      Displays page titles below images if 1 (default: "0")
+		     (Also set by 'title' parameter to 'display=')
+     pics_only="1"   When displaying child pages, only show those with associated images
+     include="1,7"   The resulting table will have only two pictures, the first
+		     found ending in "1" and "7" -- note that because both 1 and 7
+		     are numeric, the image "pic11.jpg" would not be included, but
+		     "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
+		     first found picture whose name ends with the value given will
+		     be selected.
+     combine="x"     Combines table rows as follows (default: "all")
+		        all -- all rows combined into one table
+		        none -- each row a separate table
+			full -- combine all full rows into one table, with trailing
+			  row a separate table (so it can be centered)
+     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
+		     (blocky) 'resize' (see below)
+     start="1"       Starts at the second image or page (counting from zero)
+     count="2"       Includes only two images or pages
+     paged="12"      Displays 12 images on one 'page' along with next/prev, and page
+		     numbers.  NOTE: 'start' and 'count' are applied first to trim
+		     which images are included in those displayed and paged.
+     order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
+     orderby="x"     Where 'x' is one of the orderby parameters from:
+                     http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
+		     The orderby parameter is not used when displaying attachments or
+		     images from a directory. Also: 'pagemash' for PageMash plugin's order;
+		     'meta:subpage_title' sorts by the custom field 'subpage_title'
+		     or you can use any other custom field; note that Wordpress will ignore
+		     posts or pages without that custom field.
+     imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
+     group="vacation1" When combined with imgrel="lightbox*" this sets the relation
+		     tag to be: rel="lightbox[vacation1]
+     exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
+     postid="123"    Displays images or subpages attached to the page(s) or post(s)
+		     with the given ID, or comma-delimited list of IDs, instead of the
+		     current page or post. Can also select posts in category/tag/author.
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
