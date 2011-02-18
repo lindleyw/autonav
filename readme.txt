@@ -97,6 +97,8 @@ This section describes how to install the plugin and get it working.
 
 == Shortcode Parameters ==
 
+Parameters not specified will be taken from the values set in the WordPress admin panel.
+
      display="x"     Chooses a display mode based on "x" as follows:
 		     images -- displays a table of images, one for each of the child
 		          pages of this post. 
@@ -160,8 +162,6 @@ This section describes how to install the plugin and get it working.
      postid="123"    Displays images or subpages attached to the page(s) or post(s)
 		     with the given ID, or comma-delimited list of IDs, instead of the
 		     current page or post. Can also select posts in category/tag/author.
-
-Parameters not specified will be taken from the values set in the WordPress admin panel.
 
 In addition to a numeric postid, you may select posts as follows:
 
