@@ -256,7 +256,8 @@ function get_images_from_folder($attr) {
       $pic_info['sharp'] = $attr['sharp'];
 
       if ($pic_info['pic_thumb'] == '') {
-	// properly sized full image does not exist; create it
+	// desired thumbnail does not exist; create it
+        $pic_info['crop'] = $attr['crop'];
 	resize_crop($pic_info, 'thumb'); // creates ['pic_thumb'], ['pic_thumb_url'] in $pic_info
       } else {
 	$pic_info['pic_thumb_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_thumb'];
