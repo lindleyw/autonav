@@ -4,7 +4,7 @@ Author URI: http://www.saltriversystems.com/
 Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments
-Requires at least: 2.8
+Requires at least: 3.0
 Tested up to: 3.0.5
 Stable tag: trunk
 
@@ -122,9 +122,11 @@ Parameters not specified will be taken from the values set in the WordPress admi
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
      size="x"	Choose a display size 'x' as:
-		    thumbnail, medium, large, full -- Wordpress standard sizes
+		    thumb (or: thumbnail), medium, large -- Wordpress standard sizes		    
+		    size_small, size_med, size_large -- sizes from AutoNav settings
 		    300x200 -- force images to be resized/cropped to an exact size
 		    auto -- uses settings from autonav control panel
+		    Sizes registered with add_image_size() should also work.
      titles="1"      Displays page titles below images if 1 (default: "0")
 		     (Also set by 'title' parameter to 'display=')
      pics_only="1"   When displaying child pages, only show those with associated images
@@ -474,3 +476,11 @@ Corrected typo
 
 = 1.3.7 =
 * Support orderby="meta:subpage_title" and other custom fields
+
+= 1.3.8 = 
+* Thumbnails were not always cropped when requested
+* Handle case of displaying a "thumbnail" that is exactly the size of
+  the full-size image.
+* Fully support Wordpress sizes (thumb, thumbnail, medium, large),
+  user registered sizes, and AutoNav size settings (size_small,
+  size_med, size_large).

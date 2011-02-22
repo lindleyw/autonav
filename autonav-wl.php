@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/webpage/autonav
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.7
+Version: 1.3.8
 Author URI: http://www.wlindley.com/
 */
 
@@ -239,7 +239,7 @@ function get_images_from_folder($attr) {
       }
 
       // Find or create thumbnail
-      if ($pic_info['fullwidth'] < $attr['width'] && $pic_info['fullheight'] < $attr['height']) {
+      if ($pic_info['fullwidth'] <= $attr['width'] && $pic_info['fullheight'] <= $attr['height']) {
 	// requested full size image already qualifies as a thumbnail
 	$pic_info['thumbwidth'] = $pic_info['fullwidth'];
 	$pic_info['thumbheight'] = $pic_info['fullheight'];
@@ -721,6 +721,12 @@ function autonav_wl_shortcode($attr) {
   // display can be: 'images' or 'list' (for child pages), '/folder' for images from directory,
   // or the default 'attached' for table of attached images
 
+  if (in_array($attr['size'],get_intermediate_image_sizes())) {
+    $size_list = image_constrain_size_for_editor(4000,4000,$attr['size']); // 4000 forces constraints
+    $attr['size'] = $size_list[0].'x'.$size_list[1];
+  } elseif (substr($attr['size'],0,5) == 'size_') {
+    $attr['size'] = $attr[$attr['size']]; // e.g., size_small --> 150x120 
+  }
   if (!preg_match('#(\d+)x(\d+)#',$attr['size'],$size)) {
     if ($attr['columns'] <= $attr['col_large']) {
       $attr['size'] = $attr['size_large'];
