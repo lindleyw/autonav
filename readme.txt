@@ -2,10 +2,10 @@
 Author: William Lindley
 Author URI: http://www.saltriversystems.com/
 Contributors: wlindley
-Donate link: http://www.wlindley.com/website/autonav/
+Donate link: http://www.saltriversystems.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments
 Requires at least: 3.0
-Tested up to: 3.0.5
+Tested up to: 3.1
 Stable tag: trunk
 
 Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or gallery directories.
@@ -114,10 +114,15 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		       thumb    -- Display the page's thumbnail
 		       title    -- Display the page's title
 		       siblings -- Display sibling pages (other children of parent)
-		       self     -- Include this page in siblings (normally excluded)
+		       		   NOTE: Always means siblings of CURRENT page.
+		       family   -- Display all children, grandchildren, etc. of page
+		       self     -- Include this page in siblings, or this page
+		       		   (normally the current page or post is excluded)
 		       list     -- Used with display="posts" for list, not table
 		       image    -- For posts, link to full-size of thumbnail
 		  	           instead of to post itself
+		       page     -- For attachments, link to attachment page
+		       nolink   -- Disables links entirely
 		     Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
@@ -141,7 +146,9 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		        none -- each row a separate table
 			full -- combine all full rows into one table, with trailing
 			  row a separate table (so it can be centered)
-     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size,
+     		     centering image; "2" crops from upper-left; "3" from top middle
+		     (useful with head-and-shoulders portraits)
      sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
 		     (blocky) 'resize' (see below)
      start="1"       Starts at the second image or page (counting from zero)
@@ -163,21 +170,31 @@ Parameters not specified will be taken from the values set in the WordPress admi
      exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
      postid="123"    Displays images or subpages attached to the page(s) or post(s)
 		     with the given ID, or comma-delimited list of IDs, instead of the
-		     current page or post. Can also select posts in category/tag/author.
+		     current page or post. Can also select posts in category/tag/author;
+		     or pages with specified path, author or custom field value.
 
-In addition to a numeric postid, you may select posts as follows:
+In addition to a numeric postid, you may select posts or pages as follows:
 
-     postid="category:17"    posts in a numeric category or categories
+     postid="cat:17"         posts in a numeric category or categories
+     postid="category:17"    (same, 'cat' is abbreviation)
      postid="category:-17"   posts *not* in a numeric category
      postid="category:cakes" posts by category name
      postid="tag:37,38,53"   posts with numerically specified tag(s)
      postid="tag:chocolate"  posts by tag name
-     postid="author:27"      posts by a specific author by ID
-     postid="author:Todd"    posts by author name
+     postid="author:27"      posts or child pages with a specific author by ID
+     postid="author:Todd"    posts or child pages by author name
+     postid="movies:comedy"  posts tagged in a custom taxonomy
+     postid="movies:drama,horror"  posts with any of those tags in custom taxonomy
+     postid="month:january"  subpages of current page, with custom field "month"="january"
+     postid="recipes/desserts" page by its path (NOT merely its slug)
 
 Categories and tags can also have multiple values separated by commas (posts in
 any of the categories or tags) or '+' plus signs (posts which are in all of the
 categories or tags).
+
+Note, you can specify both a page/post ID _and_ one of the above.  For example,
+postid="27,author:Todd" would show subpages of the page with ID=27 that have
+author Todd.
 
 NOTE: Additional example values for Sharp parameter:
 
@@ -204,8 +221,7 @@ called subpage_thumb for the page.  Set it to either a URL:
 
     http://www.example.com/images/thumbnail3.jpg
 
-or to a local file (assumed to be under the uploads directory of your
-wp-content):
+or to a local file, with a path relative to your WP uploads directory:
 
     optional_directory/picture3.jpg
 
@@ -244,6 +260,15 @@ In table modes:
 The 'subpages' prefix may be overridden by the 'class' parameter or 
 on the administration screen.
 
+= What custom fields will AutoNav use? =
+
+These are described in detail in other FAQ entries:
+
+   * subpage_thumb: Set to a URL (http://example.com/image.jpg or
+     https://...)  or to a path relative to your uploads directory
+   * subpage_title: Overrides the title of a page or post
+   * subpage_excerpt: Overrides the excerpt of a page or post
+
 = I updated the plugin, but the new parameters are not recognized. =
 
 Go through the Autonav Options on the Wordpress administration screen
@@ -258,6 +283,10 @@ attachment's Edit screen in the Media Library. You do need to know the
 new parent's ID, though.
 
     http://wordpress.org/extend/plugins/change-attachment-parent/
+
+Another plugin adds the same feature to the Bulk Actions admin dropdown:
+
+    http://wordpress.org/extend/plugins/bulk-change-attachment-parent/
 
 = How can I rearrange my pages? =
 
@@ -309,17 +338,25 @@ Autonav will not find your "full size" picture, the 640x528 one, because it
 ends in a dash followed by two numbers with an 'x' inbetween.  You will have 
 to rename your original picture before uploading it into Wordpress.
 
-= How do I add manual excerpts to pages? =
+= How do I use excerpts with pages and posts? =
 
-By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
-only for Posts, not Pages.  You can add a single line of code to your theme's
-functions.php to enable the functional for Pages as well, see:
+Examples of displaying excerpts:
 
-    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
+    [autonav display="list,excerpt"]
+    [autonav display="posts,list,excerpt" postid="category:news" pics_only=0]
 
-In functions.php, add this line:
+For any post or page, you can always use the custom field
+'subpage_excerpt' which will override any WordPress excerpt.
+
+NOTE: By default, Wordpress includes the ability to edit manual
+excerpts only for Posts, not Pages.  You can add a single line of code
+to your theme's functions.php to enable excerpts for Pages:
 
     add_post_type_support( 'page', 'excerpt' );
+
+See also:
+
+    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
 
 = Can I call the plugin from a template? =
 
@@ -484,3 +521,22 @@ Corrected typo
 * Fully support Wordpress sizes (thumb, thumbnail, medium, large),
   user registered sizes, and AutoNav size settings (size_small,
   size_med, size_large).
+
+= 1.3.9 =
+* Resolves "Incorrect size specified" error immediately after installation,
+  by setting default size_* parameters.
+* For posts, postid can use custom taxonomies; for pages, postid can be 
+  a page's path (e.g., "recipes/desserts" -- NOT merely the slug!), or
+  "author:Todd,Mary" or "custom-field-type:value"
+* When listing posts, normally the current post is excluded: Use 'self' to include it.
+* Add 'family' parameter to select all children, grandchildren, etc. pages
+* Add 'page' parameter to link attached images to the attachment page
+* Add 'nolink' parameter for no linking at all
+* Additional crop origins at upper-left and top-middle
+* subpage_thumb custom field permits paths relative to the WP uploads directory.
+* Changed handling of pics_only when display="list"; formerly pics_only
+  was forced to 0 for lists, but now it can be specified. If you set pics_only
+  to 1 in the admin screen, you must now explicitly override that default
+  when invoking [autonav display=list].
+* When thumbnail cannot be created, replace output content with text of
+  destination URL and a comment about which file could not be created.
