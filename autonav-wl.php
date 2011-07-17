@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: Autonav Image Table Based Site Navigation
-Plugin URI: http://www.wlindley.com/webpage/autonav
+Plugin URI: http://www.saltriversystems.com/website/autonav/
 Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
 Author: William Lindley
-Version: 1.3.8
-Author URI: http://www.wlindley.com/
+Version: 1.4.1
+Author URI: http://www.saltriversystems.com/
 */
 
-/*  Copyright 2008-2011 William Lindley (email : wlindley -at- wlindley -dot- com)
+/*  Copyright 2008-2011 William Lindley (email : bill -at- saltriversystems -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -51,12 +51,18 @@ function resize_crop (&$attr, $prefix) {
     $to_width = $attr[$prefix.'width'];
     $to_height = $attr[$prefix.'height'];
     $resample_params = image_resize_dimensions($from_size[0], $from_size[1],
-					       $to_width, $to_height, $attr['crop']);
+					       $to_width, $to_height, $attr['crop'] > 0 ? 1 : 0);
   }
 
   if (is_array($resample_params)) {
 
     list($dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h) = $resample_params;
+    if (($attr['crop'] & 1) == 0) { // 1=center x,y; 2=upper-left (x=0,y=0); 3=top-center (center x,y=0)
+      $src_x = 0;
+    }
+    if ($attr['crop'] & 2) {
+      $src_y = 0;
+    }
     $pic_full = preg_replace('#-\d+x\d+\.#','.',$pic_full); // remove, e.g., trailing '-1024x768'
     $info = pathinfo($pic_full); // relative to upload directory
     $dir = $info['dirname'];
@@ -116,14 +122,96 @@ function resize_crop (&$attr, $prefix) {
                           $dst_w, $dst_h, $src_w, $src_h);
     }
     imagedestroy($from_image);
-    imagejpeg($to_image, $to_file_path, $quality);  // Creates file			 
+    if (!imagejpeg($to_image, $to_file_path, $quality)) {  // Creates file
+      $attr['error'] = "CANNOT CREATE: ".$to_file_path;
+    } else {
+      $attr['pic_'.$prefix] = $to_file;
+      $attr['pic_'.$prefix.'_path'] = $to_file_path;
+      $attr['pic_'.$prefix.'_url']  = $to_file_url;
+    }
     imagedestroy($to_image);
 
-    $attr['pic_'.$prefix] = $to_file;
-    $attr['pic_'.$prefix.'_path'] = $to_file_path;
-    $attr['pic_'.$prefix.'_url']  = $to_file_url;
   }
 
+}
+
+/* ********************** */
+
+function get_image_thumbnails($attr, $selected_pics, $fullsize_pics, $pic_size_info) {
+
+  $wp_dir = wp_upload_dir();
+
+  // For each full size image:
+  // I. Find or create thumbnail:
+  //    if cropping, look for exact cropped size
+  //     else get its size and call wp_constrain_dimensions and look for exactly that size
+  // II. Find or create constrained full-size image
+  //     
+
+  $full_width = get_option('large_size_w'); $full_height = get_option('large_size_h');
+
+  foreach ($selected_pics as $apic_key) {
+    $pic_info = array();
+    $pic_info['pic_full'] = $fullsize_pics[$apic_key];
+    $pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
+    $pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
+
+    $orig_size = getimagesize($pic_info['pic_full_path']);
+    $pic_info['fullwidth'] = $orig_size[0];
+    $pic_info['fullheight'] = $orig_size[1];
+
+    // "Full size" images are actually constrained to size chosen in Admin screen.
+    // This means huge off-the-camera will actually be resized to, for example, 1024 width.
+    if (($orig_size[0] > $full_width) || ($orig_size[1] > $full_height)) {
+      $new_full_size = wp_constrain_dimensions($orig_size[0],$orig_size[1],$full_width,$full_height);
+      $pic_info['fullwidth'] = $new_full_size[0];
+      $pic_info['fullheight'] = $new_full_size[1];
+      $full_size = $new_full_size[0] . 'x' . $new_full_size[1];
+      $pic_info['crop'] = 0; // always scale these images, never crop
+      if ($pic_size_info[$apic_key][$full_size] == '') {
+	// properly sized full image does not exist; create it
+	resize_crop($pic_info, 'full'); // modifies ['pic_full'], creates ['pic_full_url'] in $pic_info
+      } else {
+	$pic_info['pic_full'] = $pic_size_info[$apic_key][$full_size];
+	$pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
+	$pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
+      }
+    }
+
+    // Find or create thumbnail
+    if ($pic_info['fullwidth'] <= $attr['width'] && $pic_info['fullheight'] <= $attr['height']) {
+      // requested full size image already qualifies as a thumbnail
+      $pic_info['thumbwidth'] = $pic_info['fullwidth'];
+      $pic_info['thumbheight'] = $pic_info['fullheight'];
+      $pic_info['pic_thumb'] = $pic_info['pic_full'];
+    } else {
+      $size_params = image_resize_dimensions($pic_info['fullwidth'], $pic_info['fullheight'],
+					     $attr['width'], $attr['height'], $attr['crop']);
+      $pic_info['thumbwidth'] = $size_params[4]; // new width and height, whether cropped or scaled-to-fit
+      $pic_info['thumbheight'] = $size_params[5];
+      $thumb_size = $pic_info['thumbwidth']. 'x' . $pic_info['thumbheight'];
+      $pic_info['pic_thumb'] = $pic_size_info[$apic_key][$thumb_size];
+    }
+
+    $pic_info['sharp'] = $attr['sharp'];
+
+    if ($pic_info['pic_thumb'] == '') {
+      // desired thumbnail does not exist; create it
+      $pic_info['crop'] = $attr['crop'];
+      resize_crop($pic_info, 'thumb'); // creates ['pic_thumb'], ['pic_thumb_url'] in $pic_info
+    } else {
+      $pic_info['pic_thumb_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_thumb'];
+    }
+    $pic_info['image'] = $pic_info['pic_thumb']; // Copy thumbnail properties into image properties
+    $pic_info['image_url'] = $pic_info['pic_thumb_url'];
+    $pic_info['width'] = $pic_info['thumbwidth'];
+    $pic_info['height'] = $pic_info['thumbheight'];
+    $pic_info['linkto'] = $attr['linkto'];
+    $pic_info['class'] = $attr['class'].'-image';
+
+    $pics_info[] = $pic_info;
+  }
+  return($pics_info);
 }
 
 /* ********************** */
@@ -140,6 +228,8 @@ function get_images_from_folder($attr) {
     $dir_name = path_join(path_join($wp_dir['basedir'],$folder),'*.{jpg,jpeg,JPG,JPEG,png,PNG,gif,GIF}');
     $files = glob($dir_name, GLOB_BRACE);
 
+    if (!is_array($files)) return ($pics_info);
+
     // Remove local path prefix (folder part remains)
     $sorted_files = array();
     foreach ($files as $afile) {
@@ -148,11 +238,14 @@ function get_images_from_folder($attr) {
     }
 
     // Sort names ('order' is ASC or DESC)
-    if (strtolower($attr['order']) == 'desc') {
+    switch (strtolower($attr['order'])) {
+    case 'desc':
       rsort($sorted_files, SORT_STRING);
-    } elseif (strtolower($attr['order']) == 'rand') {
+      break;
+    case 'rand':
       shuffle($sorted_files);
-    } else {
+      break;
+    default:
       sort($sorted_files, SORT_STRING);
     }
 
@@ -200,81 +293,12 @@ function get_images_from_folder($attr) {
 	}
       }
     }
-
-    $full_width = get_option('large_size_w'); $full_height = get_option('large_size_h');
-
-    // For each full size image:
-    // I. Find or create thumbnail:
-    //    if cropping, look for exact cropped size
-    //     else get its size and call wp_constrain_dimensions and look for exactly that size
-    // II. Find or create constrained full-size image
-    //     
-
-    foreach ($selected_pics as $apic_key) {
-      $pic_info = array();
-      $pic_info['pic_full'] = $fullsize_pics[$apic_key];
-      $pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
-      $pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
-
-      $orig_size = getimagesize($pic_info['pic_full_path']);
-      $pic_info['fullwidth'] = $orig_size[0];
-      $pic_info['fullheight'] = $orig_size[1];
-
-      // "Full size" images are actually constrained to size chosen in Admin screen.
-      // This means huge off-the-camera will actually be resized to, for example, 1024 width.
-      if (($orig_size[0] > $full_width) || ($orig_size[1] > $full_height)) {
-	$new_full_size = wp_constrain_dimensions($orig_size[0],$orig_size[1],$full_width,$full_height);
-	$pic_info['fullwidth'] = $new_full_size[0];
-	$pic_info['fullheight'] = $new_full_size[1];
-	$full_size = $new_full_size[0] . 'x' . $new_full_size[1];
-	$pic_info['crop'] = 0; // always scale these images, never crop
-	if ($pic_size_info[$apic_key][$full_size] == '') {
-	  // properly sized full image does not exist; create it
-	  resize_crop($pic_info, 'full'); // modifies ['pic_full'], creates ['pic_full_url'] in $pic_info
-	} else {
-	  $pic_info['pic_full'] = $pic_size_info[$apic_key][$full_size];
-          $pic_info['pic_full_path'] = trailingslashit($wp_dir['basedir']) . $pic_info['pic_full'];
-	  $pic_info['pic_full_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_full'];
-	}
-      }
-
-      // Find or create thumbnail
-      if ($pic_info['fullwidth'] <= $attr['width'] && $pic_info['fullheight'] <= $attr['height']) {
-	// requested full size image already qualifies as a thumbnail
-	$pic_info['thumbwidth'] = $pic_info['fullwidth'];
-	$pic_info['thumbheight'] = $pic_info['fullheight'];
-	$pic_info['pic_thumb'] = $pic_info['pic_full'];
-      } else {
-	$size_params = image_resize_dimensions($pic_info['fullwidth'], $pic_info['fullheight'],
-					       $attr['width'], $attr['height'], $attr['crop']);
-	$pic_info['thumbwidth'] = $size_params[4]; // new width and height, whether cropped or scaled-to-fit
-	$pic_info['thumbheight'] = $size_params[5];
-	$thumb_size = $pic_info['thumbwidth']. 'x' . $pic_info['thumbheight'];
-	$pic_info['pic_thumb'] = $pic_size_info[$apic_key][$thumb_size];
-      }
-
-      $pic_info['sharp'] = $attr['sharp'];
-
-      if ($pic_info['pic_thumb'] == '') {
-	// desired thumbnail does not exist; create it
-        $pic_info['crop'] = $attr['crop'];
-	resize_crop($pic_info, 'thumb'); // creates ['pic_thumb'], ['pic_thumb_url'] in $pic_info
-      } else {
-	$pic_info['pic_thumb_url'] = trailingslashit($wp_dir['baseurl']) . $pic_info['pic_thumb'];
-      }
-      $pic_info['image'] = $pic_info['pic_thumb']; // Copy thumbnail properties into image properties
-      $pic_info['image_url'] = $pic_info['pic_thumb_url'];
-      $pic_info['width'] = $pic_info['thumbwidth'];
-      $pic_info['height'] = $pic_info['thumbheight'];
-      $pic_info['linkto'] = $attr['linkto'];
-      $pic_info['class'] = $attr['class'].'-image';
-
-      $pics_info[] = $pic_info;
+    
+    if (count($selected_pics)) {
+      $pics_info = get_image_thumbnails($attr, $selected_pics, $fullsize_pics, $pic_size_info);
     }
   }
-
-  return($pics_info);
-
+  return ($pics_info);
 }
 
 /* ********************** */
@@ -303,11 +327,13 @@ function pic_info_for($attr, $id) {
   $pic_info = create_images_for($attr, $attached_pic);
   if (is_array($pic_info)) {
     $post_info = get_post($id); // the attachment's post
+    $pic_info['id'] = $id;
     $pic_info['caption'] = $post_info->post_excerpt; // Attachment: Caption
     $pic_info['description'] = $post_info->post_content; // Attachment: Description
     $pic_info['title'] = $post_info->post_title; // Attachment: Title
 
     $alt = get_post_meta($id, '_wp_attachment_image_alt', true);
+    $pic_info['attpage'] = get_attachment_link($id);
     if(count($alt)) $pic_info['alt_text'] = $alt; // Attachment: Alternate Text
 
     return $pic_info;
@@ -317,31 +343,57 @@ function pic_info_for($attr, $id) {
 
 /* ********************** */
 
-function get_images_attached($attr, $pid, $limit) {
+function get_actual_pid ($pids) { // permit list of ids, post-slugs, and page-paths
+  $pids_array = explode(',',$pids);
+  if (is_array($pids_array)) {
+    foreach ($pids_array as &$pid) {
+      if (strlen($pid) && !is_numeric($pid)) {
+	$get_obj = get_posts('name='.$pid); // first, try post by slug
+	if (count($get_obj)) {
+	  $pid = $get_obj[0]->ID;
+	} else {	       // then page with full path (not merely the slug!)
+	  $get_obj = get_page_by_path($pid);
+	  $pid = $get_obj->ID;
+	}
+      }
+    }
+    return implode(',',$pids_array);
+  }
+  return $pids;
+ }
+
+/* ********************** */
+
+function get_images_attached($attr, $pids, $limit) {
   global $post;
 
   $wp_dir = wp_upload_dir();
-  $pics_info = array();
-  if ($pid == 0) {
-    $pid = $post->ID;
+
+  if (strlen($pids) == 0) {
+    $pids = $post->ID;
   }
+  $pids = get_actual_pid($pids);
+  $pics_info = array();
+
   $order = strtolower($attr['order']) == 'desc' ? 'desc' : 'asc';
   // NOTE: Possibly use $attr['orderby'] directly at risk of breaking backwards compability
   $orderby = strtolower($attr['order']) == 'rand' ? 'rand' : 'menu_order';
 
-  // use post_status=inherit to disable finding attachments that are set to draft or private
-  $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
-                                    'numberposts' => $limit >= 1 ? $limit : -1,
-                                    'post_type' => 'attachment', 'post_mime_type' => 'image',
-				    'post_status' => 'inherit', 'orderby' => $orderby,
-				    'order' => $order));
-  if (empty ($attachments)) return $pics_info;
+  foreach (explode(',',$pids) as $pid) {
+    // use post_status=inherit to disable finding attachments that are set to draft or private
+    $attachments = get_children(array('post_parent' => $pid, 'post_status' => 'inherit',
+				      'numberposts' => $limit >= 1 ? $limit : -1,
+				      'post_type' => 'attachment', 'post_mime_type' => 'image',
+				      'post_status' => 'inherit', 'orderby' => $orderby,
+				      'order' => $order));
+    if (empty ($attachments)) return $pics_info;
 
-  foreach ($attachments as $id => $attach_info) {
-    if ($attach_info->menu_order < -100) continue; // permit disabling images via menu_order
-    $pic_info = pic_info_for($attr,$id);
-    if (is_array($pic_info)) {
-      $pics_info[] = $pic_info;
+    foreach ($attachments as $id => $attach_info) {
+      if ($attach_info->menu_order < -100) continue; // permit disabling images via menu_order
+      $pic_info = pic_info_for($attr,$id);
+      if (is_array($pic_info)) {
+	$pics_info[] = $pic_info;
+      }
     }
   }
 
@@ -354,11 +406,13 @@ function get_attachments($attr, $pid, $limit) {
   global $post;
 
   if (function_exists('attachments_get_attachments')) {
-    if ($pid == 0) {
+    if (strlen($pid) == 0) {
       $pid = $post->ID;
     }
+    $pid = get_actual_pid($pid);
+
     $attachments = attachments_get_attachments($pid);
-    $pic_info = array();
+    $pics_info = array();
 
     // Title, caption override?
     foreach ($attachments as $attach_info) {
@@ -394,9 +448,10 @@ function get_selected_thumbnail ($attr, $pid) {
 /* ********************** */
 
 function get_pics_info($attr, $pages) {
+  // Called with a list of either posts or pages (or even custom post-types).
   $wp_dir = wp_upload_dir(); // ['basedir'] is local path, ['baseurl'] as seen from browser
   $disp_pages = array();
-  $picpages_only = ($attr['display'] == 'list') ? 0 : $attr['pics_only'];
+  $picpages_only = $attr['pics_only'];
 
   foreach ($pages as $page) {
     $pic_info = array();
@@ -419,17 +474,22 @@ function get_pics_info($attr, $pages) {
     }
 
     if ((!$picpages_only) || $pic_info['image_url'] != '') {
-      $pic_info['linkto'] = strlen($attr['linkto'])?$attr['linkto']:'page';
+      $pic_info['linkto'] = $attr['linkto'];
       $pic_info['page'] = $page;
-      $pic_info['permalink'] = ($pic_info['linkto'] == 'pic') ?
-	$pic_info['pic_full_url']: get_permalink($page->ID);
+      switch($pic_info['linkto']) {
+      case 'pic':
+	$pic_info['permalink'] = $pic_info['pic_full_url'];
+      case 'none':	 	// no link at all
+	break;
+      default:
+	$pic_info['permalink'] = get_permalink($page->ID);
+      }
 
       $pic_info['excerpt'] = get_post_meta($page->ID, 'subpage_excerpt', 1);
       if ($pic_info['excerpt'] == '') $pic_info['excerpt'] = $page->post_excerpt;
 
       $pic_info['title'] = get_post_meta($page->ID, 'subpage_title', 1);
       if ($pic_info['title'] == '') $pic_info['title'] = $page->post_title;
-
       $disp_pages[] = $pic_info;
     }
   }
@@ -442,9 +502,26 @@ function get_pics_info($attr, $pages) {
 function get_subpages ($attr) {
   global $post;
 
-  $child_pages = explode(',',$attr['postid']);
-  $my_children = 0;
+  $query = array();
+  $child_pages = array();
+  $postids = $attr['postid']; 	
+  if (preg_match('#(\w+)\s*:\s*(.*?)\s*$#', $postids, $selection)) {
+    $type = strtolower($selection[1]);
+    $value = $selection[2];
+    $postids = preg_replace('#,?(\w+)\s*:\s*(.*?)\s*$#', '', $postids);
+    switch ($type) {
+    case 'author':		/* postid="author:4" */
+      $query['authors']=$value;
+      break;
+    default: 			/* postid="custom-field:value" */
+      $query['meta_key']=$type;
+      $query['meta_value']=$value;
+    }
+  }
+  /* postid="5,3"; postid="desserts,entrees"; postid="entrees/beef" */
+  $child_pages = explode(',',get_actual_pid($postids)); 
 
+  $my_children = 0;
   if ($attr['siblings']) {
     if ($post->post_parent) { // children of our parent
       $child_pages = array($post->post_parent);
@@ -454,7 +531,6 @@ function get_subpages ($attr) {
     }
   } else {
     if (!$child_pages[0]) {
-
       $show_on_front = get_option('show_on_front');
       $page_on_front = get_option('page_on_front');
       if ($show_on_front == 'page' && $page_on_front == $post->ID ) {
@@ -468,19 +544,36 @@ function get_subpages ($attr) {
       $my_children = 1;
     }
   }
+  $query['echo'] = 0;
+  $query['title_li'] = 0;
+  $query['sort_column'] = $attr['orderby'];
+  // Prefix with post_ to match database table column names
+  if ((strpos($query['sort_column'], 'post_') === false) && 
+      in_array($query['sort_column'], 
+	       array('author', 'date', 'modified', 'parent', 'title', 'excerpt', 'content'))) {
+    $query['sort_column'] = 'post_' . $query['sort_column'];
+    // Not requiring post_ prefix: comment_status, comment_count, menu_order, ID
+  }
+
+
+  if (strlen ($attr['exclude'])) {
+    $query['exclude'] = $attr['exclude'];
+  }
+  $base_query = $query;
 
   $pages = array();
   foreach ($child_pages as $child_of) {
-    $query = "child_of=$child_of&echo=0&title_li=0&sort_column=" . $attr['orderby'];
-    if (strlen ($attr['exclude'])) {
-      $query .= "&exclude=" . $attr['exclude'];
+    $query = $base_query;
+    $query['child_of'] = $child_of;
+    if (!$attr['family']) { // Only children of this page
+      $query['hierarchical'] = 0;
+      $query['parent'] = $child_of;
     }
     $these_pages = & get_pages($query);
+
     if (count ($these_pages)) {
       foreach ($these_pages as $subpage) {
-        if (in_array($subpage->post_parent, $child_pages)) {  // first-generation children only
           array_push($pages, $subpage);
-        }
       }
     } else {
       // If specified a different page with no subpages, use that page alone.
@@ -495,10 +588,13 @@ function get_subpages ($attr) {
   if (count($pages) == 0) {
     return;
   }
-  if (strtolower($attr['order']) =='rand') {
-    shuffle($pages);
-  } elseif (strtolower($attr['order']) =='desc') {
+  switch (strtolower($attr['order'])) {
+  case 'desc':
     $pages = array_reverse($pages);
+    break;
+  case 'rand':
+    shuffle($pages);
+    break;
   }
   return get_pics_info($attr, $pages);
 
@@ -507,32 +603,49 @@ function get_subpages ($attr) {
 /* ********************** */
 
 function get_selposts($attr) {
-  $postids = $attr['postid'];
+  global $post;
+  $query = array();
 
+  $postids = $attr['postid'];
   if (preg_match('#^(\w+)\s*:\s*(.*?)\s*$#', $postids, $selection)) {
     $type = strtolower($selection[1]);
     $value = $selection[2];
     $numeric_value = preg_match('#^[-0-9,]+#', $value); // '5,-3' counts as all numeric here
 
-    if ($type == 'tag') {
-      $query = "tag=$value";
-    } elseif ($type == 'author') {
-      $query = $numeric_value ? "author=$value" : "author_name=$value";
-    } else {   			// assume $type == 'category')
-      $query = $numeric_value ? "cat=$value" : "category_name=$value";
+    switch ($type) {
+	case 'cat':
+	case 'category':  // choose numeric or name
+      $query[$numeric_value ? 'cat' : 'category_name']=$value;
+      break;
+    case 'author':
+      $query[$numeric_value ? 'author' : 'author_name']=$value;
+      break;
+    case 'tag':
+      $query['tag'] = $value;
+      break;
+    default:  // First check for custom taxonomies; otherwise, use custom fields.
+      if (taxonomy_exists($type)) {
+	$query[$type]=$value;
+      } else {
+	$query['meta_key']=$type;
+	$query['meta_value']=$value;
+      }
     }
   } else {
-    $query = "include=$postids";
+    $query['include'] = $postids;
+  }
+  if (!$attr['self']) { // add ourselves to exception list
+    $query['exclude'] = $post->ID;
   }
   if (preg_match('#^posts\s*:\s*(.*)#', $attr['display'], $value)) {
-    $query .= "&post_type=$value[1]"; // custom post type
+    $query['post_type'] = $value[1]; // custom post type
   }
-  if ($attr['count']) { $query .= '&numberposts=' . $attr['count']; }
-  if ($attr['start']) { $query .= '&offset=' . $attr['start']; }
+  if ($attr['count']) { $query['numberposts'] = $attr['count']; }
+  if ($attr['start']) { $query['offset'] = $attr['start']; }
 
   // possible ordering values (date, author, title,...) listed in http://codex.wordpress.org/Template_Tags/query_posts
   if (substr(strtolower($attr['orderby']),0,5) == 'meta:') {
-    $query .= "&meta_key=" . substr($attr['orderby'],5);
+    $query['meta_key'] = substr($attr['orderby'],5);
     $attr['orderby']='meta_value';
   }
   if (strtolower($attr['order']) == 'rand') {
@@ -545,11 +658,11 @@ function get_selposts($attr) {
       $attr['order'] = 'desc';
     }
   }
-  if (strtolower($attr['orderby']) == 'postmash') { // PostMash plugin actually uses post menu_order
+  if (strtolower($attr['orderby']) == 'postmash') { // use menu_order, but NOT orderby=post_date.
     $attr['orderby'] = 'menu_order';
   }
-  if ($attr['order']) { $query .= '&order=' . $attr['order']; } 
-  if ($attr['orderby']) { $query .= '&orderby=' . $attr['orderby']; } 
+  if ($attr['order']) { $query['order'] = $attr['order']; } 
+  if ($attr['orderby']) { $query['orderby'] = $attr['orderby']; } 
   $these_posts = get_posts($query);
 
   if (count($these_posts) == 0) {
@@ -562,19 +675,115 @@ function get_selposts($attr) {
 
 function prepare_picture (&$pic) {
   $alt_text = strlen($pic['alt_text']) ? $pic['alt_text'] : $pic['title'];
-  $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. esc_attr($alt_text) . '" ' .
-    image_hwstring($pic['width'],$pic['height']) . ' class="' . $pic['class']. '" />';
+  if (!strlen($pic['error'])) {
+    if (strlen($pic['image_url'])) {
+      $pic['content'] = '<img src="' . $pic['image_url'] . '" alt="'. esc_attr($alt_text) . '" ' .
+	image_hwstring($pic['width'],$pic['height']) . ' class="' . $pic['class']. '" />';
+    } else {
+      $pic['error'] = __('Missing image');
+      $error_print = $pic['error'];
+      if (is_object($pic['page'])) {
+	$pic['error'] .= ' for postid='.$pic['page']->ID;
+      }
+    }
+  } else {
+    $error_print = $pic['pic_full_url'];
+  }
+  if (strlen($pic['error'])) {
+    $pic['content'] = '<!-- ' . $pic['error'] . ' -->' . $error_print;
+  }
   if ($pic['permalink'] == '') {
-    if ($pic['linkto'] == 'pic') {
+    switch ($pic['linkto']) {
+    case 'pic':
       $pic['permalink'] = $pic['pic_full_url']; // link to fullsize image
+      break;
+    case 'attpage':
+      $pic['permalink'] = $pic['attpage'];
+      break;
     }
   }
 }
 
 /* ********************** */
 
-function create_output($attr, $pic_info) {
+function an_create_output_list_item ($html, $class, $pic, $attr) {
+  // Outputs the list-item element for a single post/page
+  $has_link = strlen($pic['permalink']) > 0;
 
+  if ($has_link) {
+    $html .= '<a href="' . esc_attr($pic['permalink']) . '">';
+  }
+  $html .= $pic['title'];
+  if ($attr['thumb']) {
+    $html .= '<span class="' . $class . '-list-image">' . $pic['content'] . '</span>';
+  }
+  if ($has_link) {
+    $html .= "</a>";
+  }
+  return $html;
+}
+
+function an_create_output_table_picture ($html, $class, $pic, $attr) {
+  // Outputs the picture in a table-data element for a single post/page
+  $my_img_rel = ($pic['linkto'] == 'pic') ? $attr['_img_rel'] : '';
+  $has_link = strlen($pic['permalink']) > 0;
+  $title_text = '';
+  if (strlen($pic['title']) && ! $attr['titles']) { // Put title in tag, not plaintext
+    $title_text = ' title="' . esc_attr($pic['title']) . '"';
+  }
+  if ($has_link) {
+    $html .= '<a href="' . esc_attr($pic['permalink']) . "\" $my_img_rel$title_text>";
+  }
+  $html .= $pic['content'];
+  if ($has_link) {
+    $html .= '</a>';
+  }
+  return $html;
+}
+
+function an_create_output_table_text ($html, $class, $pic, $attr) {
+  // Outputs the text for a table-data element for a single post/page
+  $has_link = strlen($pic['permalink']) > 0;
+  if (strlen($pic['title']) && $attr['titles']) {
+    $html .= '<p class="' . $class . '-text">';
+    if ($has_link) {
+      $html .= '<a href="' . esc_attr($pic['permalink']) . '">'; 
+    }
+    $html .= $pic['title'];
+    if ($has_link) {
+      $html .= '</a>';
+    }
+    $html .= '</p>';
+  }
+  return $html;
+}
+
+function an_create_output_excerpt ($html, $class, $pic, $attr) {
+  if ($attr['excerpt'] && strlen($pic['excerpt'])) {
+    $html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
+  }
+  return $html;
+}
+
+function an_create_page_links($html, $class, $total_pages, $cur_page) {
+  $html .= '<p class="' . $class . '-pages">';
+  // Possibly permit override of 'next_text', 'prev_text', etc. - see /wp-includes/general_template.php
+  $paginate_args = array('base' => get_permalink() . '%_%',
+			 'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
+  $mybase = get_permalink();
+  // if append rather than start arg:
+  if (strpos($mybase,'?') !== FALSE) { $paginate_args['format'] = '&page=%#%'; } 
+  $html .= paginate_links($paginate_args);
+  $html .= '</p>';
+
+  return $html;
+}
+
+/* ********************** */
+
+ function create_output($attr, $pic_info) {
+
+  if (!array($pic_info)) { return ''; }
   if ($attr['start'] > 0) {
     $pic_info = array_slice($pic_info, $attr['start']);
   }
@@ -582,7 +791,7 @@ function create_output($attr, $pic_info) {
     $pic_info = array_slice($pic_info, 0, $attr['count']);    
   }
 
-  if (!is_array($pic_info)) { // nothing to do
+  if (!is_array($pic_info) || (count($pic_info) == 0)) { // nothing to do
     return '';
   }
 
@@ -605,19 +814,12 @@ function create_output($attr, $pic_info) {
 
   if ($attr['display'] == 'list' || $attr['list']) { // Produce list output
     $html = '<ul class="' . $class . '-list">';
-    foreach ($pic_info as $pic) { // well, really page not picture
-      $html .= '<li class="' . $class . '-item"><a href="' . $pic['permalink'] . '">'. $pic['title'];
-
-      if ($attr['show_thumb']) {
+    foreach ($pic_info as $pic) { // well, really the page not a picture
+      if ($attr['thumb']) {
 	prepare_picture($pic);
-	$html .= '<span class="' . $class . '-list-image">' . $pic['content'] . '</span>';
       }
-
-      $html .= "</a>";
-      if ($attr['excerpt'] && strlen($pic['excerpt'])) {
-	$html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
-      }
-
+      $html .= '<li class="' . $class . '-item">';
+      $html = apply_filters('autonav_create_list_item', $html, $class, $pic, $attr);
       $html .= "</li>\n";
     }
     $html .= "</ul>";
@@ -626,7 +828,7 @@ function create_output($attr, $pic_info) {
     if (strpos($viewer, '*')) {
       $viewer = str_replace( '*', ($attr['group']!='') ? '['.$attr['group'].']' : '', $viewer);
     }
-    $img_rel = strlen($viewer) ? " rel=\"$viewer\"" : '';
+    $attr['_img_rel'] = strlen($viewer) ? " rel=\"$viewer\"" : '';
     $html = '';
     $col = 0; $row = 0;
     $maxcol = $attr['columns'];
@@ -658,22 +860,10 @@ function create_output($attr, $pic_info) {
 	$html .= $start_row; $in_row = 1;
       }
 
-      $my_img_rel = ($pic['linkto'] == 'pic') ? $img_rel : '';
       $html .= '<td class="' . $class . '-cell">';
-      $html_after = ''; $title_text = '';
-      if (strlen($pic['title'])) {
-        if ($attr['titles']) {
-	  $html_after = '<p class="' . $class . '-text"><a href="' . $pic['permalink'] . '">' . $pic['title'] . "</a></p>";
-	} else {
-	  $title_text = ' title="' . esc_attr($pic['title']) . '"';
-	}
-      }
-      $html .= '<a href="' . $pic['permalink'] . "\" $my_img_rel$title_text>" . $pic['content'] . "</a>$html_after";
-
-      if ($attr['excerpt'] && strlen($pic['excerpt'])) {
-	$html .= '<p class="' . $class . '-excerpt">' . $pic['excerpt'] . "</p>\n";
-      }
+      $html = apply_filters('autonav_create_table_item', $html, $class, $pic, $attr);
       $html .= "</td>\n";
+
       $col++;
       if ($col >= $maxcol) {
 	if ($in_row) { $html .= $end_row; $in_row = 0; }
@@ -689,15 +879,7 @@ function create_output($attr, $pic_info) {
   }
 
   if ($total_pages > 1) {	// display pagination links
-    $html .= '<p class="' . $class . '-pages">';
-    // Possibly permit override of 'next_text', 'prev_text', etc. - see /wp-includes/general_template.php
-    $paginate_args = array('base' => get_permalink() . '%_%',
-			   'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
-    $mybase = get_permalink();
-    if (strpos($mybase,'?') !== FALSE) { $paginate_args['format'] = '&page=%#%'; } // append rather than start arg
-    $html .= paginate_links($paginate_args);
-    $html .= '</p>';
-
+    $html = apply_filters('autonav_create_page_links',$html, $class, $total_pages, $cur_page);
   }
   return $html;
 }
@@ -711,6 +893,11 @@ function autonav_wl_shortcode($attr) {
 
   // NOTE: This function can be added as a filter to override the standard Gallery shortcode.
   // In that case, this function may return an empty string to restore default behavior.
+
+  if (!function_exists('imagecreatefromjpeg')) {
+    print ("<span style=\"color:red; font-weight: bold;\">ERROR:</span> imagecreatefromjpeg() must be installed. On Ubuntu, \
+use: <b><tt>apt-get install php5-gd</tt></b> Use yum on RedHat/CentOS, or similarly for your system.<br>\n"); return;
+  }
 
   $options = get_option('autonav_wl');
 
@@ -745,25 +932,39 @@ function autonav_wl_shortcode($attr) {
 
   $display_options = explode(',', $attr['display']);
   $attr['display'] = array_shift($display_options);
+
+  // Mode specific defaults
+  if (substr($attr['display'],0,6) == 'attach') {
+    $attr['linkto'] = 'pic';
+  } else {
+    $attr['linkto']='page';
+  }
+
+  // process options
   foreach ($display_options as $o) {
-    if (strpos($o, 'title') !== false) $attr['titles'] = 1;
-    if (strpos($o, 'excerpt') !== false) $attr['excerpt'] = 1;
-    if (strpos($o, 'thumb') !== false) $attr['show_thumb'] = 1;
-    if (strpos($o, 'siblings') !== false) $attr['siblings'] = 1;
-    if (strpos($o, 'self') !== false) $attr['self'] = 1;
-    if (strpos($o, 'list') !== false) $attr['list'] = 1;
-    if (strpos($o, 'image') !== false) $attr['linkto'] = 'pic';
+    switch ($o) {
+    case 'title':    $o = 'titles';
+    case 'titles':   // eponymous boolean options
+    case 'excerpt':  
+    case 'thumb':    
+    case 'siblings': 
+    case 'family':   
+    case 'self':     
+    case 'list':     $attr[$o] = 1; break;
+    case 'image':    $attr['linkto'] = 'pic'; break;
+    case 'page':     $attr['linkto'] = 'attpage'; break;
+    case 'nolink':   $attr['linkto'] = 'none'; break;
+    }
   }
-  if (!strlen($attr['class']) ) {
-    $attr['class'] = 'subpages';
-  }
+  if (!strlen($attr['class'])) $attr['class'] = 'subpages';
+
+  $attr = apply_filters('autonav_pre_select', $attr); // Permit plugin/theme to override here
 
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
   } elseif (substr($attr['display'],0,6) == 'attach') {
-    $attr['linkto'] = 'pic';
     $post_id = $attr['postid'];
-    if (!$post_id) {
+    if (strlen($post_id)==0) {
       $post_id = $post->ID;
     }
     if ($attr['display'] == 'attachments') {
@@ -775,26 +976,20 @@ function autonav_wl_shortcode($attr) {
     $pic_info = get_selposts($attr);
     $attr['start'] = 0;		// start,count handled inside get_selposts query
     $attr['count'] = 0; 
-  } else {
-    $attr['linkto'] = 'pic';
+  } elseif (substr($attr['display'], 0, 1) == '/') { // looks like a directory name
+    if ($attr['linkto'] != 'none') $attr['linkto'] = 'pic'; // unless explicitly no links
     $pic_info = get_images_from_folder($attr);
+  } else {			// permit custom hook to handle everything else
+    $pic_info = apply_filters('autonav_select', array(), $attr);
   }
+  $pic_info = apply_filters('autonav_post_select', $pic_info, $attr);
   $html = create_output($attr, $pic_info);
+  $html = apply_filters('autonav_html', $html, $attr); // permit custom hook post HTML creation
 
   return $html;
 }
 
 /* ********************** */
-
-// This goes into table wp_options as follows:
-//
-//   option_id = <database dependent>
-//   blog_id = <database dependent, for Wp-MU>
-//   option_name = 'autonav_wl'
-//   option_value = 'a:2:{s:7:"option1";i:1;s:8:"sometext";s:17:"crack &amp; shine";}'
-//
-// Note the value is stored serialized, with HTML encoded strings, and that
-// get_option() will unserialize the string and return an array.
 
 // Init plugin options to white list our options
 function autonav_wloptions_init(){
@@ -802,6 +997,60 @@ function autonav_wloptions_init(){
 }
 
 /* ********************** */
+
+function autonav_o_header ($html, $start_end_flag, $heading) {
+  if ($start_end_flag & 2) {
+    print "</tr>";
+    if (!strlen($html)) {
+      return;
+    }
+  }
+  if (isset($heading)) {
+    print "<tr><th colspan='2'><h3>$heading</h3></th></tr>\n";
+  }
+  if ($start_end_flag & 1) {
+    print "<tr valign='top'><th scope='row'>$html</th>";
+    //print "<tr>";
+  }
+}
+
+function _autonav_o_item($options, $html_tags) {
+  print '<input ';
+  $value = $options[$html_tags['name']];
+  foreach ($html_tags as $h_tag => $h_value) {
+    switch ($h_tag) {
+    case 'text':
+      $plain_text = $h_value;
+      break;
+    case 'checked':
+      checked($options[$html_tags['name']], $h_value);
+      $value = $h_value;
+      print " ";
+      break;
+    case 'name':
+      print "$h_tag=\"autonav_wl[$h_value]\" ";
+      break;
+    default:
+      print "$h_tag=\"$h_value\" ";
+    }
+  }
+  print "value=\"$value\" /> $plain_text";
+}
+
+function autonav_o_item($options, $html_tags) {
+  print '<td>';
+  if (isset($html_tags['checked']) && is_array($html_tags['checked'])) {
+    foreach ($html_tags['checked'] as $radio_value => $radio_text) {
+      $html_tag_copy = $html_tags;
+      $html_tag_copy['checked'] = $radio_value;
+      $html_tag_copy['text'] = $radio_text;
+      _autonav_o_item($options, $html_tag_copy);
+    }
+  } else {
+    _autonav_o_item($options, $html_tags);
+  }
+  print "</td>\n";
+}
 
 // Add menu page
 function autonav_wloptions_add_page() {
@@ -831,104 +1080,60 @@ function autonav_wloptions_do_page() {
     } elseif (intval($options['col_small']) < $options['col_large'] + 1) {
       $options['col_small'] = $options['col_large'] + 1;
     }
-    if ($options['size_small'] == '') { $options['size_small'] = '120x90'; }
-    if ($options['size_med'] == '') { $options['size_med'] = '160x120'; }
-    if ($options['size_large'] == '') { $options['size_large'] = '240x180'; }
     if ($options['order'] == '') { 
       $options['order'] = 'ASC';
     } else {
       $options['order'] = strtoupper($options['order']); // so we can make 'desc' default for posts, regardless
     }
     if ($options['orderby'] == '') { $options['orderby'] = 'menu_order'; }
-?>
-<table class="form-table">
-<tr><th colspan="2"><h3>When listing child pages</h3></th></tr>
-<tr valign="top"><th scope="row">Show only pages with thumbnails?</th>
-<td><input name="autonav_wl[pics_only]" type="checkbox" value="1" <?php checked('1', $options['pics_only']); ?> /></td>
-</tr>
-<tr valign="top"><th scope="row">Use sort_column</th>
-<td><input name="autonav_wl[orderby]" type="text" value="<?php echo $options['orderby']; ?>" />
-from <a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">list of possible values</a>
-<small>(<em>wordpress.org</em>)</small> or <tt>meta:<em>customfieldname</em></tt></tr>
-
-<tr valign="top"><th scope="row">List of page IDs to exclude</th>
-<td><input name="autonav_wl[exclude]" type="text" value="<?php echo $options['exclude']; ?>" /></tr>
-
-<tr><th colspan="2"><h3>Displaying images</h3></th></tr>
-<tr valign="top"><th scope="row">Display Titles Under Images</th>
-<td><input name="autonav_wl[titles]" type="checkbox" value="1" <?php checked('1', $options['titles']); ?> /></td>
-</tr>
-<tr valign="top"><th scope="row">Size of images</th>
-<td><input type="text" name="autonav_wl[size]" value="<?php echo $options['size']; ?>" />
-"auto" for below, or as "300x200"</td>
-</tr>
-
-<tr valign="top"><th scope="row">Default number of columns</th>
-<td><input name="autonav_wl[columns]" type="text" value="<?php echo $options['columns']; ?>" /></td>
-</tr>
-
-<Tr valign="top"><th scope="row">Automatic image sizing</th>
-<td>
-<table border="1">
-<tr>
-<td>
-<input name="autonav_wl[col_large]" size="2" type="text" value="<?php echo $options['col_large']; ?>" /><br />
-or fewer columns,<br />use size<br />
-<input name="autonav_wl[size_large]" size="12" type="text" value="<?php echo $options['size_large']; ?>" />
-</td>
-<td>
-<br />Intermediate number of<br />columns, use size<br />
-<input name="autonav_wl[size_med]" size="12" type="text" value="<?php echo $options['size_med']; ?>" />
-</td>
-<td>
-<input name="autonav_wl[col_small]" size="2" type="text" value="<?php echo $options['col_small']; ?>" /><br />
-or more columns,<br />use size<br />
-<input name="autonav_wl[size_small]" size="12" type="text" value="<?php echo $options['size_small']; ?>" />
-</td>
-</tr>
-</table>
-</td>
-</tr>
-
-<tr valign="top"><th scope="row">Crop images to size?</th>
-<td><input name="autonav_wl[crop]" type="checkbox" value="1" <?php checked('1', $options['crop']); ?> />
-If unchecked, fit images inside specified size
-</td>
-</tr>
-</tr>
-
-<tr><th colspan="2"><h3>Table controls</h3></th></tr>
-
-<tr valign="top"><th scope="row">Combine rows of images into tables:</th>
-<td>
-<input name="autonav_wl[combine]" type="radio" value="all" <?php checked('all', $options['combine']); ?> />
-All rows in one table.<br />
-<input name="autonav_wl[combine]" type="radio" value="none" <?php checked('none', $options['combine']); ?> />
-Each row a separate table.<br />
-<input name="autonav_wl[combine]" type="radio" value="full" <?php checked('full', $options['combine']); ?> />
-All full rows in one table; trailing partial row in separate table.
-</td>
-</tr>
-
-<tr valign="top"><th scope="row">Default class for tables</th>
-<td><input type="text" name="autonav_wl[class]" value="<?php echo $options['class']; ?>" /><br />
-Table elements will use this as the prefix for their styles, as <em>class</em>-table,
-<em>class</em>-row, <em>class</em>-cell, etc.
-</td>
-</tr>
-
-<tr valign="top"><th scope="row">Image relation (rel="") tag</th>
-<td><input type="text" name="autonav_wl[imgrel]" value="<?php echo $options['imgrel']; ?>" /><br />
+    print '<table class="form-table">';
+    autonav_o_header('Show only pages with thumbnails?', 1, 'When listing child pages');
+    autonav_o_item($options,array('name'=>'pics_only', 'type'=>'checkbox', 'checked' => '1'));
+    autonav_o_header('Use sort_column', 3);
+    autonav_o_item($options, array('name'=>'orderby', 'type'=>'text',
+				     'text' => 'from <a href="http://codex.wordpress.org/Template_Tags/wp_list_pages#Parameters">list of possible values</a> <small>(<em>wordpress.org</em>)</small> or <tt>meta:<em>customfieldname</em></tt>'));
+    autonav_o_header('List of page IDs to exclude', 3);
+    autonav_o_item($options, array('name'=>'exclude', 'type'=>'text'));
+    autonav_o_header('Display Titles Under Images', 3, 'Displaying images');
+    autonav_o_item($options, array('name'=>'titles', 'type'=>'checkbox', 'checked' => '1'));
+    autonav_o_header('Size of images', 3);
+    autonav_o_item($options, array('name'=>'size', 'type'=>'text', 'text' => '"auto" for below, or as "300x200"'));
+    autonav_o_header('Default number of columns', 3);
+    autonav_o_item($options, array('name'=>'columns', 'type'=>'text'));
+    autonav_o_header('Automatic image sizing', 3);
+    print "<td><table border='1'><tr>";
+    autonav_o_item($options, array('name'=>'col_large', 'type'=>'text', 'size' => 2, 'text' => '<br />or fewer columns,<br />use size:'));
+    print "<td>Intermediate number of<br />columns, use size:</td>";
+    autonav_o_item($options, array('name'=>'col_small', 'type'=>'text', 'size' => 2, 'text' => '<br />or more columns,<br />use size:'));
+    print "</tr><tr>\n";
+    autonav_o_item($options, array('name'=>'size_large', 'type'=>'text', 'size' => 12));
+    autonav_o_item($options, array('name'=>'size_med', 'type'=>'text', 'size' => 12));
+    autonav_o_item($options, array('name'=>'size_small', 'type'=>'text', 'size' => 12));
+    print "</tr>\n</table>\n</td>";
+    autonav_o_header('Crop images to size?', 3);
+    autonav_o_item($options, array('name'=>'crop', 'type'=>'radio', 
+				      'checked' => array(0 => 'Fit images inside specified size.<br />',
+							 1 =>'Crop to exact size, from center of image.<br />',
+							 2 =>'Crop to exact size, from upper-left.<br />', 
+							 3 =>'Crop to exact size, from top middle.<br />')));
+    autonav_o_header('Combine rows of images into tables:', 3, 'Table controls');
+    autonav_o_item($options, array('name'=>'combine', 'type'=>'radio',
+				      'checked' => array('all' => 'All rows in one table.<br />',
+							 'none' => 'Each row a separate table.<br />',
+							 'full' => 'All full rows in one table; trailing partial row in separate table.')));
+    autonav_o_header('Default class for tables', 3);
+    autonav_o_item($options, array('name'=>'class', 'type'=>'text', 
+				      'text' => '<br />Table elements will use this as the prefix for their styles, as <em>class</em>-table,
+<em>class</em>-row, <em>class</em>-cell, etc.'));
+    autonav_o_header('Image relation (rel="") tag', 3, "Image Relations");
+    autonav_o_item($options, array('name'=>'imgrel', 'type'=>'text', 
+				      'text' => '<br />
 <em>Optional.</em> If this tag contains an asterisk * then the optional "group" specifier
 (below; but usually specified in the shortcode) will be inserted as [group], as when you wish
-to have multiple groups of pictures with a lightbox-style display.
-</td>
-</tr>
-
-<tr valign="top"><th scope="row">Default image group for above</th>
-<td><input type="text" name="autonav_wl[group]" value="<?php echo $options['group']; ?>" /> <em>Usually left blank</em>
-</td>
-</tr>
+to have multiple groups of pictures with a lightbox-style display.'));
+    autonav_o_header('Default image group for above', 3);
+    autonav_o_item($options, array('name'=>'group', 'type'=>'text', 'text' => '<em>Usually left blank</em>'));
+?>
 <input type="hidden" name="autonav_wl[include]" value="" />
 </table>
 <p class="submit">
@@ -936,7 +1141,7 @@ to have multiple groups of pictures with a lightbox-style display.
 </p>
 </form>
 </td><td valign="top">
-                                                      <h2>Current&nbsp;Defaults</h2>
+<h2>Current&nbsp;Defaults</h2>
 <table>
 <?php
   $opt2 = $options; ksort($opt2);
@@ -946,7 +1151,22 @@ to have multiple groups of pictures with a lightbox-style display.
 ?>
 </table>
 <h4>Further Information</h4>
-<p><a href="http://www.wlindley.com/website/autonav/">Plugin homepage</a></p>
+<ul style="list-style: disc; margin-left: 5px;">
+<li><a href="<?php
+  $realpath = realpath(__DIR__."/readme.txt");
+  $path = 'http://' . $_SERVER['HTTP_HOST'] . substr($realpath, strlen($_SERVER['DOCUMENT_ROOT']));
+  if (DIRECTORY_SEPARATOR == '\\')
+    $path = str_replace('\\', '/', $path);
+  print $path;
+ ?>">Readme file for this version</a></li>
+<li><a href="http://www.saltriversystems.com/website/autonav/">Plugin homepage</a></li>
+<li><a href="http://wordpress.org/extend/plugins/autonav/">AutoNav in Wordpress repository</a></li>
+</ul>
+<div style="border: 5px ridge #ff8833; float: right; width: 200px; margin-left: 5px; padding-left: 5px;"><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<p style="text-align: center;">If you like this plugin, please consider a $12 donation to help fund its ongoing development.</p>
+<center><input name="cmd" type="hidden" value="_s-xclick" /> <input name="hosted_button_id" type="hidden" value="8365853" /> <input alt="PayPal - The safer, easier way to pay online!" name="submit" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" type="image" /><img src="https://www.paypal.com/en_US/i/scr/pixel.gif" border="0" alt="" width="1" height="1" /></center>
+
+</form></div>
 </td></tr></table>
 </div>
 <?php
@@ -959,12 +1179,15 @@ function autonav_wloptions_validate($input) {
   $input['pics_only'] = ( $input['pics_only'] == 1 ? 1 : 0 );
   $input['size'] =  wp_filter_nohtml_kses($input['size']);
   if ($input['size'] == '') { $input['size'] = 'auto'; }
+  if ($input['size_small'] == '') { $input['size_small'] = '120x90'; }
+  if ($input['size_med'] == '') { $input['size_med'] = '160x120'; }
+  if ($input['size_large'] == '') { $input['size_large'] = '240x180'; }
   $input['display'] =  wp_filter_nohtml_kses($input['display']);
   if ($input['display'] == '') { $input['display'] = 'attached'; }
   if ($input['class'] == '') { $input['class'] = 'subpages'; }
   $input['combine'] =  wp_filter_nohtml_kses($input['combine']);
   if ($input['combine'] == '') { $input['combine'] = 'all'; }
-  $input['crop'] =  ( $input['crop'] == 1 ? 1 : 0 );  // 1 = crop, 0 = fit
+  $input['crop'] =  ( $input['crop'] & 3 );  // 0=fit, 1=crop center, 2=from upper-left, 3=top middle crop
   $input['columns'] =  intval($input['columns']);
   if ($input['columns'] == 0) { $input['columns'] = 3; }
   $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
@@ -989,5 +1212,11 @@ function autonav_wlactivate ($input) {
 }
 
 register_activation_hook( __FILE__, 'autonav_wlactivate' );
+add_filter('autonav_create_list_item', 'an_create_output_list_item', 10, 4);
+add_filter('autonav_create_list_item', 'an_create_output_excerpt', 20, 4);
+add_filter('autonav_create_table_item', 'an_create_output_table_picture', 10, 4);
+add_filter('autonav_create_table_item', 'an_create_output_table_text', 15, 4);
+add_filter('autonav_create_table_item', 'an_create_output_excerpt', 20, 4);
+add_filter('autonav_create_page_links', 'an_create_page_links', 10, 4);
 
 ?>

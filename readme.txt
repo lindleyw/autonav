@@ -2,10 +2,10 @@
 Author: William Lindley
 Author URI: http://www.saltriversystems.com/
 Contributors: wlindley
-Donate link: http://www.wlindley.com/website/autonav/
+Donate link: http://www.saltriversystems.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments
 Requires at least: 3.0
-Tested up to: 3.0.5
+Tested up to: 3.2.1
 Stable tag: trunk
 
 Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or gallery directories.
@@ -15,29 +15,27 @@ Creates a list or tables of text/thumbnail links to the current page's children,
 Auto Graphics Site Navigation with Gallery
 
 This plugin simplifies the creation of graphically navigable Wordpress
-sites, creating a list or tables of pages and posts selected in a
-variety of ways.
+sites, creating a list or tables of pages, posts, and custom post
+types, selected in a variety of ways.
 
   * Sites with nested pages can show a table of clickable thumbnails
     of child pages, with size of the tables, and the number of rows,
     automatically computed to fit, based on the thumbnail sizes.
-
   * A table of posts selected by tag, category, or author can be
     displayed in the same manner.
-
   * Thumbnails of pictures, and the galleries of pictures added in
     each page, can be automatically resized either through a single
     default setting in the Wordpress administration page, or by
     specifying a size in each page.  Missing thumbnails will be
     automatically generated.
-
   * A gallery of images can be created simply by placing them in a new
     directory under the wp-content/uploads directory.  Standard
     command-line or FTP tools can then be used to move, rename, or
     delete images.
-
-  * Works with WordPress's standard attachment mechanism, and will
-    also co-operate with J. Christopher's "Attachments" plugin.
+  * Output and page/post selection is extensible through the use of
+    filters.
+  * Works with WordPress's standard attachment mechanism, and with
+    J. Christopher's "Attachments" plugin (see FAQ)
 
 The plugin is invoked with the [autonav] shortcode, with two basic modes:
 
@@ -65,10 +63,6 @@ files under the uploads directory. Example:
 
 Displays a table, with a gallery of three pictures from the
 wp-content/uploads/project2 directory, in the specified order.
-
-NOTE: J. Christopher's Attachments plugin lets you attach anything in
-Wordpress's Media Gallery to any post.  See:
-http://wordpress.org/extend/plugins/attachments
 
 == Screenshots ==
 
@@ -114,10 +108,15 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		       thumb    -- Display the page's thumbnail
 		       title    -- Display the page's title
 		       siblings -- Display sibling pages (other children of parent)
-		       self     -- Include this page in siblings (normally excluded)
+		       		   NOTE: Always means siblings of CURRENT page.
+		       family   -- Display all children, grandchildren, etc. of page
+		       self     -- Include this page in siblings, or this page
+		       		   (normally the current page or post is excluded)
 		       list     -- Used with display="posts" for list, not table
 		       image    -- For posts, link to full-size of thumbnail
 		  	           instead of to post itself
+		       page     -- For attachments, link to attachment page
+		       nolink   -- Disables links entirely
 		     Example: display="list,thumb,excerpt"
      caption="x"     Adds a caption to the table. (First table only, see combine below)
      columns="4"     Displays 4 columns of images
@@ -141,7 +140,9 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		        none -- each row a separate table
 			full -- combine all full rows into one table, with trailing
 			  row a separate table (so it can be centered)
-     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size.
+     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size,
+     		     centering image; "2" crops from upper-left; "3" from top middle
+		     (useful with head-and-shoulders portraits)
      sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
 		     (blocky) 'resize' (see below)
      start="1"       Starts at the second image or page (counting from zero)
@@ -153,7 +154,7 @@ Parameters not specified will be taken from the values set in the WordPress admi
      orderby="x"     Where 'x' is one of the orderby parameters from:
                      http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
 		     The orderby parameter is not used when displaying attachments or
-		     images from a directory. Also: 'pagemash' for PageMash plugin's order;
+		     images from a directory. Also: 'postmash' for PostMash plugin's order;
 		     'meta:subpage_title' sorts by the custom field 'subpage_title'
 		     or you can use any other custom field; note that Wordpress will ignore
 		     posts or pages without that custom field.
@@ -163,21 +164,33 @@ Parameters not specified will be taken from the values set in the WordPress admi
      exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
      postid="123"    Displays images or subpages attached to the page(s) or post(s)
 		     with the given ID, or comma-delimited list of IDs, instead of the
-		     current page or post. Can also select posts in category/tag/author.
+		     current page or post. Can also select posts in category/tag/author;
+		     or pages with specified path, author or custom field value.
 
-In addition to a numeric postid, you may select posts as follows:
+In addition to a numeric postid, you may select posts or pages as follows:
 
-     postid="category:17"    posts in a numeric category or categories
+     postid="cat:17"         posts in a numeric category or categories
+     postid="category:17"    (same, 'cat' is abbreviation)
      postid="category:-17"   posts *not* in a numeric category
      postid="category:cakes" posts by category name
      postid="tag:37,38,53"   posts with numerically specified tag(s)
      postid="tag:chocolate"  posts by tag name
-     postid="author:27"      posts by a specific author by ID
-     postid="author:Todd"    posts by author name
+     postid="author:27"      posts or child pages with a specific author by ID
+     postid="author:Todd"    posts or child pages by author name
+     postid="movies:comedy"  posts tagged in a custom taxonomy
+     postid="movies:drama,horror"  posts with any of those tags in custom taxonomy
+     			     (if 'movies' taxonomy is defined) or with custom field
+     postid="month:january"  subpages of current page, with custom field "month"="january"
+     			     NOTE: selection of Pages by taxonomy not yet supported
+     postid="recipes/desserts" page by its full path (NOT merely its slug)
 
 Categories and tags can also have multiple values separated by commas (posts in
 any of the categories or tags) or '+' plus signs (posts which are in all of the
 categories or tags).
+
+Note, you can specify both a page/post ID _and_ one of the above.  For example,
+postid="27,author:Todd" would show subpages of the page with ID=27 that have
+author Todd.
 
 NOTE: Additional example values for Sharp parameter:
 
@@ -193,19 +206,18 @@ NOTE: Additional example values for Sharp parameter:
 
 = How do I set the thumbnail for a page? =
 
-In Wordpress 2.9 and later, the thumbnail you choose in the page's
-edit screen becomes the default thumbnail. If you do not choose a
-thumbnail there (or in Wordpress versions below 2.9), the attached
-image with the lowest order (chosen in the Gallery section of the
-page's image attachment dialog) becomes the default thumbnail.
+Assuming your theme supports thumbnails (Featured Images), the
+thumbnail you choose in the page's edit screen becomes the default
+thumbnail. If you do not choose a one there, the attached image with
+the lowest order (chosen in the Gallery section of the page's image
+attachment dialog) becomes the default thumbnail.
 
 You can override the default thumbnail by creating a Custom Field
 called subpage_thumb for the page.  Set it to either a URL:
 
     http://www.example.com/images/thumbnail3.jpg
 
-or to a local file (assumed to be under the uploads directory of your
-wp-content):
+or to a local file, with a path relative to your WP uploads directory:
 
     optional_directory/picture3.jpg
 
@@ -214,8 +226,8 @@ will automatically be resized.
 
 = How do I enable post thumbnails in Wordpress? =
 
-If you don't see the Post Thumbnail section in your administration
-screens, add this to your theme's functions.php --
+If you don't see the Post Thumbnail (or Featured Image) section in
+your administration screens, add this to your theme's functions.php --
 
   <?php add_theme_support( 'post-thumbnails' ); ?>
 
@@ -244,6 +256,15 @@ In table modes:
 The 'subpages' prefix may be overridden by the 'class' parameter or 
 on the administration screen.
 
+= What custom fields will AutoNav use? =
+
+These are described in detail in other FAQ entries:
+
+   * subpage_thumb: Set to a URL (http://example.com/image.jpg or
+     https://...)  or to a path relative to your uploads directory
+   * subpage_title: Overrides the title of a page or post
+   * subpage_excerpt: Overrides the excerpt of a page or post
+
 = I updated the plugin, but the new parameters are not recognized. =
 
 Go through the Autonav Options on the Wordpress administration screen
@@ -259,7 +280,11 @@ new parent's ID, though.
 
     http://wordpress.org/extend/plugins/change-attachment-parent/
 
-= How can I rearrange my pages? =
+Another plugin adds the same feature to the Bulk Actions admin dropdown:
+
+    http://wordpress.org/extend/plugins/bulk-change-attachment-parent/
+
+= How can I rearrange my posts and pages? =
 
 Try the Pagemash plugin which lets you move pages up, down, in, out,
 and around your hierarchy with the mouse.  It automatically changes
@@ -267,20 +292,11 @@ the pages' parents and menu order.
 
     http://wordpress.org/extend/plugins/pagemash/
 
-= Does this plugin create database tables? =
+If it's posts you wish to rearrange, try this:
 
-No, only the one entry which holds the settings.  This is in the
-wp_options table, with option_name = "autonav_wl" and that will be
-updated by going through the AutoNav administration screen (see above).
+    http://wordpress.org/extend/plugins/postmash/
 
-= I get an error that imagecreatefromjpeg is not defined =
-
-Your webserver needs GD image support in PHP. On Debian or Ubuntu,
-you can install that with apt-get, and then restart Apache. 
-For example:
-
-   $ sudo apt-get install php5-gd
-   $ sudo /etc/init.d/apache2 restart
+and use [autonav display="posts" orderby="postmash"]
 
 = Can I disable certain attached images? =
 
@@ -291,8 +307,13 @@ will reset all those attachments' order to a positive number.
 
 You can also set the post_status of an attachment to 'private' or
 'draft' although Wordpress gives you no built-in menus to do this.
-Wordpress 2.9's Media Manager had some problems (showing size=0) with
-attachments so set.
+
+The Semi-Private Attachments plugin lets you mark an attachment as
+private.  AutoNav respects this (as doees the built-in gallery
+shortcode) and will not display it.  The plugin also lets you disable
+comments and pings for an attachment.
+
+    http://www.saltriversystems.com/website/private-attachments/
 
 = Some of my images do not appear. =
 
@@ -309,17 +330,25 @@ Autonav will not find your "full size" picture, the 640x528 one, because it
 ends in a dash followed by two numbers with an 'x' inbetween.  You will have 
 to rename your original picture before uploading it into Wordpress.
 
-= How do I add manual excerpts to pages? =
+= How do I use excerpts with pages and posts? =
 
-By default, Wordpress (as of v2.9) includes the ability to edit manual excerpts
-only for Posts, not Pages.  You can add a single line of code to your theme's
-functions.php to enable the functional for Pages as well, see:
+Examples of displaying excerpts:
 
-    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
+    [autonav display="list,excerpt"]
+    [autonav display="posts,list,excerpt" postid="category:news" pics_only=0]
 
-In functions.php, add this line:
+For any post or page, you can always use the custom field
+'subpage_excerpt' which will override any WordPress excerpt.
+
+NOTE: By default, Wordpress includes the ability to edit manual
+excerpts only for Posts, not Pages.  You can add a single line of code
+to your theme's functions.php to enable excerpts for Pages:
 
     add_post_type_support( 'page', 'excerpt' );
+
+See also:
+
+    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
 
 = Can I call the plugin from a template? =
 
@@ -349,6 +378,116 @@ medium size elsewhere, and all remaining attachments at perhaps the bottom.
 Yes, when displaying attached images, the image's Title as set through the
 Wordpress admin screen is put into the 'a' tag's title attribute. On modern
 browsers this becomes a tooltip when hovering over the image inside the anchor.
+
+= How do I use AutoNav's filters? =
+
+AutoNav provides filters which you can hook.  They are internally
+called as follows.  Note that $class is the effective CSS class for
+the item in question; $attr is the set of attributes for all pictures,
+as passed in the [autonav] shortcode and taken from the default values
+set in the administration screen; $pic is an array created for each
+page, post, or the like.
+
+* $attr = apply_filters('autonav_pre_select', $attr); -- This permits
+  you to modify the array which AutoNav uses to determine which pages
+  or posts to display. Elements here are nearly same as values in the
+  Options screen.
+
+* $pic_info = apply_filters('autonav_select', $pic_info, $attr); -- Is
+  called whenever display= has a value which is not handled by any of
+  the built-ins, so you can add your own display= values.  Return
+  value should be an array in the style of pic_info (see source
+  code). This filter is responsible for creating or finding all
+  thumbnails and setting all links in the pic_info array. If your
+  filter does nothing, you should return $pic_info to permit chaining
+  multiple filters.
+
+* $pic_info = apply_filters('autonav_post_select, $pic_info, $attr);
+  This filter runs after AutoNav's internal page/post selection
+  process, or after your custom display= selection filter (see above).
+  At this point, AutoNav assumes that all links are set and any
+  thumbnail images have been created.  With this filter, you can
+  delete pages from the ready-to-format pic_info array of pages/posts
+  to be displayed, or change values in the array, before the
+  formatting code splits it into tables, or multiple pages (see WP:
+  paginate_links).
+
+* $html = apply_filters('autonav_create_list_item', $html, $class, $pic, $attr);
+  $html = apply_filters('autonav_create_table_item', $html, $class, $pic, $attr);
+
+  These create the individual list or table entries, and are called
+  once for each post or page which exists in the 'selected' array as
+  passed through the autonav_post_select filter.  The input $html is
+  all the HTML output created so far; generally you will append to
+  this and return the extended text. You may add additional filters
+  here to be called in priority order along with the built-in methods;
+  or you may remove the built-in filter and replace with your own.
+  Note the following default priorities for tables: 10 for Image and
+  main content; 15 Title text; 20 Excerpt.
+
+* $html = apply_filters('autonav_create_page_links', $html, $class,
+  $total_pages, $cur_page) -- is called in the case of a multi-page
+  display.  Again you may wish to append, prepend, or replace.
+
+* $html = apply_filters('autonav_html', $html, $attr);
+  Permits you to filter the final HTML which AutoNav generates.
+
+You can hook into any or all of these as in the example below. This
+code simply displays the contents of the attributes array, so you can
+see how it works:
+
+  function show_the_attrs ($attr) {
+    print "foo";
+    print "<br><pre>";
+    print_r($attr);
+    print "</pre><br><hr>";
+    return $attr;
+  }
+
+  add_filter('autonav_select', 'show_the_attrs', 10, 1);
+
+Here is an example of adding information to the table output; it
+appends the (reformatted) date but only to posts. Note that
+$pic['page'] is the post/page object from WP_Query.
+
+  function my_create_output_date ($html, $class, $pic, $attr) {
+    if (is_object($pic['page'])) {
+      if ($pic['page']->post_type == 'post' && 
+          strlen($pic['page']->post_date)) {
+        $html .= '<p class="' . $class . '-date">' . 
+	  mysql2date('j M Y', $pic['page']->post_date) . "</p>\n";
+      }
+    }
+    return $html;
+  }
+
+  add_filter('autonav_create_table_item', 'my_create_output_date', 18, 4);
+
+= Does this plugin create database tables? =
+
+No, only the one entry which holds the settings.  This is in the
+wp_options table, with option_name = "autonav_wl" and that will be
+updated by going through the AutoNav administration screen (see above).
+
+= I get an error that imagecreatefromjpeg is not defined =
+
+Your webserver needs GD image support in PHP. On Debian or Ubuntu,
+you can install that with apt-get, and then restart Apache. 
+For example:
+
+   $ sudo apt-get install php5-gd
+   $ sudo /etc/init.d/apache2 restart
+
+= Other Recommendations for Accompanying Plugins =
+
+* J. Christopher's Attachments plugin lets you attach anything in
+  Wordpress's Media Gallery to any post.  See:
+  http://wordpress.org/extend/plugins/attachments
+
+* Dion Hulse's Add From Server plugin makes it easy to upload images
+  to your server with FTP and them add them directly into WordPress as
+  attachments. In most cases this is now preferable to using AutoNav's
+  "Gallery" mode. http://wordpress.org/extend/plugins/add-from-server/
 
 == Changelog ==
 
@@ -454,7 +593,7 @@ Corrected typo
 * Support random order for pages. Thanks http://wordpress.org/support/profile/thomas_n for the patch.
 
 = 1.3.2 =
-* Support Jonathan Christopher's Attachments plugin http://mondaybynoon.com/wordpress-attachments/
+* Support Jonathan Christopher's Attachments plugin
 
 = 1.3.3 =
 * Permit order="desc" on pages as well as posts http://wordpress.org/support/topic/autonav-order-desc?post-1823500
@@ -484,3 +623,55 @@ Corrected typo
 * Fully support Wordpress sizes (thumb, thumbnail, medium, large),
   user registered sizes, and AutoNav size settings (size_small,
   size_med, size_large).
+
+= 1.3.9 =
+* Resolves "Incorrect size specified" error immediately after installation,
+  by setting default size_* parameters.
+* For posts, postid can use custom taxonomies; for pages, postid can be 
+  a page's path (e.g., "recipes/desserts" -- NOT merely the slug!), or
+  "author:Todd,Mary" or "custom-field-type:value"
+* When listing posts, normally the current post is excluded: Use 'self' to include it.
+* Add 'family' parameter to select all children, grandchildren, etc. pages
+* Add 'page' parameter to link attached images to the attachment page
+* Add 'nolink' parameter for no linking at all
+* Additional crop origins at upper-left and top-middle
+* subpage_thumb custom field permits paths relative to the WP uploads directory.
+* Changed handling of pics_only when display="list"; formerly pics_only
+  was forced to 0 for lists, but now it can be specified. If you set pics_only
+  to 1 in the admin screen, you must now explicitly override that default
+  when invoking [autonav display=list].
+* When thumbnail cannot be created, replace output content with text of
+  destination URL and a comment about which file could not be created.
+
+= 1.4.0 =
+* Wordpress SVN release of 1.3.9 after several betas
+
+= 1.4.1 =
+* For display="posts", postid="cakes:lemon" will select posts in the
+  "cakes" taxonomy if it exists, otherwise it will select posts by the
+  "cakes" custom field.
+* Output an HTML comment with some information for missing images,
+  instead of broken IMG tag.
+* Adds filters: autonav_select, autonav_display_select, autonav_html,
+  autonav_create_list_item, autonav_create_table_item,
+  autonav_create_page_links for use with add_filter().
+* Provide link to this Readme file from the Admin screen.
+
+== TODO ==
+
+* BUG: the postid="foo:bar" for pages sets meta_tag and value for
+  custom field types, but does not yet support custom taxonomies. For
+  posts, if the taxonomy "foo" exists, that will be used; otherwise it
+  will look for the custom field "foo".  
+
+* TODO: Plan for the postid is to permit more advanced general queries
+  as described here:
+  http://ottopress.com/2010/wordpress-3-1-advanced-taxonomy-queries/
+
+* Support S3 and similar plugins. Probably will only work with
+  Attachments, and will add custom sizes to the 'sizes' array in the
+  attachment's metadata.  Although the metadata gets flushed under
+  certain circumstances [when?] this should allow AutoNav to work
+  seamlessly with any S3 or similar plugin that keeps attachment
+  images in places other than the local filesystem.
+
