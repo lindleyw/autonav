@@ -998,7 +998,7 @@ function autonav_wloptions_init(){
 
 /* ********************** */
 
-function autonav_o_header ($html, $start_end_flag, $heading) {
+function autonav_o_header ($html, $start_end_flag, $heading = NULL) {
   if ($start_end_flag & 2) {
     print "</tr>";
     if (!strlen($html)) {
