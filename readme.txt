@@ -42,8 +42,8 @@ The plugin is invoked with the [autonav] shortcode, with two basic modes:
 1. NAVIGATION.
 
 Creates a list or table of the current page's child pages. Tables are
-composed of linked thumbnail pictures based a custom field in each
-child page, or the child page's attached picture.  Example:
+composed of linked thumbnail pictures (see "How is a Child Page's
+"Associated Image" determined?" in the FAQ). Example:
 
     [autonav display="images" pics_only="1"]
 
@@ -204,25 +204,22 @@ NOTE: Additional example values for Sharp parameter:
 
 == Frequently Asked Questions ==
 
-= How do I set the thumbnail for a page? =
+= How is a Child Page's "Associated Image" determined? =
 
-Assuming your theme supports thumbnails (Featured Images), the
-thumbnail you choose in the page's edit screen becomes the default
-thumbnail. If you do not choose a one there, the attached image with
-the lowest order (chosen in the Gallery section of the page's image
-attachment dialog) becomes the default thumbnail.
+AutoNav uses the first of these that exist, as the associated picture
+for a child page:
 
-You can override the default thumbnail by creating a Custom Field
-called subpage_thumb for the page.  Set it to either a URL:
+    * The value of the custom field, subpage_thumb.  The value can be
+      either a URL (http://......) or a path relative to the
+      wp-content/uploads directory (2011/07/image.jpg).
+    * The post/page Thumbnail ("Featured Image") as set in WordPress
+      (assuming your theme supports them).
+    * The attached image with the lowest Order as chosen in the Gallery
+      tab of the attachment dialog.
 
-    http://www.example.com/images/thumbnail3.jpg
-
-or to a local file, with a path relative to your WP uploads directory:
-
-    optional_directory/picture3.jpg
-
-In the latter case, point to the full-sized image, and the thumbnail
-will automatically be resized.
+NOTE: If a URL is given in subpage_thumb, that image will be used
+directly; AutoNav cannot resize it.  In all other cases, AutoNav will
+create the needed thumbnail images automatically.
 
 = How do I enable post thumbnails in Wordpress? =
 
@@ -235,6 +232,15 @@ your administration screens, add this to your theme's functions.php --
 
 Create a Custom Field called subpage_title for the page.  Set it to
 what you would like displayed in the table or list of child pages.
+
+= How do I use AutoNav on my "home" page, to show all my sub-pages? =
+
+When invoked on the page set as the Static Home Page, if that page has
+no children, then the other pages at top level (those with no parent)
+are considered as children of the home page.  In all other cases,
+if you wish to display pages at the same level as the current page
+(i.e., the other children of the parent of the current page), you can
+use the 'siblings' parameter.
 
 = What CSS classes does this plugin create? =	    
 
@@ -251,7 +257,12 @@ In table modes:
    * tr elements: subpages-row
    * td elements: subpages-cell
    * p elements inside each td: subpages-text
+   * Thumbnail images: subpages-image
    * Excerpt text: subpages-excerpt
+
+Next/Previous page links (with 'paged' parameter):
+
+   * p elements: subpages-pages
 
 The 'subpages' prefix may be overridden by the 'class' parameter or 
 on the administration screen.
@@ -674,4 +685,6 @@ Corrected typo
   certain circumstances [when?] this should allow AutoNav to work
   seamlessly with any S3 or similar plugin that keeps attachment
   images in places other than the local filesystem.
+
+* Support creation of thumbnails for PDF and other attachment types
 
