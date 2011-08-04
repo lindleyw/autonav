@@ -39,7 +39,7 @@ types, selected in a variety of ways.
 
 The plugin is invoked with the [autonav] shortcode, with two basic modes:
 
-1. NAVIGATION.
+NAVIGATION.
 
 Creates a list or table of the current page's child pages. Tables are
 composed of linked thumbnail pictures (see "How is a Child Page's
@@ -53,7 +53,7 @@ that have associated pictures will be displayed.  The table will have
 depending on the column settings in the Wordpress administration
 screen.
 
-2. GALLERY.
+GALLERY.
 
 Creates one or more tables of linked thumbnail pictures based on the
 current page's attachments, or on specified directories of picture
@@ -152,7 +152,7 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		     which images are included in those displayed and paged.
      order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
      orderby="x"     Where 'x' is one of the orderby parameters from:
-                     http://codex.wordpress.org/Template_Tags/query_posts#Orderby_Parameters
+		     http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
 		     The orderby parameter is not used when displaying attachments or
 		     images from a directory. Also: 'postmash' for PostMash plugin's order;
 		     'meta:subpage_title' sorts by the custom field 'subpage_title'
@@ -447,32 +447,32 @@ You can hook into any or all of these as in the example below. This
 code simply displays the contents of the attributes array, so you can
 see how it works:
 
-  function show_the_attrs ($attr) {
-    print "foo";
-    print "<br><pre>";
-    print_r($attr);
-    print "</pre><br><hr>";
-    return $attr;
-  }
+    function show_the_attrs ($attr) {
+      print "foo";
+      print "<br><pre>";
+      print_r($attr);
+      print "</pre><br><hr>";
+      return $attr;
+    }
 
-  add_filter('autonav_select', 'show_the_attrs', 10, 1);
+    add_filter('autonav_select', 'show_the_attrs', 10, 1);
 
 Here is an example of adding information to the table output; it
 appends the (reformatted) date but only to posts. Note that
 $pic['page'] is the post/page object from WP_Query.
 
-  function my_create_output_date ($html, $class, $pic, $attr) {
-    if (is_object($pic['page'])) {
-      if ($pic['page']->post_type == 'post' && 
+    function my_create_output_date ($html, $class, $pic, $attr) {
+      if (is_object($pic['page'])) {
+        if ($pic['page']->post_type == 'post' && 
           strlen($pic['page']->post_date)) {
-        $html .= '<p class="' . $class . '-date">' . 
-	  mysql2date('j M Y', $pic['page']->post_date) . "</p>\n";
+          $html .= '<p class="' . $class . '-date">' . 
+            mysql2date('j M Y', $pic['page']->post_date) . "</p>\n";
+        }
       }
+      return $html;
     }
-    return $html;
-  }
 
-  add_filter('autonav_create_table_item', 'my_create_output_date', 18, 4);
+    add_filter('autonav_create_table_item', 'my_create_output_date', 18, 4);
 
 = Does this plugin create database tables? =
 
@@ -486,8 +486,8 @@ Your webserver needs GD image support in PHP. On Debian or Ubuntu,
 you can install that with apt-get, and then restart Apache. 
 For example:
 
-   $ sudo apt-get install php5-gd
-   $ sudo /etc/init.d/apache2 restart
+    $ sudo apt-get install php5-gd
+    $ sudo /etc/init.d/apache2 restart
 
 = Other Recommendations for Accompanying Plugins =
 
