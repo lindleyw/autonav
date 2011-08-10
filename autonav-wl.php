@@ -1191,7 +1191,7 @@ function autonav_wloptions_validate($input) {
   $input['columns'] =  intval($input['columns']);
   if ($input['columns'] == 0) { $input['columns'] = 3; }
   $input['exclude'] =  wp_filter_nohtml_kses($input['exclude']);
-  $input['postid'] = 0;
+  $input['postid'] = '';
   $input['start'] = 0;
   $input['count'] = 0;
   if (!isset ($input['paged'])) { $input['paged'] = 0; }
