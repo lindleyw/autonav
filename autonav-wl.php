@@ -2,9 +2,9 @@
 /*
 Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.saltriversystems.com/website/autonav/
-Description: Displays child pages in a table of images or a simple list; also displays attached images, or images from a subdirectory under wp-uploads, in a table, with automatic resizing of thumbnails and full-size images.
+Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.4.1
+Version: 1.4.2
 Author URI: http://www.saltriversystems.com/
 */
 
@@ -146,7 +146,6 @@ function get_image_thumbnails($attr, $selected_pics, $fullsize_pics, $pic_size_i
   //    if cropping, look for exact cropped size
   //     else get its size and call wp_constrain_dimensions and look for exactly that size
   // II. Find or create constrained full-size image
-  //     
 
   $full_width = get_option('large_size_w'); $full_height = get_option('large_size_h');
 

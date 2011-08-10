@@ -668,6 +668,9 @@ Corrected typo
   autonav_create_page_links for use with add_filter().
 * Provide link to this Readme file from the Admin screen.
 
+= 1.4.2 =
+* Correct '0' to empty string for default value of post_id.
+
 == TODO ==
 
 * BUG: the postid="foo:bar" for pages sets meta_tag and value for
