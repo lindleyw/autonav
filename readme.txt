@@ -8,7 +8,7 @@ Requires at least: 3.0
 Tested up to: 3.2.1
 Stable tag: trunk
 
-Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or gallery directories.
+Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or image directories.
 
 == Description ==
 
@@ -366,11 +366,11 @@ See also:
 Yes, you may use this code in your template, for example, where you
 wish a table of child pages' thumbnails:
 
-  <?php print autonav_wl_shortcode(array('display'=>'images')); ?>
+    <?php print autonav_wl_shortcode(array('display'=>'images')); ?>
 
 or where you would like a table of all attached images:
 
-  <?php print autonav_wl_shortcode(array('display'=>'attached')); ?>
+    <?php print autonav_wl_shortcode(array('display'=>'attached')); ?>
 
 = Can I show all attachments, but highlight the first couple? =
 
