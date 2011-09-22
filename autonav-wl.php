@@ -458,6 +458,7 @@ function get_pics_info($attr, $pages) {
     if ($ximg != '') { // Specified exact thumbnail image
       if ( preg_match( '|^https?://|i', $ximg ) ) {
 	$pic_info['image_url'] = $ximg; // as explicit URL
+	$pic_info['class'] = $attr['class'].'-image';
       } else {
 	// local file... assume full-size picture given, and automagically create thumbnail
 	$pic_info = create_images_for($attr, $ximg);
