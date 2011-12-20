@@ -3,20 +3,21 @@ Author: William Lindley
 Author URI: http://www.saltriversystems.com/
 Contributors: wlindley
 Donate link: http://www.saltriversystems.com/website/autonav/
-Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments
+Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.0
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: trunk
 
-Creates a list or tables of text/thumbnail links to the current page's children, attachments, posts by category/author/tag, or image directories.
+Creates customizable lists/tables of text/thumbnails/links to posts, pages, taxonomies, attachments, custom post types, and image directories.
 
 == Description ==
 
 Auto Graphics Site Navigation with Gallery
 
 This plugin simplifies the creation of graphically navigable Wordpress
-sites, creating a list or tables of pages, posts, and custom post
-types, selected in a variety of ways.
+sites, creating a list or tables of pages, posts, taxonomies, and
+custom post types, selected in a variety of ways. Highly customizable
+output using a variety of optional user-defined filters.
 
   * Sites with nested pages can show a table of clickable thumbnails
     of child pages, with size of the tables, and the number of rows,
@@ -151,13 +152,14 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		     numbers.  NOTE: 'start' and 'count' are applied first to trim
 		     which images are included in those displayed and paged.
      order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
-     orderby="x"     Where 'x' is one of the orderby parameters from:
+     orderby="x"     Where 'x' is one of the below, or any orderby parameter from:
 		     http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
+		        postmash -- use order defined by PostMash plugin
+			meta:subpage_title -- sorts by any custom field; here we
+		          sort by the child page's title as overridden by the
+			  subpage_title custom field (see FAQ section)
 		     The orderby parameter is not used when displaying attachments or
-		     images from a directory. Also: 'postmash' for PostMash plugin's order;
-		     'meta:subpage_title' sorts by the custom field 'subpage_title'
-		     or you can use any other custom field; note that Wordpress will ignore
-		     posts or pages without that custom field.
+		     images from a directory.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
 		     tag to be: rel="lightbox[vacation1]
@@ -173,16 +175,27 @@ In addition to a numeric postid, you may select posts or pages as follows:
      postid="category:17"    (same, 'cat' is abbreviation)
      postid="category:-17"   posts *not* in a numeric category
      postid="category:cakes" posts by category name
+     postid="category__and:3,7" posts that must be in both categories
      postid="tag:37,38,53"   posts with numerically specified tag(s)
      postid="tag:chocolate"  posts by tag name
+     postid="tag__and:chocolate,hot" posts that have both tags
      postid="author:27"      posts or child pages with a specific author by ID
      postid="author:Todd"    posts or child pages by author name
+     postid="status:draft"   draft posts or pages. Can also use custom status types.
      postid="movies:comedy"  posts tagged in a custom taxonomy
      postid="movies:drama,horror"  posts with any of those tags in custom taxonomy
      			     (if 'movies' taxonomy is defined) or with custom field
      postid="month:january"  subpages of current page, with custom field "month"="january"
      			     NOTE: selection of Pages by taxonomy not yet supported
      postid="recipes/desserts" page by its full path (NOT merely its slug)
+
+As of version 1.4.5, you may also select attachments based on their parent
+(given by slug or post-ID), their author (which WordPress sets when the 
+attachment is uploaded; there is no built-in way to edit an attachment's
+author, although a plugin may provide one), or by the tags set through the
+Media Tags (http://wordpress.org/extend/plugins/media-tags/) plugin:
+
+      postid="tag:dessert"
 
 Categories and tags can also have multiple values separated by commas (posts in
 any of the categories or tags) or '+' plus signs (posts which are in all of the
@@ -191,6 +204,11 @@ categories or tags).
 Note, you can specify both a page/post ID _and_ one of the above.  For example,
 postid="27,author:Todd" would show subpages of the page with ID=27 that have
 author Todd.
+
+The postid selectors category__and, category__in, category__not_in
+permit more complex category selection, as described at:
+http://codex.wordpress.org/Function_Reference/get_pages
+
 
 NOTE: Additional example values for Sharp parameter:
 
@@ -399,11 +417,6 @@ as passed in the [autonav] shortcode and taken from the default values
 set in the administration screen; $pic is an array created for each
 page, post, or the like.
 
-* $attr = apply_filters('autonav_pre_select', $attr); -- This permits
-  you to modify the array which AutoNav uses to determine which pages
-  or posts to display. Elements here are nearly same as values in the
-  Options screen.
-
 * $pic_info = apply_filters('autonav_select', $pic_info, $attr); -- Is
   called whenever display= has a value which is not handled by any of
   the built-ins, so you can add your own display= values.  Return
@@ -412,6 +425,32 @@ page, post, or the like.
   thumbnails and setting all links in the pic_info array. If your
   filter does nothing, you should return $pic_info to permit chaining
   multiple filters.
+
+* $pic_info = apply_filters('autonav_thumb', $pic_info, $attr, $post )
+  This filter is used to locate the featured thumbnail for a post or
+  page. If $pic_info is not empty, successive filters assume that the
+  thumbnail has been located, and return $pic_info unmodified.  The
+  default behaviour is as follows:
+
+    add_filter('autonav_thumb', 'autonav_thumb_featured', 10, 4);
+    add_filter('autonav_thumb', 'autonav_thumb_specified', 20, 4);
+    add_filter('autonav_thumb', 'autonav_thumb_attached', 30, 4);
+
+* $attr = apply_filters('autonav_pre_select', $attr,
+  $display_options); -- This permits you to modify the array which
+  AutoNav uses to determine which pages or posts to display. Elements
+  here are nearly same as values in the Options screen.
+
+* $picked_files = apply_filters('autonav_pick_files', $picked_files, $attr, $pic_size_info);
+  Given the calling arguments ($attr) and an array of image files found
+  for the specified posts, pages, or directories. The latter array also
+  includes information for each of the thumbnail sizes found for each
+  of the full-size images.  The filter then picks which images are
+  candidates to include, before the autonav_get_thumbnails filter.
+
+* $pics_info = apply_filters('autonav_get_thumbnails', $pics_info, $attr, $pic_size_info);
+  The filter chooses from available sizes in $pic_size_info, or
+  creates resized images.
 
 * $pic_info = apply_filters('autonav_post_select, $pic_info, $attr);
   This filter runs after AutoNav's internal page/post selection
@@ -671,15 +710,51 @@ Corrected typo
 = 1.4.2 =
 * Correct '0' to empty string for default value of post_id.
 
+= 1.4.7 =
+* id= argument is handled the same as postid= argument, for
+  compatibility with WP's [gallery] shortcode.
+* Support postids category__and, category__in, category__not_in,
+  tag__and, tag__in, tag__not_in, tag_slug__and, tag_slug__in
+  (see http://codex.wordpress.org/Function_Reference/get_pages)
+  and status keyword for standard (or custom) status types.
+* Missing-image and other errors displayed inside an 
+  autonav-error span element, so their display can be disabled.
+* Support custom post type and taxonomy names with dashes
+* Additional filters autonav_get_thumbnails, autonav_thumb
+* New filters for extensions like NextGEN Gallery thumbnail
+  support, and for taxonomy-images plugin.  These are then
+  implemented in auxiliary plugins, or theme files.
+
 == TODO ==
+
+* Revisit whether autonav_pick_files filter is be called for _each_
+  attached file. This needs to happen _after_ all attachments have
+  been added, and we need to have the ['menu_order'] of the attachment
+  so we can implement:  [autonav display=attached include="#1,#3"]
+  However that needs to happen _after_ the handling of start= and
+  count= ...   (2011-11-12)
 
 * BUG: the postid="foo:bar" for pages sets meta_tag and value for
   custom field types, but does not yet support custom taxonomies. For
   posts, if the taxonomy "foo" exists, that will be used; otherwise it
   will look for the custom field "foo".  
 
-* TODO: Plan for the postid is to permit more advanced general queries
-  as described here:
+* Test the creation of $pic_size_info[]['date'] when scanning folders.
+  Add code to permit orderby="date" to work with display="/folder"
+
+* Several calculations of pic_full_path -- can we rationalize?
+
+* Ensure that the 'include' parameter for e.g., posts, does not
+  conflict with autonav_select_include() as called by the
+  autonav_pick_files filter.  Perhaps we need a special flag in $attr?
+
+* Consider: in autonav_wl_shortcode(), use autonav_get_
+  postid_modifiers() to ALSO parse the display= parameter.
+
+= Possible future extensions =
+
+* Eventual Version 2.0 plan is for postid is to permit more advanced
+  general queries as described here:
   http://ottopress.com/2010/wordpress-3-1-advanced-taxonomy-queries/
 
 * Support S3 and similar plugins. Probably will only work with
@@ -687,7 +762,9 @@ Corrected typo
   attachment's metadata.  Although the metadata gets flushed under
   certain circumstances [when?] this should allow AutoNav to work
   seamlessly with any S3 or similar plugin that keeps attachment
-  images in places other than the local filesystem.
+  images in places other than the local filesystem. On hold pending
+  better definition, or a sponsor for this project.
 
-* Support creation of thumbnails for PDF and other attachment types
+* Support creation of thumbnails for PDF and other attachment types,
+  possibly through filters and auxiliary plugins.
 
