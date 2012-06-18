@@ -110,8 +110,13 @@ function autonav_wloptions_do_page() {
     autonav_o_item($options, array('name'=>'titles', 'type'=>'checkbox', 'checked' => '1'));
     autonav_o_header('Size of images', 3);
 
-    $wp_registered_sizes = array_unique(array_merge(array('thumbnail','medium','large'),
-						    $_wp_additional_image_sizes));
+    $wp_registered_sizes = array('thumbnail','medium','large');
+
+    if (is_array($_wp_additional_image_sizes)) {
+      $wp_registered_sizes = array_unique(array_merge($wp_registered_sizes,
+						      array_keys( $_wp_additional_image_sizes ) ) );
+    }
+    sort($wp_registered_sizes);
     foreach ($wp_registered_sizes as $s) {
       $x = intval(get_option("{$s}_size_w")); $y = intval(get_option("{$s}_size_h"));
       if (! $x && is_array($_wp_additional_image_sizes[$s])) {

@@ -6,13 +6,21 @@ Donate link: http://www.saltriversystems.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: trunk
+Stable tag: 1.4.2
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Creates customizable lists/tables of text/thumbnails/links to posts, pages, taxonomies, attachments, custom post types, and image directories.
 
 == Description ==
 
 Auto Graphics Site Navigation with Gallery
+
+> NOTE: If you experience errors or missing pages, try the [previous
+stable
+version](http://downloads.wordpress.org/plugin/autonav.1.4.2.zip)
+first, and then look in the [support
+forum](http://wordpress.org/support/plugin/autonav).
 
 This plugin simplifies the creation of graphically navigable Wordpress
 sites, creating a list or tables of pages, posts, taxonomies, and
@@ -68,18 +76,18 @@ wp-content/uploads/project2 directory, in the specified order.
 == Screenshots ==
 
 1. Child pages displayed in two different ways, first as a list and
-then as a table.
+   then as a table.
 2. AutoNav used together with the Hierarchical Pages plugin on the
-Fisher Shotcrete site. Along with the third screenshow, demonstrates
-how graphical navigation of a large site can work.
+   Fisher Shotcrete site. Along with the third screenshow, demonstrates
+   how graphical navigation of a large site can work.
 3. Second-level page on the Fisher site. Note, with Hierarchical
-Pages, only the pages that are "siblings" to the current page are 
-listed in the sidebar (otherwise there could be hundreds).
+   Pages, only the pages that are "siblings" to the current page are 
+   listed in the sidebar (otherwise there could be hundreds).
 4. Demonstrating a "magazine style page template" where the first
-attachment (a) is displayed at large size, the second (b) in a
-medium, and all subsequent ones (c) as small thumbnails.  Merely
-reordering the attachments updates the page and creates any needed
-thumbnails.
+   attachment (a) is displayed at large size, the second (b) in a
+   medium, and all subsequent ones (c) as small thumbnails.  Merely
+   reordering the attachments updates the page and creates any needed
+   thumbnails.
 
 == Installation ==
 
@@ -90,84 +98,93 @@ This section describes how to install the plugin and get it working.
 2. Activate the plugin through the administration menus in Wordpress.
 3. Configure the plugin under Settings in the Wordpress administration menu.
 
+Additional add-ons, which are plugins that tie into AutoNav's filters,
+are in the addons.zip file.  (The additional complication of this zip
+within a zip is because WordPress's plugin system has no way to handle
+"optional but part of the distribution" plugins).
+
 == Shortcode Parameters ==
 
 Parameters not specified will be taken from the values set in the WordPress admin panel.
 
-     display="x"     Chooses a display mode based on "x" as follows:
-		     images -- displays a table of images, one for each of the child
-		          pages of this post. 
-		     list -- displays a list of links to the child pages of this post.
-		     attached -- displays a table of images attached to the post
-		     attachments -- displays selections from the "Attachments" plugin
-		     posts -- displays table of posts listed in the postid="" parameter
-		     posts:TYPE -- displays posts in custom post type TYPE
-		     /folder -- displays a table of images located in the
+     display="x"  Chooses a display mode based on "x" as follows:
+		    images -- displays a table of images, one for each of the child
+		       pages of this post. 
+		    list -- displays a list of links to the child pages of this post.
+		    attached -- displays a table of images attached to the post
+		    attachments -- displays selections from the "Attachments" plugin
+		    posts -- displays table of posts listed in the postid="" parameter
+		    posts:TYPE -- displays posts in custom post type TYPE
+		    /folder -- displays a table of images located in the
 		         wp-content/uploads/folder directory
-		     Optional parameters, in a comma-separated list:
-		       excerpt  -- Display the child page's manual excerpt (see FAQ)
-		       thumb    -- Display the page's thumbnail
-		       title    -- Display the page's title
-		       siblings -- Display sibling pages (other children of parent)
-		       		   NOTE: Always means siblings of CURRENT page.
-		       family   -- Display all children, grandchildren, etc. of page
-		       self     -- Include this page in siblings, or this page
-		       		   (normally the current page or post is excluded)
-		       list     -- Used with display="posts" for list, not table
-		       image    -- For posts, link to full-size of thumbnail
-		  	           instead of to post itself
-		       page     -- For attachments, link to attachment page
-		       nolink   -- Disables links entirely
-		     Example: display="list,thumb,excerpt"
-     caption="x"     Adds a caption to the table. (First table only, see combine below)
-     columns="4"     Displays 4 columns of images
-     size="x"	Choose a display size 'x' as:
+		  Optional parameters, in a comma-separated list:
+		    excerpt  -- Display the child page's manual excerpt (see FAQ)
+		    thumb    -- Display the page's thumbnail
+		    title    -- Display the page's title
+		    siblings -- Display sibling pages (other children of parent)
+		    		NOTE: Always means siblings of CURRENT page.
+		    family   -- Display all children, grandchildren, etc. of page
+		    self     -- Include this page in siblings, or this page
+		    	        (normally the current page or post is excluded)
+		    list     -- Used with display="posts" for list, not table
+		    image    -- For posts, link to full-size of thumbnail
+		    	        instead of to post itself
+		    page     -- For attachments, link to attachment page
+		    nolink   -- Disables links entirely
+		    plain    -- Replaces unordered-list with a div, for use
+		    	        with JavaScript/jQuery slideshows, etc.
+		  The above parameters may be preced by 'no' to disable the feature
+		  (as when set by default or in the plugin options page).
+		  Example: display="list,notitle,thumb,excerpt"
+     caption="x"  Adds a caption to the table. (First table only, see combine below)
+     columns="4"  Displays 4 columns of images
+     size="x"	  Choose a display size 'x' as:
 		    thumb (or: thumbnail), medium, large -- Wordpress standard sizes		    
 		    size_small, size_med, size_large -- sizes from AutoNav settings
 		    300x200 -- force images to be resized/cropped to an exact size
 		    auto -- uses settings from autonav control panel
 		    Sizes registered with add_image_size() should also work.
-     titles="1"      Displays page titles below images if 1 (default: "0")
-		     (Also set by 'title' parameter to 'display=')
-     pics_only="1"   When displaying child pages, only show those with associated images
-     include="1,7"   The resulting table will have only two pictures, the first
-		     found ending in "1" and "7" -- note that because both 1 and 7
-		     are numeric, the image "pic11.jpg" would not be included, but
-		     "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
-		     first found picture whose name ends with the value given will
-		     be selected.
-     combine="x"     Combines table rows as follows (default: "all")
-		        all -- all rows combined into one table
-		        none -- each row a separate table
-			full -- combine all full rows into one table, with trailing
-			  row a separate table (so it can be centered)
-     crop="1"        Crops images to fit exact size, or "0" to fit maximum into size,
-     		     centering image; "2" crops from upper-left; "3" from top middle
-		     (useful with head-and-shoulders portraits)
-     sharp="1"       Changes downsize algorithm from (smooth) 'resample' to
-		     (blocky) 'resize' (see below)
-     start="1"       Starts at the second image or page (counting from zero)
-     count="2"       Includes only two images or pages
-     paged="12"      Displays 12 images on one 'page' along with next/prev, and page
-		     numbers.  NOTE: 'start' and 'count' are applied first to trim
-		     which images are included in those displayed and paged.
-     order="desc"    Sort order: "asc" ascending, "desc" descending, "rand" random
-     orderby="x"     Where 'x' is one of the below, or any orderby parameter from:
-		     http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
-		        postmash -- use order defined by PostMash plugin
-			meta:subpage_title -- sorts by any custom field; here we
-		          sort by the child page's title as overridden by the
-			  subpage_title custom field (see FAQ section)
-		     The orderby parameter is not used when displaying attachments or
-		     images from a directory.
+     titles="1"   Displays page titles below images if 1 (default: "0")
+		  (Also set by 'title' parameter to 'display=')
+     pics_only="1" When displaying child pages, only show those with associated images
+     include="1,7" The resulting table will have only two pictures, the first
+		  found ending in "1" and "7" -- note that because both 1 and 7
+		  are numeric, the image "pic11.jpg" would not be included, but
+		  "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
+		  first found picture whose name ends with the value given will
+		  be selected.
+     exclude="3,dessert" Excludes posts/pages with ID 3 and the slug 'dessert'
+     combine="x"  Combines table rows as follows (default: "all")
+		    all  -- all rows combined into one table
+		    none -- each row a separate table
+		    full -- combine all full rows into one table, with trailing
+			    row a separate table (so it can be centered)
+     crop="1"     Crops images to fit exact size, or "0" to fit maximum into size,
+     		  centering image; "2" crops from upper-left; "3" from top middle
+		  (useful with head-and-shoulders portraits)
+     sharp="1"    Changes downsize algorithm from (smooth) 'resample' to
+		  (blocky) 'resize' (see below)
+     start="1"    Starts at the second image or page (counting from zero)
+     count="2"    Includes only two images or pages
+     paged="12"   Displays 12 images on one 'page' along with next/prev, and page
+		  numbers.  NOTE: 'start' and 'count' are applied first to trim
+		  which images are included in those displayed and paged.
+     order="desc" Sort order: "asc" ascending, "desc" descending, "rand" random
+     orderby="x"  Where 'x' is one of the below, or any orderby parameter from:
+		  http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
+		    postmash -- use order defined by PostMash plugin
+		    meta:subpage_title -- sorts by any custom field; here we
+		        sort by the child page's title as overridden by the
+		      	subpage_title custom field (see FAQ section)
+		  The orderby parameter is not used when displaying attachments or
+		  images from a directory.
      imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
      group="vacation1" When combined with imgrel="lightbox*" this sets the relation
-		     tag to be: rel="lightbox[vacation1]
-     exclude="3,5"   Excludes pages with IDs 3 and 5 from the list (with display="list")
-     postid="123"    Displays images or subpages attached to the page(s) or post(s)
-		     with the given ID, or comma-delimited list of IDs, instead of the
-		     current page or post. Can also select posts in category/tag/author;
-		     or pages with specified path, author or custom field value.
+		  tag to be: rel="lightbox[vacation1]
+     postid="123" Displays images or subpages attached to the page(s) or post(s)
+		  with the given ID, or comma-delimited list of IDs, instead of the
+		  current page or post. Can also select posts in category/tag/author;
+		  or pages with specified path, author or custom field value.
 
 In addition to a numeric postid, you may select posts or pages as follows:
 
@@ -209,14 +226,15 @@ The postid selectors category__and, category__in, category__not_in
 permit more complex category selection, as described at:
 http://codex.wordpress.org/Function_Reference/get_pages
 
-
-NOTE: Additional example values for Sharp parameter:
+NOTE: The Sharp parameter is now regarded only by an optional
+addon. Additional example values are:
 
    * 0 -- standard smooth resample
    * 1 -- standard blocky resize
    * 60 -- resize, with 60% image quality on JPEG save
-   * 95.75 -- intermediate image resized down by 75%, then resampled to final
-          giving a "75% sharpness" factor, then saved with 95% image quality
+   * 95.75 -- intermediate image resized down by 75%, then resampled
+          to final giving a "75% sharpness" factor, then saved with
+          95% image quality
    * 90.50 -- "50% sharpness" and 90% image quality
    * -60 -- resampled, and saved with 60% image quality
 
@@ -227,13 +245,15 @@ NOTE: Additional example values for Sharp parameter:
 AutoNav uses the first of these that exist, as the associated picture
 for a child page:
 
-    * The value of the custom field, subpage_thumb.  The value can be
-      either a URL (http://......) or a path relative to the
-      wp-content/uploads directory (2011/07/image.jpg).
-    * The post/page Thumbnail ("Featured Image") as set in WordPress
-      (assuming your theme supports them).
-    * The attached image with the lowest Order as chosen in the Gallery
-      tab of the attachment dialog.
+* The value of the custom field, subpage_thumb.  The value can be
+either a URL (http://......) or a path relative to the
+wp-content/uploads directory (2011/07/image.jpg).
+
+* The post/page Thumbnail ("Featured Image") as set in WordPress
+(assuming your theme supports them).
+
+* The attached image with the lowest Order as chosen in the Gallery
+tab of the attachment dialog.
 
 NOTE: If a URL is given in subpage_thumb, that image will be used
 directly; AutoNav cannot resize it.  In all other cases, AutoNav will
@@ -259,6 +279,19 @@ are considered as children of the home page.  In all other cases,
 if you wish to display pages at the same level as the current page
 (i.e., the other children of the parent of the current page), you can
 use the 'siblings' parameter.
+
+= Only the first five posts get displayed. =
+
+By default, WordPress's built-in function get_posts(), which is what
+AutoNav uses to find posts and attachments, only returns the first
+five results.  You can choose how many you wish displayed with
+something like this:
+
+    [autonav display="posts" postid="category:work" 
+    pics_only=0 count=25 paged=25]
+
+which will display 25 posts, and include "next/previous" links to
+navigate through any additional ones. (Example courtesy spartaneye)
 
 = What CSS classes does this plugin create? =	    
 
@@ -338,7 +371,7 @@ You can also set the post_status of an attachment to 'private' or
 'draft' although Wordpress gives you no built-in menus to do this.
 
 The Semi-Private Attachments plugin lets you mark an attachment as
-private.  AutoNav respects this (as doees the built-in gallery
+private.  AutoNav respects this (as does the built-in gallery
 shortcode) and will not display it.  The plugin also lets you disable
 comments and pings for an attachment.
 
@@ -374,10 +407,6 @@ excerpts only for Posts, not Pages.  You can add a single line of code
 to your theme's functions.php to enable excerpts for Pages:
 
     add_post_type_support( 'page', 'excerpt' );
-
-See also:
-
-    http://wordpress.mfields.org/2010/excerpts-for-pages-in-wordpress-3-0/
 
 = Can I call the plugin from a template? =
 
@@ -472,8 +501,19 @@ page, post, or the like.
   this and return the extended text. You may add additional filters
   here to be called in priority order along with the built-in methods;
   or you may remove the built-in filter and replace with your own.
-  Note the following default priorities for tables: 10 for Image and
-  main content; 15 Title text; 20 Excerpt.
+  Note the following default priorities:
+  Tables: 10 for Image and main content; 15, Title text; 20, Excerpt.
+  Lists: 10 for Title text; 15, Image and main content; 20, Excerpt.
+  
+  For example, if you wanted to have list items add the picture first, and
+  then the text, you could override the default order, and have the 
+  built-in AutoNav functions called in a different order.  Put this in your
+  theme's functions.php:
+
+    remove_all_filters('autonav_create_list_item');
+    add_filter('autonav_create_list_item', 'an_create_output_picture', 10, 4);
+    add_filter('autonav_create_list_item', 'an_create_output_text', 15, 4);
+    add_filter('autonav_create_list_item', 'an_create_output_excerpt', 20, 4);
 
 * $html = apply_filters('autonav_create_page_links', $html, $class,
   $total_pages, $cur_page) -- is called in the case of a multi-page
@@ -530,6 +570,9 @@ For example:
 
 = Other Recommendations for Accompanying Plugins =
 
+* Pagemash and postmash (see above) rearrange the order of posts and
+  pages.
+
 * J. Christopher's Attachments plugin lets you attach anything in
   Wordpress's Media Gallery to any post.  See:
   http://wordpress.org/extend/plugins/attachments
@@ -539,176 +582,36 @@ For example:
   attachments. In most cases this is now preferable to using AutoNav's
   "Gallery" mode. http://wordpress.org/extend/plugins/add-from-server/
 
+* The Media Tags plugin lets you add tags to attachments. For example,
+  if a post has twelve attachments, you could tag three of them with
+  'dessert' and then display only those: [autonav display="attached"
+  postid="tag:dessert"] See:
+  http://wordpress.org/extend/plugins/media-tags/
+
+== Upgrade Notice ==
+
+= 1.4.8 =
+
+When using display="post" you may need to add the nothumb argument:
+
+     display="post,nothumb"
+
+if you want the previous behaviour of titles and no thumbnails.
+For display="list" the default is still titles and no thumbnails.
+
+Support addons via filters. "notitle" and similar parameters for
+suppressing default behaviors.
+
 == Changelog ==
 
-= 1.0 =
-* Initial version on wordpress.org
-
-= 1.1 =
-* Add page exclude parameter
-
-= 1.1.1 =
-* Resolve resize warnings when PNG images included
-
-= 1.1.2 =
-* Display=attached could result in error; corrected.
-
-= 1.1.3 =
-* Add postid="n" parameter.
-* Attached images with a menu_order of less than -100 will not be
-  displayed.  This is the "Order" you can set in the media library.
-
-= 1.1.4 =
-* Regard menu_order in attached files list.
-* Permit parameter:  order=desc   to display attached files in 
-  descending attachment order.
-* Corrected handling of images with capitalized extensions (e.g., .JPG)
-* postid= parameter accepts multiple values. For example:
-    [autonav display=images postid=7,15]
-  will display a table consisting of thumbnails linked to the child
-  pages, of the pages with ids 7 and 15.
-
-= 1.1.5 =
-Corrected typo
-
-= 1.1.6 =
-* When listing pages with display=images or display=list and specifying a
-  postid= parameter, each item in the postid= list will:
-    - if the page has children, list that page's children (with display=list)
-      or the children's thumbnails (with display=images)
-    - if the page has NO children, list that page or its thumbnail.
-
-= 1.1.7 =
-* Wordpress 2.9: If you select a thumbnail in a page's edit screen,
-  that thumbnail will pre-empt the "choose the first attached image" logic,
-  although specifying a subpage_thumb custom field still has priority.
-
-= 1.1.8 =
-* Move options under Settings in adminstration screens
-* Could not pics_only option unless checked in admin screen
-* Images with subpages_thumb were not displayed in some cases
-
-= 1.1.9 =
-* Improve admin screen formatting.  
-* Add option for default number of columns.
-* Compatibility with 2.9.0beta and 2.9.0rc1
-
-= 1.2.0 =
-* Resolve incompatibility with Windows-hosted paths
-
-= 1.2.1 =
-* W3C validation, correct case of incorrect table and row markup nesting
-* Caption parameter added (be sure to go thru Settings screen in admin and
-  save settings, even if not changed, to permit new parameter)
-* Picture 'alt' tag will be title if available
-
-= 1.2.2 =
-* Remove superceded v2.9.0 beta functions
-* If a page defines the custom field 'subpage_excerpt' or has a manual excerpt
-  defined, that will be displayed when the 'excerpt' parameter is included
-  with 'display' (e.g., "[autonav display=list,excerpt]" )
-
-= 1.2.3 =
-* Add optional "siblings" parameter, e.g., [autonav display="images,siblings"]
-  which will select the current page's siblings (other children of the
-  same parent).  Also "self" parameter which when used with "siblings" will
-  include the currently displayed page in the list of siblings.
-
-= 1.2.4 =
-* Handle edge case of no pictures to display
-
-= 1.2.6 =
-* Escaped attribute values on alt=""
-* Add background parameter for later support of transparency in PNG images
-* Support display=posts parameter, to display posts instead of pages or attached images.
-* Alternate text and title text for attached images, as set in admin screens, is used.
-
-= 1.2.7 =
-* Ability to select posts by "tag:x", "author:x", or "category:x" where "x" is
-  a numeric id or text (tag slug, author name, or category name); or a series
-  thereof ("5,7,9" to select posts in category 5, 7, or 9; or "cakes+vanilla" for
-  posts tagged with both cakes and vanilla; see query_posts() in codex for details)
-  Example: [autonav display="posts" postid="tag:7"]
-
-= 1.2.8 =
-* Plugin activation hook to create default settings, or otherwise provide reasonable
-  defaults for new parameters. This should eliminate plugin failures even when admin
-  does not go through Settings screen.
-
-= 1.3.0 =
-* Add 'paged' parameter.  Correction on page selection (formerly, the start and count
-  parameters were applied twice, resulting in too few pages being displayed)
-
-= 1.3.1 =
-* Support random order for pages. Thanks http://wordpress.org/support/profile/thomas_n for the patch.
-
-= 1.3.2 =
-* Support Jonathan Christopher's Attachments plugin
-
-= 1.3.3 =
-* Permit order="desc" on pages as well as posts http://wordpress.org/support/topic/autonav-order-desc?post-1823500
-
-= 1.3.4 =
-* Correct handling of order, orderby, and count parameters in various combinations of display="posts"
-* Add modifier "image" which, used as: [autonav display="posts,image"] will create a link to the (thumbnail) image for the post, rather than to the post itself.
-
-= 1.3.5 = 
-* Add sharp parameter to use resize instead of resample.
-
-= 1.3.6 =
-* Add subpages-image class to images
-* Permit display="posts:foods" to display custom posts of type "foods"
-* Added Sharpness factor and image quality level
-* Better memory handling, with imagedestroy while resizing images
-* Explicitly specifying an image, even if thumbnail-sized or smaller, will work
-  (so long as it does not end in a size; "foo.jpg" OK but "foo-64x64.jpg" will be skipped)
-
-= 1.3.7 =
-* Support orderby="meta:subpage_title" and other custom fields
-
-= 1.3.8 = 
-* Thumbnails were not always cropped when requested
-* Handle case of displaying a "thumbnail" that is exactly the size of
-  the full-size image.
-* Fully support Wordpress sizes (thumb, thumbnail, medium, large),
-  user registered sizes, and AutoNav size settings (size_small,
-  size_med, size_large).
-
-= 1.3.9 =
-* Resolves "Incorrect size specified" error immediately after installation,
-  by setting default size_* parameters.
-* For posts, postid can use custom taxonomies; for pages, postid can be 
-  a page's path (e.g., "recipes/desserts" -- NOT merely the slug!), or
-  "author:Todd,Mary" or "custom-field-type:value"
-* When listing posts, normally the current post is excluded: Use 'self' to include it.
-* Add 'family' parameter to select all children, grandchildren, etc. pages
-* Add 'page' parameter to link attached images to the attachment page
-* Add 'nolink' parameter for no linking at all
-* Additional crop origins at upper-left and top-middle
-* subpage_thumb custom field permits paths relative to the WP uploads directory.
-* Changed handling of pics_only when display="list"; formerly pics_only
-  was forced to 0 for lists, but now it can be specified. If you set pics_only
-  to 1 in the admin screen, you must now explicitly override that default
-  when invoking [autonav display=list].
-* When thumbnail cannot be created, replace output content with text of
-  destination URL and a comment about which file could not be created.
-
-= 1.4.0 =
-* Wordpress SVN release of 1.3.9 after several betas
-
-= 1.4.1 =
-* For display="posts", postid="cakes:lemon" will select posts in the
-  "cakes" taxonomy if it exists, otherwise it will select posts by the
-  "cakes" custom field.
-* Output an HTML comment with some information for missing images,
-  instead of broken IMG tag.
-* Adds filters: autonav_select, autonav_display_select, autonav_html,
-  autonav_create_list_item, autonav_create_table_item,
-  autonav_create_page_links for use with add_filter().
-* Provide link to this Readme file from the Admin screen.
-
-= 1.4.2 =
-* Correct '0' to empty string for default value of post_id.
+= 1.4.8 =
+* In display= parameters, permit "no" prefix to suppress
+  behavior, e.g.:  display="posts,list,title,nothumb"
+* Use <p> tags within table elements, not list items.
+* Display=posts supports same include= syntax as display=pages.
+* exclude= parameter supports post/page slugs and page paths.
+* New argument plain (e.g., display="posts,plain,thumb,notitle")
+  places output items inside a <div> tag instead of an unordered list.
 
 = 1.4.7 =
 * id= argument is handled the same as postid= argument, for
@@ -724,6 +627,179 @@ Corrected typo
 * New filters for extensions like NextGEN Gallery thumbnail
   support, and for taxonomy-images plugin.  These are then
   implemented in auxiliary plugins, or theme files.
+
+= 1.4.2 =
+* Correct '0' to empty string for default value of post_id.
+
+= 1.4.1 =
+* For display="posts", postid="cakes:lemon" will select posts in the
+  "cakes" taxonomy if it exists, otherwise it will select posts by the
+  "cakes" custom field.
+* Output an HTML comment with some information for missing images,
+  instead of broken IMG tag.
+* Adds filters: autonav_select, autonav_display_select, autonav_html,
+  autonav_create_list_item, autonav_create_table_item,
+  autonav_create_page_links for use with add_filter().
+* Provide link to this Readme file from the Admin screen.
+
+= 1.4.0 =
+* Wordpress SVN release of 1.3.9 after several betas
+
+= 1.3.9 =
+* Resolves "Incorrect size specified" error immediately after installation,
+  by setting default size_* parameters.
+* For posts, postid can use custom taxonomies; for pages, postid can be 
+  a page's path (e.g., "recipes/desserts" -- NOT merely the slug!), or
+  "author:Todd,Mary" or "custom-field-type:value"
+* When listing posts, normally the current post is excluded: Use
+  'self' to include it.
+* Add 'family' parameter to select all children, grandchildren, etc. pages
+* Add 'page' parameter to link attached images to the attachment page
+* Add 'nolink' parameter for no linking at all
+* Additional crop origins at upper-left and top-middle
+* subpage_thumb custom field permits paths relative to the WP uploads directory.
+* Changed handling of pics_only when display="list"; formerly pics_only
+  was forced to 0 for lists, but now it can be specified. If you set pics_only
+  to 1 in the admin screen, you must now explicitly override that default
+  when invoking [autonav display=list].
+* When thumbnail cannot be created, replace output content with text of
+  destination URL and a comment about which file could not be created.
+
+= 1.3.8 = 
+* Thumbnails were not always cropped when requested
+* Handle case of displaying a "thumbnail" that is exactly the size of
+  the full-size image.
+* Fully support Wordpress sizes (thumb, thumbnail, medium, large),
+  user registered sizes, and AutoNav size settings (size_small,
+  size_med, size_large).
+
+= 1.3.7 =
+* Support orderby="meta:subpage_title" and other custom fields
+
+= 1.3.6 =
+* Add subpages-image class to images
+* Permit display="posts:foods" to display custom posts of type "foods"
+* Added Sharpness factor and image quality level
+* Better memory handling, with imagedestroy while resizing images
+* Explicitly specifying an image, even if thumbnail-sized or smaller, will work
+  (so long as it does not end in a size; "foo.jpg" OK but "foo-64x64.jpg" will be skipped)
+
+= 1.3.5 = 
+* Add sharp parameter to use resize instead of resample.
+
+= 1.3.4 =
+* Correct handling of order, orderby, and count parameters in various
+  combinations of display="posts"
+* Add modifier "image" which, used as: [autonav display="posts,image"]
+  will create a link to the (thumbnail) image for the post, rather
+  than to the post itself.
+
+= 1.3.3 =
+* Permit order="desc" on pages as well as posts http://wordpress.org/support/topic/autonav-order-desc?post-1823500
+
+= 1.3.2 =
+* Support Jonathan Christopher's Attachments plugin
+
+= 1.3.1 =
+* Support random order for pages. Thanks http://wordpress.org/support/profile/thomas_n for the patch.
+
+= 1.3.0 =
+* Add 'paged' parameter.  Correction on page selection (formerly, the start and count
+  parameters were applied twice, resulting in too few pages being displayed)
+
+= 1.2.8 =
+* Plugin activation hook to create default settings, or otherwise provide reasonable
+  defaults for new parameters. This should eliminate plugin failures even when admin
+  does not go through Settings screen.
+
+= 1.2.7 =
+* Ability to select posts by "tag:x", "author:x", or "category:x" where "x" is
+  a numeric id or text (tag slug, author name, or category name); or a series
+  thereof ("5,7,9" to select posts in category 5, 7, or 9; or "cakes+vanilla" for
+  posts tagged with both cakes and vanilla; see query_posts() in codex for details)
+  Example: [autonav display="posts" postid="tag:7"]
+
+= 1.2.6 =
+* Escaped attribute values on alt=""
+* Add background parameter for later support of transparency in PNG images
+* Support display=posts parameter, to display posts instead of pages or attached images.
+* Alternate text and title text for attached images, as set in admin screens, is used.
+
+= 1.2.4 =
+* Handle edge case of no pictures to display
+
+= 1.2.3 =
+* Add optional "siblings" parameter, e.g., [autonav display="images,siblings"]
+  which will select the current page's siblings (other children of the
+  same parent).  Also "self" parameter which when used with "siblings" will
+  include the currently displayed page in the list of siblings.
+
+= 1.2.2 =
+* Remove superceded v2.9.0 beta functions
+* If a page defines the custom field 'subpage_excerpt' or has a manual excerpt
+  defined, that will be displayed when the 'excerpt' parameter is included
+  with 'display' (e.g., "[autonav display=list,excerpt]" )
+
+= 1.2.1 =
+* W3C validation, correct case of incorrect table and row markup nesting
+* Caption parameter added (be sure to go thru Settings screen in admin and
+  save settings, even if not changed, to permit new parameter)
+* Picture 'alt' tag will be title if available
+
+= 1.2.0 =
+* Resolve incompatibility with Windows-hosted paths
+
+= 1.1.9 =
+* Improve admin screen formatting.  
+* Add option for default number of columns.
+* Compatibility with 2.9.0beta and 2.9.0rc1
+
+= 1.1.8 =
+* Move options under Settings in adminstration screens
+* Could not pics_only option unless checked in admin screen
+* Images with subpages_thumb were not displayed in some cases
+
+= 1.1.7 =
+* Wordpress 2.9: If you select a thumbnail in a page's edit screen,
+  that thumbnail will pre-empt the "choose the first attached image" logic,
+  although specifying a subpage_thumb custom field still has priority.
+
+= 1.1.6 =
+* When listing pages with display=images or display=list and specifying a
+  postid= parameter, each item in the postid= list will:
+    - if the page has children, list that page's children (with display=list)
+      or the children's thumbnails (with display=images)
+    - if the page has NO children, list that page or its thumbnail.
+
+= 1.1.5 =
+Corrected typo
+
+= 1.1.4 =
+* Regard menu_order in attached files list.
+* Permit parameter:  order=desc   to display attached files in 
+  descending attachment order.
+* Corrected handling of images with capitalized extensions (e.g., .JPG)
+* postid= parameter accepts multiple values. For example:
+    [autonav display=images postid=7,15]
+  will display a table consisting of thumbnails linked to the child
+  pages, of the pages with ids 7 and 15.
+
+= 1.1.3 =
+* Add postid="n" parameter.
+* Attached images with a menu_order of less than -100 will not be
+  displayed.  This is the "Order" you can set in the media library.
+
+= 1.1.2 =
+* Display=attached could result in error; corrected.
+
+= 1.1.1 =
+* Resolve resize warnings when PNG images included
+
+= 1.1 =
+* Add page exclude parameter
+
+= 1.0 =
+* Initial version on wordpress.org
 
 == TODO ==
 
@@ -767,4 +843,9 @@ Corrected typo
 
 * Support creation of thumbnails for PDF and other attachment types,
   possibly through filters and auxiliary plugins.
+
+* [Note 20120111] Other filetypes handled in get_images_from_folder()
+  must take care to let actual images take priority regardless of
+  which appears first in directory. The switch statement will need to
+  take this into account.
 
