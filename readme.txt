@@ -147,7 +147,8 @@ Parameters not specified will be taken from the values set in the WordPress admi
      titles="1"   Displays page titles below images if 1 (default: "0")
 		  (Also set by 'title' parameter to 'display=')
      pics_only="1" When displaying child pages, only show those with associated images
-     include="1,7" The resulting table will have only two pictures, the first
+     include="1,7" Used with display=/folder syntax only; others, see postid parameter.
+		  The resulting table will have only two pictures, the first
 		  found ending in "1" and "7" -- note that because both 1 and 7
 		  are numeric, the image "pic11.jpg" would not be included, but
 		  "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
