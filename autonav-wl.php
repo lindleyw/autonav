@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.saltriversystems.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.4.9a
+Version: 1.4.9b
 Author URI: http://www.saltriversystems.com/
 */
 
@@ -760,6 +760,14 @@ function get_selposts($attr) {
     case 'category__not_in':
       $value = preg_replace('#\*#',$post->post_category,$value);
       $query[$key]=explode(',',$value);
+      foreach ($query[$key] as &$catvalue) { // modify in situ
+	if (absint($catvalue) !== $catvalue) {
+	  $cat_obj = get_category_by_slug($catvalue); // support category slugs here
+	  if (is_object($cat_obj)) {
+	    $catvalue = $cat_obj->term_id;
+	  }
+	}
+      }
       $key='category';
       break;
     case 'author':

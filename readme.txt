@@ -281,7 +281,7 @@ if you wish to display pages at the same level as the current page
 (i.e., the other children of the parent of the current page), you can
 use the 'siblings' parameter.
 
-= How can I display posts in a list. =
+= How can I display posts in a list? =
 
 The following will display posts in the 'desserts' category, in a
 bulleted list, with the title as a link to the page:
@@ -290,6 +290,21 @@ bulleted list, with the title as a link to the page:
 
 The "nothumb" parameter suppresses the "missing image" error message
 for posts that do not have thumbnails.
+
+To display posts not in a certain category, use the category's slug as
+follows:
+
+    [autonav display="posts,list,title,nothumb" 
+    postid="category__not_in:desserts"]
+
+You can use multiple category IDs or slugs with the three modifiers
+category__in (posts in any of the categories), category__and (only
+posts which must be in all the categories listed), or category__not_in
+(posts which must not be in any of the categories listed).  This lists
+posts that are in either the 'desserts' or the 'sweets' categories:
+
+    [autonav display="posts,list,title,nothumb" 
+    postid="category__in:desserts,sweets"]
 
 = Only the first five posts get displayed. =
 
@@ -620,6 +635,15 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.4.9b =
+
+* Support category slugs in category__in, category__and,
+  category__not_in
+
+= 1.4.9a =
+
+* Images with name "0" were incorrectly being chosen for thumbnails.
 
 = 1.4.8 =
 * In display= parameters, permit "no" prefix to suppress
