@@ -281,6 +281,16 @@ if you wish to display pages at the same level as the current page
 (i.e., the other children of the parent of the current page), you can
 use the 'siblings' parameter.
 
+= How can I display posts in a list. =
+
+The following will display posts in the 'desserts' category, in a
+bulleted list, with the title as a link to the page:
+
+    [autonav display="posts,list,title,nothumb" postid="category:desserts"]
+
+The "nothumb" parameter suppresses the "missing image" error message
+for posts that do not have thumbnails.
+
 = Only the first five posts get displayed. =
 
 By default, WordPress's built-in function get_posts(), which is what
@@ -288,10 +298,16 @@ AutoNav uses to find posts and attachments, only returns the first
 five results.  You can choose how many you wish displayed with
 something like this:
 
-    [autonav display="posts" postid="category:work" 
-    pics_only=0 count=25 paged=25]
+    [autonav display="posts,list,title,nothumb" postid="category:desserts"
+    count=10]
 
-which will display 25 posts, and include "next/previous" links to
+If you would like the viewer to be able to access more than the first
+ten posts, you can use the paged parameter:
+
+    [autonav display="posts,list,title,nothumb" postid="category:desserts"
+    count=10 paged=10]
+
+which will display 10 posts, and include "next/previous" links to
 navigate through any additional ones. (Example courtesy spartaneye)
 
 = What CSS classes does this plugin create? =	    
