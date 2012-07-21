@@ -424,6 +424,20 @@ Autonav will not find your "full size" picture, the 640x528 one, because it
 ends in a dash followed by two numbers with an 'x' inbetween.  You will have 
 to rename your original picture before uploading it into Wordpress.
 
+= AutoNav does not detect a child page's, or a post's, thumbnail. =
+
+Double-check that you have explicitly set a Featured Image for the
+post or page. Merely invoking [autonav] in a post or page, although
+that can cause a gallery to be displayed, does not set a featured
+image.
+
+= How do I use the addons? =
+
+In your AutoNav plugin's directory you should find a file, addons.zip
+which contains several add-on plugins in a subdirectory.  Move only
+the files you wish to use, into the same directory as the
+autonav-wl.php file itself.  Then enable whichever addons you wish.
+
 = How do I use excerpts with pages and posts? =
 
 Examples of displaying excerpts:
