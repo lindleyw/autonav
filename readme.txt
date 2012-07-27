@@ -103,49 +103,57 @@ are in the addons.zip file.  (The additional complication of this zip
 within a zip is because WordPress's plugin system has no way to handle
 "optional but part of the distribution" plugins).
 
+= How to use the addons =
+
+In your AutoNav plugin's directory you should find a file, addons.zip
+which contains several add-on plugins in a subdirectory.  Move only
+the files you wish to use, into the same directory as the
+autonav-wl.php file itself.  Then enable whichever addons you wish.
+
 == Shortcode Parameters ==
 
-Parameters not specified will be taken from the values set in the WordPress admin panel.
+Parameters not specified will be taken from the values set in the
+WordPress admin panel. The optional display parameters should be
+enclosed in the display argument; for example,
+[autonav display="posts,list,thumb,title"]
 
-     display="x"  Chooses a display mode based on "x" as follows:
-		    images -- displays a table of images, one for each of the child
-		       pages of this post. 
-		    list -- displays a list of links to the child pages of this post.
-		    attached -- displays a table of images attached to the post
-		    attachments -- displays selections from the "Attachments" plugin
-		    posts -- displays table of posts listed in the postid="" parameter
-		    posts:TYPE -- displays posts in custom post type TYPE
-		    /folder -- displays a table of images located in the
-		         wp-content/uploads/folder directory
+     display="x"  Displays a list or table, based on "x" as follows:
+		    images -- a table, with one cell for each of the child pages of
+		     	      the current page.
+		    list   -- a list, with an entry for each child of the current page
+		    attached -- a table of images attached to the current post or page
+		    attachments -- table of items from the "Attachments" plugin (see below)
+		    posts  -- a table of posts listed in the postid="" parameter
+		    posts:TYPE -- a table of posts in custom post type TYPE
+		    /folder -- a table of images located in wp-content/uploads/folder
 		  Optional parameters, in a comma-separated list:
-		    excerpt  -- Display the child page's manual excerpt (see FAQ)
-		    thumb    -- Display the page's thumbnail
-		    title    -- Display the page's title
-		    siblings -- Display sibling pages (other children of parent)
-		    		NOTE: Always means siblings of CURRENT page.
-		    family   -- Display all children, grandchildren, etc. of page
-		    self     -- Include this page in siblings, or this page
-		    	        (normally the current page or post is excluded)
 		    list     -- Used with display="posts" for list, not table
+		    plain    -- Replaces unordered-list with a div, for use
+		    	        with JavaScript/jQuery slideshows, etc.
+		    thumb    -- Display the thumbnail for the pages or posts
+		    title    -- Display the title for the pages or posts
+		    excerpt  -- Display the child page's "manual excerpt" (see FAQ)
+		    siblings -- Display siblings (other children) of the current page
+		    family   -- Display all children, grandchildren, etc. of page
+		    self     -- Include the current page (with siblings, or family)
+		    	        (normally the current page or post is excluded)
 		    image    -- For posts, link to full-size of thumbnail
 		    	        instead of to post itself
 		    page     -- For attachments, link to attachment page
 		    nolink   -- Disables links entirely
-		    plain    -- Replaces unordered-list with a div, for use
-		    	        with JavaScript/jQuery slideshows, etc.
 		  The above parameters may be preced by 'no' to disable the feature
 		  (as when set by default or in the plugin options page).
 		  Example: display="list,notitle,thumb,excerpt"
      caption="x"  Adds a caption to the table. (First table only, see combine below)
      columns="4"  Displays 4 columns of images
      size="x"	  Choose a display size 'x' as:
-		    thumb (or: thumbnail), medium, large -- Wordpress standard sizes		    
+		    thumb (or: thumbnail), medium, large -- Wordpress standard sizes
 		    size_small, size_med, size_large -- sizes from AutoNav settings
 		    300x200 -- force images to be resized/cropped to an exact size
 		    auto -- uses settings from autonav control panel
 		    Sizes registered with add_image_size() should also work.
      titles="1"   Displays page titles below images if 1 (default: "0")
-		  (Also set by 'title' parameter to 'display=')
+		  (same as using 'title' parameter to 'display=')
      pics_only="1" When displaying child pages, only show those with associated images
      include="1,7" Used with display=/folder syntax only; others, see postid parameter.
 		  The resulting table will have only two pictures, the first
@@ -155,6 +163,8 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		  first found picture whose name ends with the value given will
 		  be selected.
      exclude="3,dessert" Excludes posts/pages with ID 3 and the slug 'dessert'
+     		  NOTE: To *include* posts or pages by category, author, etc,
+		  see the 'postid' parameter.
      combine="x"  Combines table rows as follows (default: "all")
 		    all  -- all rows combined into one table
 		    none -- each row a separate table
@@ -171,8 +181,7 @@ Parameters not specified will be taken from the values set in the WordPress admi
 		  numbers.  NOTE: 'start' and 'count' are applied first to trim
 		  which images are included in those displayed and paged.
      order="desc" Sort order: "asc" ascending, "desc" descending, "rand" random
-     orderby="x"  Where 'x' is one of the below, or any orderby parameter from:
-		  http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters
+     orderby="x"  Where 'x' is any orderby parameter from the [codex](http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters) or one of:
 		    postmash -- use order defined by PostMash plugin
 		    meta:subpage_title -- sorts by any custom field; here we
 		        sort by the child page's title as overridden by the
@@ -430,13 +439,6 @@ Double-check that you have explicitly set a Featured Image for the
 post or page. Merely invoking [autonav] in a post or page, although
 that can cause a gallery to be displayed, does not set a featured
 image.
-
-= How do I use the addons? =
-
-In your AutoNav plugin's directory you should find a file, addons.zip
-which contains several add-on plugins in a subdirectory.  Move only
-the files you wish to use, into the same directory as the
-autonav-wl.php file itself.  Then enable whichever addons you wish.
 
 = How do I use excerpts with pages and posts? =
 
