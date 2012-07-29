@@ -16,11 +16,9 @@ Creates customizable lists/tables of text/thumbnails/links to posts, pages, taxo
 
 Auto Graphics Site Navigation with Gallery
 
-> NOTE: If you experience errors or missing pages, try the [previous
-stable
-version](http://downloads.wordpress.org/plugin/autonav.1.4.2.zip)
-first, and then look in the [support
-forum](http://wordpress.org/support/plugin/autonav).
+NOTE: If you experience errors or missing pages, try the [previous
+stable version](http://downloads.wordpress.org/plugin/autonav.1.4.2.zip)
+first, and then look in the [support forum](http://wordpress.org/support/plugin/autonav).
 
 This plugin simplifies the creation of graphically navigable Wordpress
 sites, creating a list or tables of pages, posts, taxonomies, and
@@ -117,109 +115,158 @@ WordPress admin panel. The optional display parameters should be
 enclosed in the display argument; for example,
 [autonav display="posts,list,thumb,title"]
 
-     display="x"  Displays a list or table, based on "x" as follows:
-		    images -- a table, with one cell for each of the child pages of
-		     	      the current page.
-		    list   -- a list, with an entry for each child of the current page
-		    attached -- a table of images attached to the current post or page
-		    attachments -- table of items from the "Attachments" plugin (see below)
-		    posts  -- a table of posts listed in the postid="" parameter
-		    posts:TYPE -- a table of posts in custom post type TYPE
-		    /folder -- a table of images located in wp-content/uploads/folder
-		  Optional parameters, in a comma-separated list:
-		    list     -- Used with display="posts" for list, not table
-		    plain    -- Replaces unordered-list with a div, for use
-		    	        with JavaScript/jQuery slideshows, etc.
-		    thumb    -- Display the thumbnail for the pages or posts
-		    title    -- Display the title for the pages or posts
-		    excerpt  -- Display the child page's "manual excerpt" (see FAQ)
-		    siblings -- Display siblings (other children) of the current page
-		    family   -- Display all children, grandchildren, etc. of page
-		    self     -- Include the current page (with siblings, or family)
-		    	        (normally the current page or post is excluded)
-		    image    -- For posts, link to full-size of thumbnail
-		    	        instead of to post itself
-		    page     -- For attachments, link to attachment page
-		    nolink   -- Disables links entirely
-		  The above parameters may be preced by 'no' to disable the feature
-		  (as when set by default or in the plugin options page).
-		  Example: display="list,notitle,thumb,excerpt"
-     caption="x"  Adds a caption to the table. (First table only, see combine below)
-     columns="4"  Displays 4 columns of images
-     size="x"	  Choose a display size 'x' as:
-		    thumb (or: thumbnail), medium, large -- Wordpress standard sizes
-		    size_small, size_med, size_large -- sizes from AutoNav settings
-		    300x200 -- force images to be resized/cropped to an exact size
-		    auto -- uses settings from autonav control panel
-		    Sizes registered with add_image_size() should also work.
-     titles="1"   Displays page titles below images if 1 (default: "0")
-		  (same as using 'title' parameter to 'display=')
-     pics_only="1" When displaying child pages, only show those with associated images
-     include="1,7" Used with display=/folder syntax only; others, see postid parameter.
-		  The resulting table will have only two pictures, the first
-		  found ending in "1" and "7" -- note that because both 1 and 7
-		  are numeric, the image "pic11.jpg" would not be included, but
-		  "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the 
-		  first found picture whose name ends with the value given will
-		  be selected.
-     exclude="3,dessert" Excludes posts/pages with ID 3 and the slug 'dessert'
-     		  NOTE: To *include* posts or pages by category, author, etc,
-		  see the 'postid' parameter.
-     combine="x"  Combines table rows as follows (default: "all")
-		    all  -- all rows combined into one table
-		    none -- each row a separate table
-		    full -- combine all full rows into one table, with trailing
-			    row a separate table (so it can be centered)
-     crop="1"     Crops images to fit exact size, or "0" to fit maximum into size,
-     		  centering image; "2" crops from upper-left; "3" from top middle
-		  (useful with head-and-shoulders portraits)
-     sharp="1"    Changes downsize algorithm from (smooth) 'resample' to
-		  (blocky) 'resize' (see below)
-     start="1"    Starts at the second image or page (counting from zero)
-     count="2"    Includes only two images or pages
-     paged="12"   Displays 12 images on one 'page' along with next/prev, and page
-		  numbers.  NOTE: 'start' and 'count' are applied first to trim
-		  which images are included in those displayed and paged.
-     order="desc" Sort order: "asc" ascending, "desc" descending, "rand" random
-     orderby="x"  Where 'x' is any orderby parameter from the [codex](http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters) or one of:
-		    postmash -- use order defined by PostMash plugin
-		    meta:subpage_title -- sorts by any custom field; here we
-		        sort by the child page's title as overridden by the
-		      	subpage_title custom field (see FAQ section)
-		  The orderby parameter is not used when displaying attachments or
-		  images from a directory.
-     imgrel="lightbox" Sets the relation tag of the <a> to be: rel="lightbox"
-     group="vacation1" When combined with imgrel="lightbox*" this sets the relation
-		  tag to be: rel="lightbox[vacation1]
-     postid="123" Displays images or subpages attached to the page(s) or post(s)
-		  with the given ID, or comma-delimited list of IDs, instead of the
-		  current page or post. Can also select posts in category/tag/author;
-		  or pages with specified path, author or custom field value.
+* `display="x"`  Displays a list or table, based on "x" as follows:
+
+    - `images` -- a table, with one cell for each of the child pages of the current page.
+    - `list`   -- a list, with an entry for each child of the current page
+    - `attached` -- a table of images attached to the current post or page
+    - `attachments` -- table of items from the "Attachments" plugin (see below)
+    - `posts`  -- a table of posts listed in the postid="" parameter
+    - `posts:TYPE` -- a table of posts in custom post type TYPE
+    - `/folder` -- a table of images located in wp-content/uploads/folder
+
+    Optional parameters, in a comma-separated list:
+
+    - `list` -- Used with display="posts" for list, not table
+    - `plain` -- Replaces unordered-list with a div, for use with
+      JavaScript/jQuery slideshows, etc.
+    - `thumb` -- Display the thumbnail for the pages or posts
+    - `title` -- Display the title for the pages or posts
+    - `excerpt` -- Display the child page's "manual excerpt" (see FAQ)
+    - `siblings` -- Display siblings (other children) of the current
+      page
+    - `family` -- Display all children, grandchildren, etc. of page
+    - `self` -- Include the current page (with siblings, or family)
+      (normally the current page or post is excluded)
+    - `image` -- For posts, link to full-size of thumbnail instead of
+      to post itself
+    - `page` -- For attachments, link to attachment page
+    - `nolink` -- Disables links entirely The above parameters may be
+      preced by 'no' to disable the feature (as when set by default or
+      in the plugin options page).
+
+    Example: `display="list,notitle,thumb,excerpt"`
+
+* `caption="x"` Adds a caption to the table. (First table only, see `combine` below)
+
+* `columns="4"`  Displays 4 columns of images
+* `size="x"`	  Choose a display size 'x' as:
+
+    - `thumb` (*or*: `thumbnail`), `medium`, `large` -- Wordpress standard sizes
+    - `size_small`, `size_med`, `size_large` -- sizes from AutoNav settings screen
+    - `300x200` -- force images to be resized/cropped to an exact size
+    - `auto` -- uses settings from autonav control panel
+
+    Sizes registered with add_image_size() should also work.
+
+* `titles="1"` Displays page titles below images if 1 (default: "0")
+(same as using `title` parameter to `display=`)
+
+* `pics_only="1"` When displaying child pages, only show those with associated images
+
+* `include="1,7"` Used with `display=/folder` syntax only; others, see
+  postid parameter.  The resulting table will have only two pictures,
+  the first found ending in "1" and "7" -- note that because both 1
+  and 7 are numeric, the image "pic11.jpg" would not be included, but
+  "pic1.jpg" or "pic01.jpg" would be.  For non-numeric values, the
+  first found picture whose name ends with the value given will be
+  selected.
+
+* `exclude="3,dessert"` Excludes posts/pages with ID 3 and the slug
+  '`dessert`' **Note**: To *include* posts or pages by category, author,
+  etc, see the `postid` parameter.
+
+* `combine="x"` Combines table rows as follows (default: "all")
+
+    - `all`  -- all rows combined into one table
+    - `none` -- each row a separate table
+    - `full` -- combine all full rows into one table, with trailing row a separate table (so it can be centered)
+
+* `crop="1"` Crops images to fit exact size, or "0" to fit maximum
+  into size, centering image; "2" crops from upper-left; "3" from top
+  middle (useful with head-and-shoulders portraits)
+
+* `sharp="1"` Changes downsize algorithm from 'resample' (smooth) to
+   the more blocky 'resize' (see below)
+
+* `start="1"` Starts at the second image or page (counting from zero)
+
+* `count="2"` Includes only two images or pages
+
+* `paged="12"` Displays 12 images on one 'page' along with next/prev,
+  and page numbers.  **NOTE: 'start' and 'count' are applied first to
+  trim which images are included in those displayed and paged.
+
+* `order="desc"` Sort order: "`asc`" ascending, "`desc`" descending, "`rand`" random
+
+* `orderby="x"` Where 'x' is any orderby parameter from the
+  [codex](http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters)
+  or one of:
+
+    - `postmash` -- use order defined by PostMash plugin
+ 
+    - `meta:subpage_title` -- sorts by any custom field; here we sort
+      by the child page's title as overridden by the subpage_title
+      custom field (see FAQ section)
+
+    The orderby parameter is not used when displaying attachments or
+    images from a directory.
+
+* `imgrel="lightbox"` Sets the relation tag of the <a> to be:
+  `rel="lightbox"`
+
+* `group="vacation1"` When combined with `imgrel="lightbox*"` this
+  sets the relation tag to be: `rel="lightbox[vacation1]`
+
+* `postid="123"` Displays images or subpages attached to the page(s)
+  or post(s) with the given ID, or comma-delimited list of IDs,
+  instead of the current page or post. Can also select posts in
+  category/tag/author; or pages with specified path, author or custom
+  field value.
 
 In addition to a numeric postid, you may select posts or pages as follows:
 
-     postid="cat:17"         posts in a numeric category or categories
-     postid="category:17"    (same, 'cat' is abbreviation)
-     postid="category:-17"   posts *not* in a numeric category
-     postid="category:cakes" posts by category name
-     postid="category__and:3,7" posts that must be in both categories
-     postid="tag:37,38,53"   posts with numerically specified tag(s)
-     postid="tag:chocolate"  posts by tag name
-     postid="tag__and:chocolate,hot" posts that have both tags
-     postid="author:27"      posts or child pages with a specific author by ID
-     postid="author:Todd"    posts or child pages by author name
-     postid="status:draft"   draft posts or pages. Can also use custom status types.
-     postid="movies:comedy"  posts tagged in a custom taxonomy
-     postid="movies:drama,horror"  posts with any of those tags in custom taxonomy
-     			     (if 'movies' taxonomy is defined) or with custom field
-     postid="month:january"  subpages of current page, with custom field "month"="january"
-     			     NOTE: selection of Pages by taxonomy not yet supported
-     postid="recipes/desserts" page by its full path (NOT merely its slug)
+    - `postid="cat:17"` posts in a numeric category or categories
 
-As of version 1.4.5, you may also select attachments based on their parent
-(given by slug or post-ID), their author (which WordPress sets when the 
-attachment is uploaded; there is no built-in way to edit an attachment's
-author, although a plugin may provide one), or by the tags set through the
+    - `postid="category:17"` (same, 'cat' is abbreviation)
+
+    - `postid="category:-17"` posts *not* in a numeric category
+
+    - `postid="category:cakes"` posts by category name
+
+    - `postid="category__and:3,7"` posts that must be in both
+      categories
+
+    - `postid="tag:37,38,53"` posts with numerically specified tag(s)
+
+    - `postid="tag:chocolate"`  posts by tag name
+
+    - `postid="tag__and:chocolate,hot"` posts that have both tags
+
+    - `postid="author:27"` posts or child pages with a specific author
+      by ID
+
+    - `postid="author:Todd"`    posts or child pages by author name
+
+    - `postid="status:draft"` draft posts or pages. Can also use
+      custom status types.
+
+    - `postid="movies:comedy"`  posts tagged in a custom taxonomy
+
+    - `postid="movies:drama,horror"` posts with any of those tags in
+       custom taxonomy (if 'movies' taxonomy is defined) or with
+       custom field
+
+    - `postid="month:january"` subpages of current page, with custom
+      field "month"="january" **Note**: selection of Pages by taxonomy not
+      yet supported
+
+    - `postid="recipes/desserts"` page by its full path (NOT merely its slug)
+
+You may also select attachments based on their parent (given by slug
+or post-ID), their author (which WordPress sets when the attachment is
+uploaded; there is no built-in way to edit an attachment's author,
+although a plugin may provide one), or by the tags set through the
 Media Tags (http://wordpress.org/extend/plugins/media-tags/) plugin:
 
       postid="tag:dessert"
