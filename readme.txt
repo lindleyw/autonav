@@ -113,7 +113,7 @@ autonav-wl.php file itself.  Then enable whichever addons you wish.
 Parameters not specified will be taken from the values set in the
 WordPress admin panel. The optional display parameters should be
 enclosed in the display argument; for example,
-[autonav display="posts,list,thumb,title"]
+`[autonav display="posts,list,thumb,title"]`
 
 * `display="x"`  Displays a list or table, based on "x" as follows:
 
@@ -224,43 +224,29 @@ enclosed in the display argument; for example,
   category/tag/author; or pages with specified path, author or custom
   field value.
 
-In addition to a numeric postid, you may select posts or pages as follows:
+  In addition to a numeric postid, you may select posts or pages as follows:
 
     - `postid="cat:17"` posts in a numeric category or categories
-
     - `postid="category:17"` (same, 'cat' is abbreviation)
-
     - `postid="category:-17"` posts *not* in a numeric category
-
     - `postid="category:cakes"` posts by category name
-
     - `postid="category__and:3,7"` posts that must be in both
       categories
-
     - `postid="tag:37,38,53"` posts with numerically specified tag(s)
-
     - `postid="tag:chocolate"`  posts by tag name
-
     - `postid="tag__and:chocolate,hot"` posts that have both tags
-
     - `postid="author:27"` posts or child pages with a specific author
       by ID
-
     - `postid="author:Todd"`    posts or child pages by author name
-
     - `postid="status:draft"` draft posts or pages. Can also use
       custom status types.
-
     - `postid="movies:comedy"`  posts tagged in a custom taxonomy
-
     - `postid="movies:drama,horror"` posts with any of those tags in
        custom taxonomy (if 'movies' taxonomy is defined) or with
        custom field
-
     - `postid="month:january"` subpages of current page, with custom
       field "month"="january" **Note**: selection of Pages by taxonomy not
       yet supported
-
     - `postid="recipes/desserts"` page by its full path (NOT merely its slug)
 
 You may also select attachments based on their parent (given by slug
