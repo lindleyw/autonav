@@ -194,17 +194,17 @@ enclosed in the display argument; for example,
 * `count="2"` Includes only two images or pages
 
 * `paged="12"` Displays 12 images on one 'page' along with next/prev,
-  and page numbers.  **NOTE: 'start' and 'count' are applied first to
+  and page numbers.  **Note**: 'start' and 'count' are applied first to
   trim which images are included in those displayed and paged.
 
-* `order="desc"` Sort order: "`asc`" ascending, "`desc`" descending, "`rand`" random
+* `order="desc"` Sort order: "`asc`" ascending, "`desc`" descending, "`rand`" random.
+  See the 
 
-* `orderby="x"` Where 'x' is any orderby parameter from the
+* `orderby="x"` Where 'x' is any orderby parameter (e.g., `date`, `title`) from the
   [codex](http://codex.wordpress.org/Class_Reference/WP_Query#Order_.26_Orderby_Parameters)
   or one of:
 
     - `postmash` -- use order defined by PostMash plugin
- 
     - `meta:subpage_title` -- sorts by any custom field; here we sort
       by the child page's title as overridden by the subpage_title
       custom field (see FAQ section)
@@ -212,8 +212,8 @@ enclosed in the display argument; for example,
     The orderby parameter is not used when displaying attachments or
     images from a directory.
 
-* `imgrel="lightbox"` Sets the relation tag of the <a> to be:
-  `rel="lightbox"`
+* `imgrel="lightbox"` Sets the relation tag of the created links as:
+  `<a rel="lightbox" ...>`
 
 * `group="vacation1"` When combined with `imgrel="lightbox*"` this
   sets the relation tag to be: `rel="lightbox[vacation1]`
@@ -224,42 +224,61 @@ enclosed in the display argument; for example,
   category/tag/author; or pages with specified path, author or custom
   field value.
 
-  In addition to a numeric postid, you may select posts or pages as follows:
+  In addition to a numeric postid, you may select **posts or pages**
+  as follows:
 
     - `postid="cat:17"` posts in a numeric category or categories
     - `postid="category:17"` (same, 'cat' is abbreviation)
     - `postid="category:-17"` posts *not* in a numeric category
     - `postid="category:cakes"` posts by category name
-    - `postid="category__and:3,7"` posts that must be in both
+    - `postid="cateogry__in:cakes,cookies"` posts in any of the listed categories
+    - `postid="category__and:cakes,chocolate"` posts that must be in both
       categories
+    - `postid="category__not_in:cakes,chocolate"` posts not one or more categories
+    - `postid="category:*"` posts in the same category as the current post/page
     - `postid="tag:37,38,53"` posts with numerically specified tag(s)
     - `postid="tag:chocolate"`  posts by tag name
     - `postid="tag__and:chocolate,hot"` posts that have both tags
     - `postid="author:27"` posts or child pages with a specific author
-      by ID
-    - `postid="author:Todd"`    posts or child pages by author name
-    - `postid="status:draft"` draft posts or pages. Can also use
-      custom status types.
+      by ID,
+    - `postid="author:Todd"` ...by author name,
+    - `postid="author:*"` ...by same author as current post or page.
+    - `postid="status:future"` future posts or pages. *see* list in the
+      [codex](http://codex.wordpress.org/Function_Reference/get_post_status)
+      `status=*` for same status as current post/page.
+      Can also use custom status types.
     - `postid="movies:comedy"`  posts tagged in a custom taxonomy
     - `postid="movies:drama,horror"` posts with any of those tags in
        custom taxonomy (if 'movies' taxonomy is defined) or with
        custom field
     - `postid="month:january"` subpages of current page, with custom
-      field "month"="january" **Note**: selection of Pages by taxonomy not
+      field "month"="january" **Note**: selection of Pages by *taxonomy* not
       yet supported
     - `postid="recipes/desserts"` page by its full path (NOT merely its slug)
 
-You may also select attachments based on their parent (given by slug
-or post-ID), their author (which WordPress sets when the attachment is
-uploaded; there is no built-in way to edit an attachment's author,
-although a plugin may provide one), or by the tags set through the
-Media Tags (http://wordpress.org/extend/plugins/media-tags/) plugin:
+Note that any of several plugins, like [this
+one](http://wordpress.org/extend/plugins/post-tags-and-categories-for-pages/),
+must be used to associate a category with a page. Once you have done
+so, you can for example, create a page for each of your categories
+which will display a list of the most recent posts in "its" category:
 
-      postid="tag:dessert"
+    [autonav display="posts,nothumb,title,list" postid="category:*"]
 
-Categories and tags can also have multiple values separated by commas (posts in
-any of the categories or tags) or '+' plus signs (posts which are in all of the
-categories or tags).
+You could also display a list of all the most recent posts *not* in
+the page's category:
+
+    [autonav display="posts,nothumb,title,list" postid="category__not_in:*"]
+
+You may also select **attachments** based on their parent (given by
+slug or post-ID), their author (which WordPress sets when the
+attachment is uploaded; there is no built-in way to edit an
+attachment's author, although a plugin may provide one), by `status`
+or by the tags set through the [Media Tags
+plugin](http://wordpress.org/extend/plugins/media-tags/):
+
+    - `[autonav display="attachments" postid="recipes,tag:dessert"]`
+      would display images attached to the recipes page which with
+      the media-tag "dessert"
 
 Note, you can specify both a page/post ID _and_ one of the above.  For example,
 postid="27,author:Todd" would show subpages of the page with ID=27 that have
@@ -684,6 +703,17 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.4.9c =
+
+* Support 'postid="category:*"' for posts in the same category
+  as the current post or page.  Also works with category__in,
+  category__and, category__not_in -- as:
+
+    [autonav display="posts,list,nothumb" postid="category__in:*,cakes"]
+
+  which would display posts which are either in the same category
+  as the current post/page, or which are in the cakes category.
 
 = 1.4.9b =
 
