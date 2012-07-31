@@ -256,6 +256,10 @@ enclosed in the display argument; for example,
       yet supported
     - `postid="recipes/desserts"` page by its full path (NOT merely its slug)
 
+You can specify both a page/post ID _and_ one of the above.  For example,
+postid="27,author:Todd" would show subpages of the page with ID=27 that have
+author Todd.
+
 Note that any of several plugins, like [this
 one](http://wordpress.org/extend/plugins/post-tags-and-categories-for-pages/),
 must be used to associate a category with a page. Once you have done
@@ -269,6 +273,10 @@ the page's category:
 
     [autonav display="posts,nothumb,title,list" postid="category__not_in:*"]
 
+The postid selectors category__and, category__in, category__not_in
+permit more complex category selection, as described in the
+[codex](http://codex.wordpress.org/Function_Reference/get_pages).
+
 You may also select **attachments** based on their parent (given by
 slug or post-ID), their author (which WordPress sets when the
 attachment is uploaded; there is no built-in way to edit an
@@ -276,17 +284,10 @@ attachment's author, although a plugin may provide one), by `status`
 or by the tags set through the [Media Tags
 plugin](http://wordpress.org/extend/plugins/media-tags/):
 
-    - `[autonav display="attachments" postid="recipes,tag:dessert"]`
-      would display images attached to the recipes page which with
-      the media-tag "dessert"
+    [autonav display="attachments" postid="recipes,tag:dessert"]
 
-Note, you can specify both a page/post ID _and_ one of the above.  For example,
-postid="27,author:Todd" would show subpages of the page with ID=27 that have
-author Todd.
-
-The postid selectors category__and, category__in, category__not_in
-permit more complex category selection, as described at:
-http://codex.wordpress.org/Function_Reference/get_pages
+would display images attached to the recipes page which with the
+media-tag "dessert"
 
 NOTE: The Sharp parameter is now regarded only by an optional
 addon. Additional example values are:
