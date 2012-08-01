@@ -110,8 +110,13 @@ function autonav_wloptions_do_page() {
     autonav_o_item($options, array('name'=>'titles', 'type'=>'checkbox', 'checked' => '1'));
     autonav_o_header('Size of images', 3);
 
-    $wp_registered_sizes = array_unique(array_merge(array('thumbnail','medium','large'),
-						    $_wp_additional_image_sizes));
+    $wp_registered_sizes = array('thumbnail','medium','large');
+
+    if (is_array($_wp_additional_image_sizes)) {
+      $wp_registered_sizes = array_unique(array_merge($wp_registered_sizes,
+						      array_keys( $_wp_additional_image_sizes ) ) );
+    }
+    sort($wp_registered_sizes);
     foreach ($wp_registered_sizes as $s) {
       $x = intval(get_option("{$s}_size_w")); $y = intval(get_option("{$s}_size_h"));
       if (! $x && is_array($_wp_additional_image_sizes[$s])) {
@@ -159,6 +164,10 @@ function autonav_wloptions_do_page() {
 to have multiple groups of pictures with a lightbox-style display.'));
     autonav_o_header('Default image group for above', 3);
     autonav_o_item($options, array('name'=>'group', 'type'=>'text', 'text' => '<em>Usually left blank</em>'));
+    autonav_o_header('Taxonomy for attachment Tags', 3, 'Attachment Taxonomies');
+    autonav_o_item($options, array('name'=>'attach_tag', 'type'=>'text', 'text' => 'media-tags <em>for Media tags plugin,</em> attachment_tag <em>for Attachment Taxonomy plugin</em>'));
+    autonav_o_header('Taxonomy for attachment Category', 3);
+    autonav_o_item($options, array('name'=>'attach_category', 'type'=>'text', 'text' => 'attachment_category <em>for Attachment Taxonomy plugin</em>'));
 ?>
 <input type="hidden" name="autonav_wl[include]" value="" />
 </table>
