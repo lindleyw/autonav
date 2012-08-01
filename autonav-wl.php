@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.saltriversystems.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.4.9c
+Version: 1.5.0
 Author URI: http://www.saltriversystems.com/
 */
 
@@ -445,15 +445,18 @@ function get_images_attached($attr, $pids, $limit) {
     case 'include':
       if (empty($value)) $value = $post->ID;
       $child_pages = get_actual_pid($value);
-    case 'category': // attachments don't support
       break;
-    case 'tag':
     case 'tags':
-      // Support taxonomy created by the 
-      // http://wordpress.org/extend/plugins/media-tags/ plugin
-      $query['tax_query'] = array(array('taxonomy' => 'media-tags',
-					'field' => 'slug',
-					'terms' => explode(',',$value)));
+      $key = 'tag';
+    case 'tag':
+    case 'category':
+      $att_tax = $attr["attach_$key"];
+      if (strlen($att_tax)) {
+	// Support taxonomies created by the Media Tags or Attachment Taxonomy plugins
+	$query['tax_query'] = array(array('taxonomy' => $att_tax,
+					  'field' => 'slug',
+					  'terms' => explode(',',$value)));
+      }
       break;
     case 'author': // NOTE: WP creates but no default way to edit for attachments
       $value = preg_replace('#\*#',$post->post_author,$value);
@@ -476,6 +479,8 @@ function get_images_attached($attr, $pids, $limit) {
   $query['numberposts'] = $limit >= 1 ? $limit : -1;
   $query['post_type'] = 'attachment';
   $query['post_mime_type'] = array('image'); // ,'application/pdf'); // later
+  if ($attr['count']) { $query['numberposts'] = $attr['count']; }
+  if ($attr['start']) { $query['offset'] = $attr['start']; }
 
   $pics_info = array();
 
@@ -483,7 +488,9 @@ function get_images_attached($attr, $pids, $limit) {
     $child_pages[0] = $post->ID;
   }
   foreach ($child_pages as $pid) {
-    $query['post_parent'] = $pid;
+    if ($pid >= 0) { # '-1' for ANY
+      $query['post_parent'] = $pid;
+    }
     $attachments = get_posts($query);
     if (empty ($attachments)) return $pics_info;
     foreach ($attachments as $attach_info) {

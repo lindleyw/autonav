@@ -164,6 +164,10 @@ function autonav_wloptions_do_page() {
 to have multiple groups of pictures with a lightbox-style display.'));
     autonav_o_header('Default image group for above', 3);
     autonav_o_item($options, array('name'=>'group', 'type'=>'text', 'text' => '<em>Usually left blank</em>'));
+    autonav_o_header('Taxonomy for attachment Tags', 3, 'Attachment Taxonomies');
+    autonav_o_item($options, array('name'=>'attach_tag', 'type'=>'text', 'text' => 'media-tags <em>for Media tags plugin,</em> attachment_tag <em>for Attachment Taxonomy plugin</em>'));
+    autonav_o_header('Taxonomy for attachment Category', 3);
+    autonav_o_item($options, array('name'=>'attach_category', 'type'=>'text', 'text' => 'attachment_category <em>for Attachment Taxonomy plugin</em>'));
 ?>
 <input type="hidden" name="autonav_wl[include]" value="" />
 </table>

@@ -281,13 +281,26 @@ You may also select **attachments** based on their parent (given by
 slug or post-ID), their author (which WordPress sets when the
 attachment is uploaded; there is no built-in way to edit an
 attachment's author, although a plugin may provide one), by `status`
-or by the tags set through the [Media Tags
-plugin](http://wordpress.org/extend/plugins/media-tags/):
+or by the categories or tags set through the [Media Tags
+plugin](http://wordpress.org/extend/plugins/media-tags/) or the
+[Attachment Taxonomy
+plugin](http://wordpress.org/extend/plugins/attachment-taxonomy-support/):
 
-    [autonav display="attachments" postid="recipes,tag:dessert"]
+    [autonav display="attached" postid="recipes,tag:dessert"]
 
-would display images attached to the recipes page which with the
-media-tag "dessert"
+would display images, attached to the recipes page, having the
+attachment tag "dessert".
+
+It is even possible to display attachments having a certain tag or
+category from *all* posts and pages, a special case of `postid="-1"`:
+
+    [autonav display="attached" postid="-1,tag:dessert"]
+
+ **Note** that you must set the taxonomies on the AutoNav settings
+page.  For Media Tags, use attachment tag, "`media-tags`"; for the
+Attachment Taxonomy plugin, use "`attachment_tag`" and
+"`attachment_category`". Other taxonomy names are permissible in hopes
+of being compatible with future WP versions.
 
 NOTE: The Sharp parameter is now regarded only by an optional
 addon. Additional example values are:
@@ -387,6 +400,16 @@ ten posts, you can use the paged parameter:
 which will display 10 posts, and include "next/previous" links to
 navigate through any additional ones. (Example courtesy spartaneye)
 
+= Can I display a random gallery? =
+
+Try this:
+
+    [autonav display="attached" postid="-1" orderby="rand" count=10]
+
+which will display ten of your attachments at random, regardless of
+the post or page to which they are attached.  The special case of -1
+for postid means "any post or page."
+
 = What CSS classes does this plugin create? =	    
 
 In navigation mode, when a list is selected:
@@ -429,7 +452,7 @@ the list of recognized ones.
 
 = Can I re-attach an attachment to another page? =
 
-Thry the Change Attachment Parent plugin, which is an easy way to
+Thru the Change Attachment Parent plugin, which is an easy way to
 reset the parent page or post for any attachment, right on the
 attachment's Edit screen in the Media Library. You do need to know the
 new parent's ID, though.
@@ -683,13 +706,40 @@ For example:
   attachments. In most cases this is now preferable to using AutoNav's
   "Gallery" mode. http://wordpress.org/extend/plugins/add-from-server/
 
-* The Media Tags plugin lets you add tags to attachments. For example,
-  if a post has twelve attachments, you could tag three of them with
-  'dessert' and then display only those: [autonav display="attached"
-  postid="tag:dessert"] See:
-  http://wordpress.org/extend/plugins/media-tags/
+* The [Media Tags
+  plugin](http://wordpress.org/extend/plugins/media-tags/) lets you
+  add tags to attachments. For example, if a post has twelve
+  attachments, you could tag three of them with 'dessert' and then
+  display only those: `[autonav display="attached"
+  postid="tag:dessert"]` *Note* You must configure the attachment tag
+  taxonomy in the AutoNav settings screen.
+
+* The [Attachment Taxonomy
+  plugin](http://wordpress.org/extend/plugins/attachment-taxonomy-support/)
+  gives you both tags *and* categories for attachments, so for
+  example: `[autonav display="attached"
+  postid="-1,category:chocolate"]` to display all attachments from
+  *any* post in the "chocolate" attachment category. *Note* You must
+  configure the attachment tag taxonomy in the AutoNav settings
+  screen.
+
+* The [Change Attachment Parent
+  plugin](http://wordpress.org/extend/plugins/change-attachment-parent/)
+  is an easy way to reset the parent page or post for any
+  attachment. Or try the [Bulk Change Attachment
+  Parent](http://wordpress.org/extend/plugins/bulk-change-attachment-parent/)
+  plugin which adds the feature to the attachment's Actions admin
+  dropdown.
 
 == Upgrade Notice ==
+
+= 1.5.0 =
+
+If you have used the Media Tags plugin, you must set the taxonomies on
+the AutoNav settings page: use attachment tag,
+"`media-tags`". This now supports the Attachment Taxonomy plugin; use
+"`attachment_tag`" and "`attachment_category`". Other taxonomy names
+are permissible in hopes of being compatible with future WP versions.
 
 = 1.4.8 =
 
@@ -704,6 +754,13 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.5.0 =
+
+* Special case of postid=-1 to select attachments from all
+  posts/pages.
+
+* Support both the Media Tags and Attachment Taxonomy plugins.
 
 = 1.4.9c =
 
