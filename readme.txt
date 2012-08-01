@@ -6,7 +6,7 @@ Donate link: http://www.saltriversystems.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.0
 Tested up to: 3.4.1
-Stable tag: 1.4.2
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -231,7 +231,7 @@ enclosed in the display argument; for example,
     - `postid="category:17"` (same, 'cat' is abbreviation)
     - `postid="category:-17"` posts *not* in a numeric category
     - `postid="category:cakes"` posts by category name
-    - `postid="cateogry__in:cakes,cookies"` posts in any of the listed categories
+    - `postid="category__in:cakes,cookies"` posts in any of the listed categories
     - `postid="category__and:cakes,chocolate"` posts that must be in both
       categories
     - `postid="category__not_in:cakes,chocolate"` posts not one or more categories
