@@ -5,7 +5,7 @@ Contributors: wlindley
 Donate link: http://www.saltriversystems.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.0
-Tested up to: 3.4.1
+Tested up to: 3.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -754,6 +754,10 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.5.1 =
+
+* Correct handling of start, count parameters for attached images
 
 = 1.5.0 =
 

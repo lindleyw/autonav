@@ -4,7 +4,7 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.saltriversystems.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.5.0
+Version: 1.5.1
 Author URI: http://www.saltriversystems.com/
 */
 
@@ -1155,10 +1155,12 @@ use: <b><tt>apt-get install php5-gd</tt></b> Use yum on RedHat/CentOS, or simila
       $pic_info = get_attachments($attr, $post_id, 0);
     } else {
       $pic_info = get_images_attached($attr, $post_id, 0);
+      $attr['start'] = 0;	// start,count handled by get
+      $attr['count'] = 0; 
     }
   } elseif (substr($attr['display'], 0, 5) == 'posts') {
     $pic_info = get_selposts($attr);
-    $attr['start'] = 0;		// start,count already handled by get_selposts
+    $attr['start'] = 0;		// start,count handled by get
     $attr['count'] = 0; 
   } elseif (substr($attr['display'], 0, 1) == '/') { // looks like a directory name
     if ($attr['linkto'] != 'none') $attr['linkto'] = 'pic'; // unless explicitly no links
