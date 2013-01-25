@@ -1,8 +1,8 @@
 === AutoNav Graphical Navigation and Gallery Plugin ===
 Author: William Lindley
-Author URI: http://www.saltriversystems.com/
+Author URI: http://www.wlindley.com/
 Contributors: wlindley
-Donate link: http://www.saltriversystems.com/website/autonav/
+Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.0
 Tested up to: 3.5
@@ -732,6 +732,16 @@ For example:
   dropdown.
 
 == Upgrade Notice ==
+
+= 1.5.2 =
+
+* Added target parameter. For example, for images to open in a new window:
+
+    [autonav display='images' target='_blank']
+
+= 1.5.1 =
+
+* Correct handling of start, count parameters for attached images
 
 = 1.5.0 =
 
