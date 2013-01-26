@@ -1,11 +1,11 @@
 === AutoNav Graphical Navigation and Gallery Plugin ===
 Author: William Lindley
-Author URI: http://www.saltriversystems.com/
+Author URI: http://www.wlindley.com/
 Contributors: wlindley
-Donate link: http://www.saltriversystems.com/website/autonav/
+Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
-Requires at least: 3.0
-Tested up to: 3.5
+Requires at least: 3.5
+Tested up to: 3.5.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -733,6 +733,11 @@ For example:
 
 == Upgrade Notice ==
 
+All versions: If you have upgraded AutoNav and are using new
+parameters, you will need to go to the AutoNav Settings page on the
+WordPress administration panel and save your settings.  This will add
+the required default values which permit the parameter parser to work.
+
 = 1.5.0 =
 
 If you have used the Media Tags plugin, you must set the taxonomies on
@@ -754,6 +759,25 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.5.4 =
+
+Typographical error in 1.5.3
+
+= 1.5.3 =
+
+* In WordPress 3.4.2 and earlier, sites which were created or moved
+  from one webhost to another, without proper write privilege on the
+  uploads directory, could result in AutoNav not being able to
+  determine the uploads directory.  Detect this and insert a comment
+  containing WP's internal error, as an aid to help the user find the
+  problem.
+
+= 1.5.2 =
+
+* Added target parameter. For example, for images to open in a new window:
+
+    [autonav display='images' target='_blank']
 
 = 1.5.1 =
 
