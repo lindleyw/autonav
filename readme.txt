@@ -4,8 +4,8 @@ Author URI: http://www.wlindley.com/
 Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
-Requires at least: 3.0
-Tested up to: 3.5
+Requires at least: 3.5
+Tested up to: 3.5.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -732,6 +732,15 @@ For example:
   dropdown.
 
 == Upgrade Notice ==
+
+= 1.5.3 =
+
+* In WordPress 3.4.2 and earlier, sites which were created or moved
+  from one webhost to another, without proper write privilege on the
+  uploads directory, could result in AutoNav not being able to
+  determine the uploads directory.  Detect this and insert a comment
+  containing WP's internal error, as an aid to help the user find the
+  problem.
 
 = 1.5.2 =
 
