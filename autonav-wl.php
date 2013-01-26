@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Autonav Image Table Based Site Navigation
-Plugin URI: http://www.saltriversystems.com/website/autonav/
+Plugin URI: http://www.wlindley.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.5.1
-Author URI: http://www.saltriversystems.com/
+Version: 1.5.3
+Author URI: http://www.wlindley.com/
 */
 
 /*  Copyright 2008-2012 William Lindley (email : bill -at- saltriversystems -dot- com)
@@ -289,6 +289,10 @@ function get_images_from_folder($attr) {
   global $cached_pic_size_info; // since 1.4.3 -- Cache directory info
 
   $wp_dir = wp_upload_dir();
+  if (!array_key_exists($wp_dir['basedir'])) {
+    print "<!-- " . $wp_dir['error'] . " -->\n";
+    return;
+  }
   $pics_info = array();
 
   if (substr($attr['display'],0,1) == '/') {
@@ -886,6 +890,8 @@ function an_create_output_picture ($html, $class, $pic, $attr) {
         $anchor['rel'] = $attr['_img_rel'];
       if (strlen($pic['title']) && ! $attr['titles'])
         $anchor['title'] = $pic['title'];
+      if (strlen($attr['target']))
+        $anchor['target'] = $attr['target'];
       $my_html = an_create_tag('a', $anchor) . $my_html . '</a>'; // wrap content
     }
     $my_html = an_create_tag('span', array('class' => $class.'-'.$attr['display'].'-image')) .
@@ -900,7 +906,10 @@ function an_create_output_text ($html, $class, $pic, $attr) {
   if (strlen($pic['title']) && $attr['titles']) {
     $my_html = $pic['title'];
     if (strlen($pic['permalink']) > 0) {
-      $my_html = an_create_tag('a',array('href' => $pic['permalink'])) . $my_html . '</a>';
+      $anchor = array('href' => $pic['permalink']);
+      if (strlen($attr['target']))
+        $anchor['target'] = $attr['target'];
+      $my_html = an_create_tag('a',$anchor) . $my_html . '</a>';
     }
     if (!$attr['list']) {
       $my_html = an_create_tag('p',array('class' => "{$class}-text")) . $my_html . '</p>';
@@ -1225,7 +1234,7 @@ function autonav_wloptions_validate($input) {
 			  'size_small' => '120x90', 'size_med' => '160x120',
 			  'size_large' => '240x180', 'display' => 'attached',
 			  'combine' => 'all', 'size' => 'auto', 'exclude' => '',
-			  'paged' => 0, 'sharp' => 0);
+			  'paged' => 0, 'sharp' => 0, 'target' => '');
   foreach ($plain_defaults as $name => $default) {
     $input[$name] =  wp_filter_nohtml_kses($input[$name]);
     if ($input[$name] == '') $input[$name]=$default;
