@@ -1,0 +1,30 @@
+2013-2-7
+
+Use new WP_Image_Editor class
+
+http://codex.wordpress.org/Class_Reference/WP_Image_Editor
+
+    $image = wp_get_image_editor( 'cool_image.jpg' ); 
+    // Return an implementation that extends <tt>WP_Image_Editor</tt>
+
+    if ( ! is_wp_error( $image ) ) {
+        $image->rotate( 90 );
+        $image->resize( 300, 300, true );
+        $image->save( 'new_image.jpg' );
+    }
+
+ -- note, save() with no arguments automatically uses the original filename and extension,
+    but appends the "-300x300" at the appropriate place (thereby eliminating quite a bit of
+    our code).  (~~~ VERIFY!)
+
+http://codex.wordpress.org/Function_Reference/wp_get_image_editor
+
+ -- note, you can retrieve an image by URL!  However save() requires a local filename...
+    which probably ought to live under the uploads/ directory... somehow?  
+    ~~~ Find best practices.
+
+Another example, although recommend using wp_get_image_editor() instead:
+
+http://markoheijnen.com/wordpress-new-image-manipulation/
+
+

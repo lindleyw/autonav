@@ -4,11 +4,11 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.5.4
+Version: 1.5.6
 Author URI: http://www.wlindley.com/
 */
 
-/*  Copyright 2008-2012 William Lindley (email : bill -at- saltriversystems -dot- com)
+/*  Copyright 2008-2013 William Lindley (email : wlindley -at- wlindley -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -181,12 +181,10 @@ function autonav_select_include ($picked_files, $attr, $pic_size_info) {
     foreach ($picked_files as &$afile) {
       if (!strlen($afile)) continue; // already used this file
       if (is_numeric($ifile)) {
-        // for "include=7" this will match 'file7.jpg'
-        // '7-overview.jpg' and '7.jpg' but not 'file17.jpg' or
-        // '17.jpg'
+        // for "include=7" this matches 'file7.jpg' and '7.jpg' but not 'file17.jpg' or '17.jpg'
         $match_string = "#^((.*?\\D)?0*$ifile|0*$ifile(.*?\\D)?)\z#";
       } else {
-        $match_string = "#($ifile\z|^$ifile)#i"; /* match text at start or end of filename */
+        $match_string = "#($ifile\z|^$ifile)#i"; // match text at start or end of filename
       }
       $suffix_match = (preg_match($match_string,$afile));
       if ($ifile === $afile || $suffix_match) {
@@ -423,14 +421,17 @@ function autonav_get_postid_modifiers ($attr, $param = 'include') {
   // Pre-process the postid= parameter, in the form
   // "include,include,param1:param1val,param1val, param2:param2val,param2val"
   $parsed_bits = array();
-  $bits = explode(',',$attr['postid']);
+  $bits = explode(',',$attr['postid']); // may return keys with empty values!
   foreach ($bits as $bit) {
-    $bitvalues = explode(':',$bit,2);
+    $bitvalues = preg_split("/[=:]/",$bit,2);
     if (!empty($bitvalues[1])) {
       $param = trim(array_shift($bitvalues));
       if ($param == 'cat') $param = 'category'; // shortcut
     }
-    $parsed_bits[$param][] = trim($bitvalues[0]);
+    $bitvalues[0] = trim($bitvalues[0]);
+    if (strlen($bitvalues[0])) { // ignore empty
+      $parsed_bits[$param][] = $bitvalues[0];
+    }
   }
   return $parsed_bits;
 }
@@ -492,6 +493,13 @@ function get_images_attached($attr, $pids, $limit) {
   if (empty($child_pages)) {
     $child_pages[0] = $post->ID;
   }
+  if (!empty($attr['ids'])) { // compatibility with WP 3.5+ [gallery ids='']
+    $child_pages[0] = -1;
+    $query['include'] = $attr['ids'];
+    if ( $attr['orderby'] == 'menu_order' ) // menu_order default? instead, use exact ordered list.  (user can override)
+      $query['orderby'] = 'post__in';
+  }
+
   foreach ($child_pages as $pid) {
     if ($pid >= 0) { # '-1' for ANY
       $query['post_parent'] = $pid;
@@ -932,7 +940,7 @@ function an_create_output_excerpt ($html, $class, $pic, $attr) {
 }
 
 function an_create_page_links($html, $class, $total_pages, $cur_page) {
-  $html .= an_create_tag('p', array('class' => "{$class}-pages}"));
+  $html .= an_create_tag('p', array('class' => "{$class}-pages"));
   // Possibly permit override of 'next_text', 'prev_text', etc. - see /wp-includes/general_template.php
   $paginate_args = array('base' => get_permalink() . '%_%',
 			 'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
@@ -988,12 +996,12 @@ function create_output($attr, $pic_info) {
 
   if ($attr['display'] == 'list' || $attr['list']) { // Produce list output
     $html = an_create_tag(($attr['plain'] ? 'div': 'ul'), 
-			  array('class' => $class . ($attr['plain'] ? '' : '-list')));
+			  array('class' => $class) );
     foreach ($pic_info as $pic) { // well, really the page not a picture
       if ($attr['thumb']) {
 	prepare_picture($pic);
       }
-      $my_html = $attr['plain'] ? '' : an_create_tag('li', array('class' => $class . '-item'));
+      $my_html = $attr['plain'] ? '' : an_create_tag('li');
       $html .= apply_filters('autonav_create_list_item', $my_html, $class, $pic, $attr);
       if (!$attr['plain']) { $html .= "</li>\n"; }
     }
@@ -1112,6 +1120,9 @@ use: <b><tt>apt-get install php5-gd</tt></b> Use yum on RedHat/CentOS, or simila
 
   $display_options = explode(',', $attr['display']);
   $attr['display'] = array_shift($display_options);
+  if (empty($attr['display']) && !empty($attr['ids'])) { // compatibility with [gallery]
+    $attr['display'] = 'attach';
+  }    
   // mode specific defaults:
   if ($attr['display'] == 'list') {
     $attr['titles'] = 1;
@@ -1249,6 +1260,7 @@ function autonav_wloptions_validate($input) {
 
   $input['caption'] = '';
   $input['postid'] = '';
+  $input['ids'] = '';
   $input['start'] = 0;
   $input['count'] = 0;
 

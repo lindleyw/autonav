@@ -16,10 +16,6 @@ Creates customizable lists/tables of text/thumbnails/links to posts, pages, taxo
 
 Auto Graphics Site Navigation with Gallery
 
-NOTE: If you experience errors or missing pages, try the [previous
-stable version](http://downloads.wordpress.org/plugin/autonav.1.4.2.zip)
-first, and then look in the [support forum](http://wordpress.org/support/plugin/autonav).
-
 This plugin simplifies the creation of graphically navigable Wordpress
 sites, creating a list or tables of pages, posts, taxonomies, and
 custom post types, selected in a variety of ways. Highly customizable
@@ -44,6 +40,11 @@ output using a variety of optional user-defined filters.
   * Works with WordPress's standard attachment mechanism, and with
     J. Christopher's "Attachments" plugin (see FAQ)
 
+NOTE: If you experience errors or missing pages, try the [previous
+stable version](http://downloads.wordpress.org/plugin/autonav.1.5.0.zip)
+first, and then look in the [support forum](http://wordpress.org/support/plugin/autonav).
+All previous versions are archived [here](http://plugins.svn.wordpress.org/autonav/tags/).
+
 The plugin is invoked with the [autonav] shortcode, with two basic modes:
 
 NAVIGATION.
@@ -64,12 +65,22 @@ GALLERY.
 
 Creates one or more tables of linked thumbnail pictures based on the
 current page's attachments, or on specified directories of picture
-files under the uploads directory. Example:
+files under the uploads directory. Examples:
+
+    [autonav display="attach"]
+
+displays a table of images attached to the current post or page.
 
     [autonav display="/project2" include="32,37,56"]
 
 Displays a table, with a gallery of three pictures from the
 wp-content/uploads/project2 directory, in the specified order.
+
+    [autonav ids="57,65"]
+
+For compability with the [gallery] ids parameter introduced in
+WordPress 3.5, displays a table of attachments with the exactly
+specified attachment IDs.
 
 == Screenshots ==
 
@@ -160,9 +171,14 @@ enclosed in the display argument; for example,
     Sizes registered with add_image_size() should also work.
 
 * `titles="1"` Displays page titles below images if 1 (default: "0")
-(same as using `title` parameter to `display=`)
+  (same as using `title` parameter to `display=`)
 
 * `pics_only="1"` When displaying child pages, only show those with associated images
+
+* `ids="57,65"` Selects the attachments with the exactly specified
+  attachment IDs. `display=` is assumed to be "attach". Works
+  similarly to WordPress's built-in [gallery] shortcode. `orderby=`
+  defaults to the exact ordering given, but can be overridden.
 
 * `include="1,7"` Used with `display=/folder` syntax only; others, see
   postid parameter.  The resulting table will have only two pictures,
@@ -326,7 +342,8 @@ either a URL (http://......) or a path relative to the
 wp-content/uploads directory (2011/07/image.jpg).
 
 * The post/page Thumbnail ("Featured Image") as set in WordPress
-(assuming your theme supports them).
+(assuming your theme supports them -- see next question on how to
+enable theme support).
 
 * The attached image with the lowest Order as chosen in the Gallery
 tab of the attachment dialog.
@@ -738,6 +755,15 @@ parameters, you will need to go to the AutoNav Settings page on the
 WordPress administration panel and save your settings.  This will add
 the required default values which permit the parameter parser to work.
 
+= 1.5.6 =
+
+Lists will use the class given in the class= argument directly,
+without appending "-list" and the enclosed items will omit the class
+entirely.  You may need to modify your stylesheet along these lines:
+
+    From: .myclass-list { ... }  .myclass-item { ... }
+    To:   .myclass ul { ... }    .myclass ul li { ... }
+
 = 1.5.0 =
 
 If you have used the Media Tags plugin, you must set the taxonomies on
@@ -760,9 +786,29 @@ suppressing default behaviors.
 
 == Changelog ==
 
+= 1.5.6 =
+
+* Eliminate undocumented requirement for postid parameter with
+  display="posts".
+* Remove spurious brace in pages class.
+* Add ids= argument for compatibility with standard [gallery]
+  shortcode.
+
+* Lists will use the class given in the class= argument directly,
+  without appending "-list" and the enclosed items will omit the class
+  entirely.  This enables, for example, using the popular FlexSlider
+  or similar plugins like this:
+
+    <div class="flex-container"><div class="flexslider">
+    [autonav display="list" class="slider"]
+    </div></div>
+
+  For full information on sliders, consult your plugin's or
+  JavaScript's documentation.
+
 = 1.5.4 =
 
-Typographical error in 1.5.3
+* Typographical error in 1.5.3
 
 = 1.5.3 =
 
