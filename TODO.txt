@@ -28,3 +28,15 @@ Another example, although recommend using wp_get_image_editor() instead:
 http://markoheijnen.com/wordpress-new-image-manipulation/
 
 
+-----------
+
+2013-04-10
+
+Support version 3.6 functions to grab images from galleries, not just actually Attached images
+
+As per http://core.trac.wordpress.org/ticket/22960
+
+Newest info: (2013-07-07)
+
+get_content_galleries() grabs [gallery]s from passed content and returns structured data, which currently is only one node: src ,which contains a list of image URLs. In the future, more nodes can hold more data about the gallery 
+
