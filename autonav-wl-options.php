@@ -22,6 +22,23 @@ if (!class_exists('WL_Config_Form')) {
   include 'wl-config-form.php';
 }
 
+add_filter('plugin_action_links', 'autonav_wl_plugin_action_links', 10, 2);
+
+function autonav_wl_plugin_action_links($links, $file) {
+    static $this_plugin;
+
+    if (!$this_plugin) {
+        $this_plugin = plugin_basename(__FILE__);
+    }
+
+    if ($file == $this_plugin) {
+        $settings_link = '<a href="' . get_bloginfo('wpurl') . '/wp-admin/admin.php?page=autonav-wl">Settings</a>';
+        array_unshift($links, $settings_link);
+    }
+
+    return $links;
+}
+
 /* ******************* */
 
 function autonav_o_pre ($options, $option_name, $html_tags) {
