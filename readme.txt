@@ -1053,48 +1053,7 @@ Corrected typo
 = 1.0 =
 * Initial version on wordpress.org
 
-== TODO ==
-
-* Revisit whether autonav_pick_files filter is be called for _each_
-  attached file. This needs to happen _after_ all attachments have
-  been added, and we need to have the ['menu_order'] of the attachment
-  so we can implement:  [autonav display=attached include="#1,#3"]
-  However that needs to happen _after_ the handling of start= and
-  count= ...   (2011-11-12)
-
-* BUG: the postid="foo:bar" for pages sets meta_tag and value for
-  custom field types, but does not yet support custom taxonomies. For
-  posts, if the taxonomy "foo" exists, that will be used; otherwise it
-  will look for the custom field "foo".  
-
-* Test the creation of $pic_size_info[]['date'] when scanning folders.
-  Add code to permit orderby="date" to work with display="/folder"
-
-* Several calculations of pic_full_path -- can we rationalize?
-
-* Ensure that the 'include' parameter for e.g., posts, does not
-  conflict with autonav_select_include() as called by the
-  autonav_pick_files filter.  Perhaps we need a special flag in $attr?
-
-* Consider: in autonav_wl_shortcode(), use autonav_get_
-  postid_modifiers() to ALSO parse the display= parameter.
-
-= Possible future extensions =
-
-* Eventual Version 2.0 plan is for postid is to permit more advanced
-  general queries as described here:
-  http://ottopress.com/2010/wordpress-3-1-advanced-taxonomy-queries/
-
-* Support S3 and similar plugins. Probably will only work with
-  Attachments, and will add custom sizes to the 'sizes' array in the
-  attachment's metadata.  Although the metadata gets flushed under
-  certain circumstances [when?] this should allow AutoNav to work
-  seamlessly with any S3 or similar plugin that keeps attachment
-  images in places other than the local filesystem. On hold pending
-  better definition, or a sponsor for this project.
-
-* Support creation of thumbnails for PDF and other attachment types,
-  possibly through filters and auxiliary plugins.
+== Development Notes ==
 
 * [Note 20120111] Other filetypes handled in get_images_from_folder()
   must take care to let actual images take priority regardless of
