@@ -663,6 +663,11 @@ page, post, or the like.
 * $html = apply_filters('autonav_html', $html, $attr);
   Permits you to filter the final HTML which AutoNav generates.
 
+* $html = apply_filters('autonav_missing_image', $html, $pic);
+  Filter for the text or HTML that will be displayed in the case of a missing
+  image. You can adapt or replace the standard text according to what
+  picture is missing.
+
 You can hook into any or all of these as in the example below. This
 code simply displays the contents of the attributes array, so you can
 see how it works:
