@@ -963,6 +963,15 @@ add_filter('autonav_create_page_links', 'an_create_page_links', 10, 4);
 
 /* **** Main output function **** */
 
+function an_create_unit_class($attr, $pic, $class) {
+  if (is_object($pic['page'])) {
+    if ($pic['page']->ID == $attr['current']) {
+      $class. = ' ' . $class . '-current';
+    }
+  }
+  return $class;
+}
+
 function create_output($attr, $pic_info) {
 
   if (!array($pic_info)) { return ''; }
@@ -1001,7 +1010,8 @@ function create_output($attr, $pic_info) {
       if ($attr['thumb']) {
 	prepare_picture($pic);
       }
-      $my_html = $attr['plain'] ? '' : an_create_tag('li');
+
+      $my_html = $attr['plain'] ? '' : an_create_tag('li', ['class' => an_create_unit_class($attr, $pic, $class . '-item')]);
       $html .= apply_filters('autonav_create_list_item', $my_html, $class, $pic, $attr);
       if (!$attr['plain']) { $html .= "</li>\n"; }
     }
@@ -1042,7 +1052,8 @@ function create_output($attr, $pic_info) {
 	}
 	$html .= $start_row; $in_row = 1;
       }
-      $my_html = an_create_tag('td', array('class' => $class . '-cell'));
+
+      $my_html = an_create_tag('td', array('class' => an_create_unit_class($attr, $pic, $class . '-cell')]));
       $html .= apply_filters('autonav_create_table_item', $my_html, $class, $pic, $attr) . "</td>\n";
 
       $col++;
@@ -1165,6 +1176,7 @@ use: <b><tt>apt-get install php5-gd</tt></b> Use yum on RedHat/CentOS, or simila
   // Plugin/Theme can override here
   $attr = apply_filters('autonav_pre_select', $attr, $display_options);
 
+  $attr['current'] = $post->ID;
   if (($attr['display'] == 'list') || ($attr['display'] == 'images')) {
     $pic_info = get_subpages($attr);
   } elseif (substr($attr['display'],0,6) == 'attach') {
