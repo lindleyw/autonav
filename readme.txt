@@ -509,7 +509,7 @@ private.  AutoNav respects this (as does the built-in gallery
 shortcode) and will not display it.  The plugin also lets you disable
 comments and pings for an attachment.
 
-    http://www.saltriversystems.com/website/private-attachments/
+    https://github.com/lindleyw/private-attachments
 
 = Some of my images do not appear. =
 
@@ -793,12 +793,17 @@ suppressing default behaviors.
 
 = 1.5.6 =
 
+* Three new CSS classes complement the existing `subpages-cell`:
+   - `subpages-item` for all items in a list, including current
+   - `subpages-item-current only` for the link to the currently displayed page
+   - `subpages-cell` for all cells in a table
+   - `subpages-cell-current` only for the link to the currently displayed page
 * Eliminate undocumented requirement for postid parameter with
   display="posts".
 * Remove spurious brace in pages class.
 * Add ids= argument for compatibility with standard [gallery]
   shortcode.
-
+* Siblings of a top-level page, are other children of the homepage.
 * Lists will use the class given in the class= argument directly,
   without appending "-list" and the enclosed items will omit the class
   entirely.  This enables, for example, using the popular FlexSlider
