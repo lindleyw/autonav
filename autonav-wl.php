@@ -674,6 +674,10 @@ function get_subpages ($attr) {
   if ($attr['siblings']) {
     if ($post->post_parent) { // children of our parent
       $child_pages = array($post->post_parent);
+    } else {
+      if ($post->post_type == 'page') {
+	$child_pages = array(0); // children of home page
+      }
     }
     if (!$attr['self']) { // add ourselves to exception list
       $attr['exclude'][] = $post->ID;
@@ -848,6 +852,7 @@ function get_selposts($attr) {
   if (count($these_posts) == 0) {
     return;
   }
+
   return get_pics_info($attr, $these_posts);
 }
 
@@ -966,7 +971,7 @@ add_filter('autonav_create_page_links', 'an_create_page_links', 10, 4);
 function an_create_unit_class($attr, $pic, $class) {
   if (is_object($pic['page'])) {
     if ($pic['page']->ID == $attr['current']) {
-      $class. = ' ' . $class . '-current';
+      $class .= ' ' . $class . '-current';
     }
   }
   return $class;
@@ -1011,7 +1016,7 @@ function create_output($attr, $pic_info) {
 	prepare_picture($pic);
       }
 
-      $my_html = $attr['plain'] ? '' : an_create_tag('li', ['class' => an_create_unit_class($attr, $pic, $class . '-item')]);
+      $my_html = $attr['plain'] ? '' : an_create_tag('li', array('class' => an_create_unit_class($attr, $pic, $class . '-item')));
       $html .= apply_filters('autonav_create_list_item', $my_html, $class, $pic, $attr);
       if (!$attr['plain']) { $html .= "</li>\n"; }
     }
@@ -1053,7 +1058,7 @@ function create_output($attr, $pic_info) {
 	$html .= $start_row; $in_row = 1;
       }
 
-      $my_html = an_create_tag('td', array('class' => an_create_unit_class($attr, $pic, $class . '-cell')]));
+      $my_html = an_create_tag('td', array('class' => an_create_unit_class($attr, $pic, $class . '-cell')));
       $html .= apply_filters('autonav_create_table_item', $my_html, $class, $pic, $attr) . "</td>\n";
 
       $col++;
