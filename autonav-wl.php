@@ -152,47 +152,55 @@ function resize_crop (&$attr, $prefix) {
 /* *** Select filters **** */
 
 function autonav_pick_sort($picked_files, $attr, $pic_size_info) {
-    // Sort names before picking from Include list:
-    if (is_array($picked_files)) {
-	    switch (strtolower($attr['order'])) {
-	    case 'desc':
-	      rsort($picked_files, SORT_STRING);
-	      break;
-	    case 'rand':
-	      shuffle($picked_files);
-	      break;
-	    default:
-	      sort($picked_files, SORT_STRING);
-	    }
-	}
-	return $picked_files;
+  // Sort names before picking from Include list:
+  if (is_array($picked_files)) {
+    switch (strtolower($attr['order'])) {
+    case 'desc':
+      rsort($picked_files, SORT_STRING);
+      break;
+    case 'rand':
+      shuffle($picked_files);
+      break;
+    default:
+      sort($picked_files, SORT_STRING);
+    }
+  }
+  return $picked_files;
 }
 add_filter('autonav_pick_files','autonav_pick_sort',10,3);
 
 function autonav_select_include ($picked_files, $attr, $pic_size_info) {
-  // Select pictures based on 'include' parameter
+  // Select pictures based on 'include' parameter                                                                                                                                           
   if (strlen($attr['include']) == 0)
     return $picked_files;
 
-  // split on commas. for each word, first match exact filename; then match suffix.
   $included_files = array();
-  $include_list = explode(',',$attr['include']);
+  $include_list = explode(',',$attr['include']); // comma split                                                                                                                             
+
   foreach ($include_list as $ifile) {
-    foreach ($picked_files as &$afile) {
-      if (!strlen($afile)) continue; // already used this file
-      if (is_numeric($ifile)) {
-        // for "include=7" this matches 'file7.jpg' and '7.jpg' but not 'file17.jpg' or '17.jpg'
-        $match_string = "#^((.*?\\D)?0*$ifile|0*$ifile(.*?\\D)?)\z#";
-      } else {
-        $match_string = "#($ifile\z|^$ifile)#i"; // match text at start or end of filename
-      }
-      $suffix_match = (preg_match($match_string,$afile));
-      if ($ifile === $afile || $suffix_match) {
-	$included_files[] = $afile;
-	$afile = ''; // do not consider file again (! REMOVES from $picked_files !)
-      }
+    // First, match exact filename.                                                                                                                                                         
+    $pf = array_search($ifile, $picked_files);
+    if ($pf !== FALSE) {
+      $included_files[] = $ifile;
+      $picked_files[$pf] = ''; // remove from picked_files                                                                                                                                  
+    } else {
+      foreach ($picked_files as &$afile) {
+        if (!strlen($afile)) continue; // already used this file                                                                                                                            
+        if (is_numeric($ifile)) {
+          // for "include=7" this matches 'file7.jpg' and '7.jpg' but not 'file17.jpg' or '17.jpg'                                                                                          
+          $match_string = "#^((.*?\\D)?0*$ifile|0*$ifile(.*?\\D)?)\z#";
+        } else {
+          $match_string = "#($ifile\z|^$ifile)#i"; // match text at start or end of filename                                                                                                
+        }
+        $suffix_match = (preg_match($match_string,$afile));
+        if ($ifile === $afile || $suffix_match) {
+          $included_files[] = $afile;
+          $afile = ''; // do not consider file again (! REMOVES from $picked_files !)                                                                                                       
+        } 
+      } 
     }
   }
+
   return ($included_files);
 }
 
