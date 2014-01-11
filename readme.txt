@@ -791,6 +791,16 @@ suppressing default behaviors.
 
 == Changelog ==
 
+= 1.5.8 =
+
+* Add appropriate after_widget (Thanks Anatoli Vladev)
+
+= 1.5.7 =
+
+* Thumbnails with exact filenames are correctly preferred over filenames
+  that happen to have the sought name at the start (prefix) or end (suffix).
+  Thanks, Paul Burton of adetirum.co.uk.
+
 = 1.5.6 =
 
 * Three new CSS classes complement the existing `subpages-cell`:
