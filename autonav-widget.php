@@ -139,6 +139,7 @@ class AutoNavWidget extends WP_Widget
     }
     $autonav_args['display'] = join(',', $display_options);
     print autonav_wl_shortcode($autonav_args);
+    print $args['before_widget'];
 
     # Restore filter state
 #    set_filter('autonav_create_list_item', $was_filter );
