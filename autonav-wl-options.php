@@ -58,7 +58,7 @@ function autonav_o_pre ($options, $option_name, $html_tags) {
   if (strlen($html_tags['title'])) {
     foreach (array('style','class') as $p) {
       if (!empty($html_tags["title.$p"])) {
-	$extra_tags .= " $p=\"" . $html_tags["title.$p"] . '"';
+	$extra_tags .= " $p=\"" . __($html_tags["title.$p"]) . '"';
       }
     }
     print '<label for="'.$html_tags['id'].'"' . $extra_tags .
@@ -229,7 +229,7 @@ function autonav_wloptions_do_page() {
 <li><a href="http://wordpress.org/extend/plugins/autonav/">AutoNav in Wordpress repository</a></li>
 </ul>
 <div style="border: 5px ridge #ff8833; float: right; width: 200px; margin-left: 5px; padding-left: 5px; margin-bottom: 1em;"><form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-      <p style="text-align: center;">If you like this plugin, please consider a $10 donation to help fund its ongoing development.</p>
+      <p style="text-align: center;">If you like this plugin, please consider a donation to help fund its ongoing development.</p>
 <center><input name="cmd" type="hidden" value="_s-xclick" /> <input name="hosted_button_id" type="hidden" value="8365853" /> <input alt="PayPal - The safer, easier way to pay online!" name="submit" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" type="image" /><img src="https://www.paypal.com/en_US/i/scr/pixel.gif" border="0" alt="" width="1" height="1" /></center>
 </form></div>
 </td></tr></table>

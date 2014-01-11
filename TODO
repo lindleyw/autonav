@@ -9,6 +9,7 @@ http://codex.wordpress.org/Class_Reference/WP_Image_Editor
 
     if ( ! is_wp_error( $image ) ) {
         $image->rotate( 90 );
+	$image->crop(src_x, src_y, src_width, src_height);
         $image->resize( 300, 300, true );
         $image->save( 'new_image.jpg' );
     }
