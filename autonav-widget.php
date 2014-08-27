@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: AutoNav Widget
-Version: 1.5.6
+Version: 1.5.8
 Plugin URI: http://www.wlindley.com/website/autonav/
 Description: Adds a sidebar widget to display attachments or navigational tables/lists.
 Author: William Lindley
