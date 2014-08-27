@@ -123,10 +123,10 @@ class AutoNavWidget extends WP_Widget
     if ( $title )
       print "{$args['before_title']}{$title}{$args['after_title']}";
 
-#    $was_filter = get_filter('autonav_create_list_item');
-#    remove_all_filters('autonav_create_list_item');
+    #    $was_filter = get_filter('autonav_create_list_item');
+    #    remove_all_filters('autonav_create_list_item');
 
-    # Set filters according to user specifications.  ~~~~ future
+    /* Set filters according to user specifications.  ~~~~ future */
 
     $autonav_args = array();
     $display_options = array($page_options['display']);
@@ -139,10 +139,10 @@ class AutoNavWidget extends WP_Widget
     }
     $autonav_args['display'] = join(',', $display_options);
     print autonav_wl_shortcode($autonav_args);
-    print $args['before_widget'];
+    print $args['after_widget'];
 
-    # Restore filter state
-#    set_filter('autonav_create_list_item', $was_filter );
+    /* Restore filter state */
+    #    set_filter('autonav_create_list_item', $was_filter );
 
   }
 
