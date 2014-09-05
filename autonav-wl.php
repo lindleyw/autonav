@@ -958,8 +958,9 @@ function an_create_page_links($html, $class, $total_pages, $cur_page) {
   $paginate_args = array('base' => get_permalink() . '%_%',
 			 'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
   $mybase = get_permalink();
-  // if append rather than start arg:
-  if (strpos($mybase,'?') !== FALSE) { $paginate_args['format'] = '&page=%#%'; } 
+  // start or append argument:
+  $paginate_args['format'] = (strpos($mybase,'?') === FALSE) ? '?page=%#%' : '&page=%#%'; 
+
   $html .= paginate_links($paginate_args);
   $html .= '</p>';
 
