@@ -41,3 +41,25 @@ Newest info: (2013-07-07)
 
 get_content_galleries() grabs [gallery]s from passed content and returns structured data, which currently is only one node: src ,which contains a list of image URLs. In the future, more nodes can hold more data about the gallery 
 
+----------
+
+2014-09-06
+
+Version 3.6 obsoleted get_content_galleries() so it's good we didn't
+   use it.  Here are the functions added to 3.6 according to
+http://weston.ruter.net/2013/07/30/list-of-functions-removed-from-wordpress-3-6-rc2-since-beta-3/
+
+---begin---
+function get_attached_media( $type, $post = 0 ) {
+function get_media_embedded_in_content( $content, $types = null ) {
+function get_post_galleries( $post, $html = true ) {
+function get_post_galleries_images( $post = 0 ) {
+function get_post_gallery( $post = 0, $html = true ) {
+function get_post_gallery_images( $post = 0 ) {
+---end---
+
+From the Codex http://codex.wordpress.org/Function_Reference/get_post_galleries
+
+get_post_galleries returns a list of arrays, each containing gallery
+   data and srcs parsed from the expanded shortcode.
+

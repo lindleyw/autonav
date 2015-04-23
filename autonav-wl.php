@@ -4,11 +4,11 @@ Plugin Name: Autonav Image Table Based Site Navigation
 Plugin URI: http://www.wlindley.com/website/autonav/
 Description: Displays child pages, posts, attached images or more, in a table of images or a simple list. Automatically resizes thumbnails.
 Author: William Lindley
-Version: 1.5.8
+Version: 1.5.9
 Author URI: http://www.wlindley.com/
 */
 
-/*  Copyright 2008-2014 William Lindley (email : wlindley -at- wlindley -dot- com)
+/*  Copyright 2008-2015 William Lindley (email : wlindley -at- wlindley -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -955,11 +955,10 @@ function an_create_output_excerpt ($html, $class, $pic, $attr) {
 function an_create_page_links($html, $class, $total_pages, $cur_page) {
   $html .= an_create_tag('p', array('class' => "{$class}-pages"));
   // Possibly permit override of 'next_text', 'prev_text', etc. - see /wp-includes/general_template.php
-  $paginate_args = array('base' => get_permalink() . '%_%',
+  $paginate_args = array('base' => get_permalink() . '/%_%',
 			 'total' => $total_pages, 'current' => $cur_page, 'show_all' => 1);
   $mybase = get_permalink();
-  // start or append argument:
-  $paginate_args['format'] = (strpos($mybase,'?') === FALSE) ? '?page=%#%' : '&page=%#%'; 
+  $paginate_args['format'] = '%#%';
 
   $html .= paginate_links($paginate_args);
   $html .= '</p>';
