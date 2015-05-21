@@ -5,12 +5,12 @@ Contributors: wlindley
 Donate link: http://www.wlindley.com/website/autonav/
 Tags: child, pages, posts, navigation, gallery, thumbnail, thumbnails, attachments, subpage, taxonomy, custom post types, custom fields
 Requires at least: 3.5
-Tested up to: 4.2
+Tested up to: 4.2.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Creates customizable lists/tables of text/thumbnails/links to posts, pages, taxonomies, attachments, custom post types, and image directories.
+Creates lists/tables of text/thumbnails/links to posts, pages, taxonomies, attachments, custom post types, image directories.
 
 == Description ==
 
@@ -40,9 +40,9 @@ output using a variety of optional user-defined filters.
   * Works with WordPress's standard attachment mechanism, and with
     J. Christopher's "Attachments" plugin (see FAQ)
 
-NOTE: If you experience errors or missing pages, try the [previous
-stable version](http://downloads.wordpress.org/plugin/autonav.1.5.0.zip)
-first, and then look in the [support forum](http://wordpress.org/support/plugin/autonav).
+NOTE: You can raise issues or participate in development at [GitHub](https://github.com/lindleyw/autonav)
+If you experience errors or missing pages, you might try the [previous
+stable version](http://downloads.wordpress.org/plugin/autonav.1.5.0.zip).
 All previous versions are archived [here](http://plugins.svn.wordpress.org/autonav/tags/).
 
 The plugin is invoked with the [autonav] shortcode, with two basic modes:
@@ -790,6 +790,11 @@ Support addons via filters. "notitle" and similar parameters for
 suppressing default behaviors.
 
 == Changelog ==
+
+= 1.5.10 =
+
+* Minimal changes; adjusted Widget plugin to same version number.
+* GitHub is locus for current development.
 
 = 1.5.9 =
 

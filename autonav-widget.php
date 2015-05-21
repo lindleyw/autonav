@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: AutoNav Widget
-Version: 1.5.8
+Version: 1.5.10
 Plugin URI: http://www.wlindley.com/website/autonav/
 Description: Adds a sidebar widget to display attachments or navigational tables/lists.
 Author: William Lindley
@@ -9,7 +9,7 @@ Author URI: http://www.wlindley.com/
 License: GPL2
 */
 
-/*  Copyright 2013  William Lindley (email : wlindley -at- wlindley -dot- com)
+/*  Copyright 2013-2015  William Lindley (email : wlindley -at- wlindley -dot- com)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
