@@ -37,9 +37,15 @@ Support version 3.6 functions to grab images from galleries, not just actually A
 
 As per http://core.trac.wordpress.org/ticket/22960
 
-Newest info: (2013-07-07)
+As of 2013-07-07: get_content_galleries() grabs [gallery]s from passed
+   content and returns structured data, which currently is only one
+   node: src ,which contains a list of image URLs. In the future, more
+   nodes can hold more data about the gallery 
 
-get_content_galleries() grabs [gallery]s from passed content and returns structured data, which currently is only one node: src ,which contains a list of image URLs. In the future, more nodes can hold more data about the gallery 
+Note 2015:
+   https://developer.wordpress.org/reference/functions/get_attached_media/
+   e.g., get_attached_media('image', $post) returns the list of
+   attached images.
 
 ----------
 

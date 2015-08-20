@@ -75,7 +75,6 @@ function autonav_internal_resize ($from_image, $attr, $prefix) {
   }
   return $from_image;
 }
-
 add_filter('autonav_resize_image', 'autonav_internal_resize', 50, 4);
 
 /* *** Resize function **** */
@@ -170,40 +169,38 @@ function autonav_pick_sort($picked_files, $attr, $pic_size_info) {
 add_filter('autonav_pick_files','autonav_pick_sort',10,3);
 
 function autonav_select_include ($picked_files, $attr, $pic_size_info) {
-  // Select pictures based on 'include' parameter                                                                                                                                           
+  // Select pictures based on 'include' parameter
   if (strlen($attr['include']) == 0)
     return $picked_files;
 
   $included_files = array();
-  $include_list = explode(',',$attr['include']); // comma split                                                                                                                             
+  $include_list = explode(',',$attr['include']); // comma split
 
   foreach ($include_list as $ifile) {
-    // First, match exact filename.                                                                                                                                                         
+    // First, match exact filename.
     $pf = array_search($ifile, $picked_files);
     if ($pf !== FALSE) {
       $included_files[] = $ifile;
-      $picked_files[$pf] = ''; // remove from picked_files                                                                                                                                  
+      $picked_files[$pf] = ''; // remove from picked_files
     } else {
       foreach ($picked_files as &$afile) {
-        if (!strlen($afile)) continue; // already used this file                                                                                                                            
+        if (!strlen($afile)) continue; // already used this file
         if (is_numeric($ifile)) {
-          // for "include=7" this matches 'file7.jpg' and '7.jpg' but not 'file17.jpg' or '17.jpg'                                                                                          
+          // for "include=7" this matches 'file7.jpg' and '7.jpg' but not 'file17.jpg' or '17.jpg'
           $match_string = "#^((.*?\\D)?0*$ifile|0*$ifile(.*?\\D)?)\z#";
         } else {
-          $match_string = "#($ifile\z|^$ifile)#i"; // match text at start or end of filename                                                                                                
+          $match_string = "#($ifile\z|^$ifile)#i"; // match text at start or end of filename
         }
         $suffix_match = (preg_match($match_string,$afile));
         if ($ifile === $afile || $suffix_match) {
           $included_files[] = $afile;
-          $afile = ''; // do not consider file again (! REMOVES from $picked_files !)                                                                                                       
+          $afile = ''; // do not consider file again (! REMOVES from $picked_files !)
         } 
       } 
     }
   }
-
   return ($included_files);
 }
-
 add_filter('autonav_pick_files', 'autonav_select_include', 20, 3);
 
 /* ********************** */
@@ -276,7 +273,9 @@ function get_image_thumbnails($pics_info, $attr, $pic_size_info) {
     } else {
       $pic_info['pic_thumb_url'] = path_join($wp_dir['baseurl'], $pic_info['pic_thumb']);
     }
-    $pic_info['image'] = $pic_info['pic_thumb']; // Copy thumbnail properties into image properties
+
+    // Copy thumbnail properties into image properties
+    $pic_info['image'] = $pic_info['pic_thumb']; 
     $pic_info['image_url'] = $pic_info['pic_thumb_url'];
     $pic_info['width'] = $pic_info['thumbwidth'];
     $pic_info['height'] = $pic_info['thumbheight'];
@@ -285,7 +284,6 @@ function get_image_thumbnails($pics_info, $attr, $pic_size_info) {
   }
   return($pics_info);
 }
-
 add_filter('autonav_get_thumbnails', 'get_image_thumbnails', 10, 4);
 
 /* ********************** */
@@ -643,8 +641,6 @@ function autonav_wl_standardize_orderby ($orderby) {
   return $orderby;
 }
 
-
-
 /* **** Page and Post handlers **** */
 
 function get_subpages ($attr) {
@@ -833,11 +829,9 @@ function get_selposts($attr) {
   if (preg_match('#^posts\s*:\s*(.*)#', $attr['display'], $value)) {
     $query['post_type'] = $value[1]; // custom post type
   }
-  if ($attr['count']) { $query['numberposts'] = $attr['count']; }
-  if ($attr['start']) { $query['offset'] = $attr['start']; }
 
-  if (substr(strtolower($attr['orderby']),0,5) == 'meta:') {
-    $query['meta_key'] = substr($attr['orderby'],5);
+  if (preg_match("#^meta:(.+)#i", $attr['orderby'], &$value)) {
+    $query['meta_key'] = $value[1];
     $attr['orderby']='meta_value';
   }
   if (strtolower($attr['order']) == 'rand') {
@@ -853,8 +847,10 @@ function get_selposts($attr) {
   if (strtolower($attr['orderby']) == 'postmash') { // use menu_order, but NOT orderby=post_date.
     $attr['orderby'] = 'menu_order';
   }
-  if ($attr['order']) { $query['order'] = $attr['order']; } 
-  if ($attr['orderby']) { $query['orderby'] = $attr['orderby']; } 
+  foreach (array('count' => 'numberposts', 'start' => 'offset',
+                 'order' => 'order', 'orderby' => 'orderby') as $k => $v) {
+    if ($attr[$k]) { $query[$v] = $attr[$k]; }
+  }
   $these_posts = get_posts($query);
 
   if (count($these_posts) == 0) {
